@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERSONA: ECHO OF SHADOWS — Puzzle Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #030308;
+  --panel:   #08081a;
+  --border:  #1c1c40;
+  --accent:  #00e5ff;
+  --red:     #ff2d55;
+  --gold:    #ffc947;
+  --green:   #00e676;
+  --purple:  #b388ff;
+  --dim:     #4a4a7a;
+  --text:    #c8ccee;
+  --white:   #e8ecff;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); font-family:'Share Tech Mono', monospace; color:var(--text); }
+
+/* ── SCREENS ── */
+.screen { position:fixed; inset:0; display:none; }
+.screen.active { display:flex; }
+
+/* ═══════════════════════════════
+   TITLE SCREEN
+═══════════════════════════════ */
+#titleScreen {
+  flex-direction:column; align-items:center; justify-content:center;
+  background:#030308;
+}
+#titleCanvas { position:absolute; inset:0; pointer-events:none; }
+#titleContent { position:relative; z-index:2; text-align:center; }
+#titleEyeContainer {
+  width:120px; height:120px; margin:0 auto 32px;
+  position:relative;
+}
+#titleEye {
+  width:120px; height:120px;
+  border-radius:50%; border:2px solid var(--accent);
+  background: radial-gradient(circle at 40% 35%, #1a0040 0%, #030308 60%);
+  display:flex; align-items:center; justify-content:center;
+  animation: eyePulse 3s ease-in-out infinite;
+  box-shadow: 0 0 40px rgba(0,229,255,0.3), inset 0 0 30px rgba(0,229,255,0.1);
+}
+@keyframes eyePulse {
+  0%,100% { box-shadow:0 0 40px rgba(0,229,255,0.3),inset 0 0 30px rgba(0,229,255,0.1); }
+  50%     { box-shadow:0 0 80px rgba(0,229,255,0.6),inset 0 0 50px rgba(0,229,255,0.2); }
+}
+#titleEye::after {
+  content:''; width:40px; height:40px; border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #4488ff, #000080);
+  box-shadow:0 0 20px rgba(0,100,255,0.8);
+  animation: eyeMove 6s ease-in-out infinite;
+}
+@keyframes eyeMove {
+  0%,100%{transform:translate(0,0)} 25%{transform:translate(8px,-4px)} 50%{transform:translate(0,6px)} 75%{transform:translate(-8px,-2px)}
+}
+.titleLogo {
+  font-family:'Cinzel',serif; font-weight:900;
+  font-size:clamp(36px,7vw,72px);
+  color:var(--white);
+  letter-spacing:0.15em;
+  text-shadow:0 0 60px rgba(0,229,255,0.4);
+  margin-bottom:6px;
+}
+.titleSub {
+  font-size:clamp(9px,1.5vw,13px);
+  color:var(--accent); letter-spacing:0.5em;
+  margin-bottom:8px;
+}
+.titleTagline {
+  font-size:10px; color:var(--dim); letter-spacing:3px;
+  margin-bottom:48px;
+}
+.titleMenuBtn {
+  display:block; width:280px; margin:0 auto 10px;
+  padding:14px 0; font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:600; letter-spacing:3px;
+  background:rgba(0,229,255,0.07); border:1px solid var(--accent);
+  color:var(--accent); cursor:pointer; border-radius:2px;
+  transition:all 0.2s; text-align:center;
+}
+.titleMenuBtn:hover { background:rgba(0,229,255,0.18); box-shadow:0 0 20px rgba(0,229,255,0.25); }
+.titleMenuBtn.secondary { border-color:var(--dim); color:var(--dim); background:transparent; font-size:13px; }
+.titleMenuBtn.secondary:hover { border-color:var(--text); color:var(--text); background:rgba(255,255,255,0.04); }
+.titleVer { position:absolute; bottom:14px; right:18px; font-size:9px; color:var(--dim); letter-spacing:2px; }
+
+/* ═══════════════════════════════
+   NAME ENTRY
+═══════════════════════════════ */
+#nameScreen {
+  flex-direction:column; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%, #0d0030 0%, #030308 65%);
+}
+#nameScreen::before {
+  content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.012) 3px,rgba(0,229,255,0.012) 4px);
+  pointer-events:none;
+}
+.nameBox {
+  position:relative; z-index:2; text-align:center;
+  background:rgba(8,8,26,0.95); border:2px solid var(--accent);
+  border-radius:6px; padding:40px 52px; min-width:460px;
+  box-shadow:0 0 80px rgba(0,229,255,0.1);
+}
+.nameBox h2 { font-family:'Cinzel',serif; font-size:11px; color:var(--dim); letter-spacing:6px; margin-bottom:28px; }
+.nameBox p { font-family:'Rajdhani',sans-serif; font-size:18px; color:var(--white); margin-bottom:24px; line-height:1.6; }
+#nameInput {
+  background:rgba(0,229,255,0.04); border:none; border-bottom:2px solid var(--accent);
+  color:var(--accent); font-family:'Cinzel',serif; font-size:26px; font-weight:700;
+  text-align:center; width:100%; padding:8px 12px; outline:none; letter-spacing:5px;
+  caret-color:var(--red);
+}
+#nameInput::placeholder { color:var(--dim); font-size:16px; letter-spacing:2px; }
+.nameHint { font-size:9px; color:var(--dim); margin:10px 0 20px; letter-spacing:2px; }
+#nameConfirmBtn {
+  width:100%; padding:13px; background:rgba(0,229,255,0.1);
+  border:2px solid var(--accent); color:var(--accent);
+  font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700;
+  letter-spacing:4px; cursor:pointer; border-radius:2px; transition:all 0.2s;
+}
+#nameConfirmBtn:hover { background:rgba(0,229,255,0.22); box-shadow:0 0 24px rgba(0,229,255,0.3); }
+#nameConfirmBtn:disabled { opacity:0.3; cursor:default; }
+
+/* ═══════════════════════════════
+   CHAPTER SELECT
+═══════════════════════════════ */
+#chapterScreen {
+  flex-direction:column; align-items:center; justify-content:center;
+  background:var(--bg);
+}
+#chapterScreen::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 20% 50%,rgba(0,229,255,0.04) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 20%,rgba(255,45,85,0.04) 0%,transparent 60%);
+}
+.chapterHeader { position:relative; z-index:2; text-align:center; margin-bottom:36px; }
+.chapterHeader h1 { font-family:'Cinzel',serif; font-size:11px; color:var(--dim); letter-spacing:8px; margin-bottom:8px; }
+.chapterHeader h2 { font-family:'Rajdhani',sans-serif; font-size:28px; color:var(--white); letter-spacing:2px; }
+#chapterPlayerInfo {
+  position:relative; z-index:2;
+  font-size:10px; color:var(--dim); letter-spacing:2px; margin-bottom:28px;
+}
+#chapterPlayerInfo span { color:var(--accent); }
+#chapterList { position:relative; z-index:2; width:680px; max-width:95vw; }
+.chapterCard {
+  display:flex; align-items:center; gap:20px;
+  background:rgba(8,8,26,0.9); border:1px solid var(--border);
+  border-radius:4px; padding:18px 22px; margin-bottom:10px;
+  cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden;
+}
+.chapterCard::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:3px; background:var(--dim); transition:background 0.2s;
+}
+.chapterCard.unlocked:hover { border-color:var(--accent); background:rgba(0,229,255,0.06); }
+.chapterCard.unlocked:hover::before { background:var(--accent); }
+.chapterCard.unlocked::before { background:var(--accent); }
+.chapterCard.locked { opacity:0.45; cursor:default; }
+.chapterCard.locked::before { background:var(--dim); }
+.chapterCard.completed::before { background:var(--green); }
+.chapterNum {
+  font-family:'Cinzel',serif; font-size:28px; font-weight:900;
+  color:var(--dim); min-width:48px; text-align:center;
+}
+.chapterCard.unlocked .chapterNum { color:var(--accent); }
+.chapterCard.completed .chapterNum { color:var(--green); }
+.chapterInfo { flex:1; }
+.chapterTitle { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:var(--white); margin-bottom:3px; }
+.chapterDesc  { font-size:10px; color:var(--dim); letter-spacing:1px; line-height:1.6; }
+.chapterMeta  { font-size:9px; color:var(--dim); margin-top:5px; }
+.chapterBadge {
+  font-size:9px; padding:3px 10px; border-radius:2px; letter-spacing:2px;
+}
+.badge-locked { background:rgba(255,255,255,0.04); border:1px solid var(--dim); color:var(--dim); }
+.badge-unlocked { background:rgba(0,229,255,0.1); border:1px solid var(--accent); color:var(--accent); }
+.badge-completed { background:rgba(0,230,118,0.1); border:1px solid var(--green); color:var(--green); }
+.badge-replay { background:rgba(255,201,71,0.1); border:1px solid var(--gold); color:var(--gold); }
+.chapterLockReason { font-size:9px; color:var(--red); margin-top:4px; letter-spacing:1px; }
+
+/* ═══════════════════════════════
+   GAME SCREEN (Puzzle)
+═══════════════════════════════ */
+#gameScreen {
+  flex-direction:column; background:var(--bg);
+}
+
+/* Top HUD */
+#gameHud {
+  height:54px; background:rgba(3,3,8,0.98); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 18px; gap:18px; flex-shrink:0; z-index:20;
+}
+#hudChapter { font-family:'Cinzel',serif; font-size:11px; color:var(--dim); letter-spacing:3px; }
+#hudScene   { font-family:'Rajdhani',sans-serif; font-size:15px; color:var(--accent); letter-spacing:1px; }
+.hudSep     { width:1px; height:20px; background:var(--border); }
+#hudStars   { display:flex; gap:4px; }
+.hudStar    { font-size:14px; }
+#hudHints   { font-size:10px; color:var(--gold); letter-spacing:1px; cursor:pointer; }
+#hudHints:hover { color:var(--white); }
+#hudBack { margin-left:auto; font-size:10px; color:var(--dim); letter-spacing:2px; cursor:pointer; padding:5px 12px; border:1px solid var(--border); border-radius:2px; }
+#hudBack:hover { color:var(--text); border-color:var(--text); }
+
+/* Main game area */
+#gameMain {
+  flex:1; display:grid;
+  grid-template-columns:320px 1fr;
+  overflow:hidden; min-height:0;
+}
+
+/* Left: Narrative panel */
+#narrativePanel {
+  background:rgba(5,5,14,0.98); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+#narrativeScroll {
+  flex:1; overflow-y:auto; padding:22px 20px;
+  scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+#narrativeScroll::-webkit-scrollbar { width:3px; }
+#narrativeScroll::-webkit-scrollbar-track { background:transparent; }
+#narrativeScroll::-webkit-scrollbar-thumb { background:var(--border); }
+
+.narrSpeaker {
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:5px; margin-top:16px;
+}
+.narrLine {
+  font-family:'Rajdhani',sans-serif; font-size:14px; line-height:1.75;
+  color:var(--white); margin-bottom:12px;
+  border-left:2px solid transparent; padding-left:10px;
+}
+.narrLine.new {
+  border-left-color:var(--accent);
+  animation:narrFade 0.5s ease;
+}
+@keyframes narrFade { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:none} }
+.narrLine.narrator {
+  color:var(--dim); font-style:italic; font-size:12px;
+  border-left-color:var(--dim);
+}
+.narrLine.system {
+  color:var(--gold); font-size:11px; letter-spacing:1px;
+  border-left-color:var(--gold);
+}
+
+/* Choice buttons */
+#choicePanel {
+  padding:14px 16px; border-top:1px solid var(--border);
+  display:flex; flex-direction:column; gap:7px; flex-shrink:0;
+}
+.choiceBtn {
+  width:100%; padding:10px 14px; text-align:left;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  color:var(--text); font-family:'Rajdhani',sans-serif; font-size:13px;
+  cursor:pointer; border-radius:3px; transition:all 0.15s; letter-spacing:0.5px;
+}
+.choiceBtn:hover { background:rgba(0,229,255,0.1); border-color:var(--accent); color:var(--white); }
+.choiceBtn.correct { border-color:var(--green); background:rgba(0,230,118,0.1); color:var(--green); }
+.choiceBtn.wrong   { border-color:var(--red); background:rgba(255,45,85,0.1); color:var(--red); }
+.choiceBtn:disabled { cursor:default; opacity:0.6; }
+
+/* Right: Puzzle area */
+#puzzleArea {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:28px; overflow-y:auto; position:relative;
+}
+#puzzleTitle {
+  font-family:'Cinzel',serif; font-size:13px; letter-spacing:4px;
+  color:var(--dim); margin-bottom:20px; text-align:center;
+}
+
+/* ── PUZZLE TYPES ── */
+
+/* Memory grid puzzle */
+.memGrid {
+  display:grid; gap:8px;
+  margin-bottom:20px;
+}
+.memCell {
+  width:70px; height:70px; border-radius:4px;
+  border:2px solid var(--border);
+  background:var(--panel); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; transition:all 0.2s; user-select:none;
+  position:relative;
+}
+.memCell.face-up { border-color:var(--accent); background:rgba(0,229,255,0.1); }
+.memCell.matched { border-color:var(--green); background:rgba(0,230,118,0.15); cursor:default; }
+.memCell.wrong-flash { border-color:var(--red); background:rgba(255,45,85,0.2); animation:wrongFlash 0.4s; }
+@keyframes wrongFlash { 0%,100%{transform:scale(1)} 50%{transform:scale(0.95)} }
+.memCell.hidden-anim { animation:flipHide 0.4s ease; }
+@keyframes flipHide { 0%{transform:rotateY(0)} 50%{transform:rotateY(90deg)} 100%{transform:rotateY(0)} }
+.memCell .cellBack { font-size:22px; }
+
+/* Code cipher puzzle */
+.cipherPuzzle { width:100%; max-width:500px; }
+.cipherDisplay {
+  background:rgba(0,0,0,0.5); border:1px solid var(--border);
+  border-radius:4px; padding:18px 20px; margin-bottom:16px;
+  font-size:22px; letter-spacing:5px; text-align:center;
+  color:var(--gold); min-height:60px;
+}
+.cipherHint { font-size:11px; color:var(--dim); text-align:center; margin-bottom:14px; letter-spacing:1px; }
+.cipherInput {
+  width:100%; padding:12px 16px; background:rgba(0,229,255,0.05);
+  border:2px solid var(--accent); border-radius:3px;
+  color:var(--accent); font-family:'Share Tech Mono',monospace; font-size:18px;
+  text-align:center; outline:none; letter-spacing:4px;
+}
+.cipherInput:focus { border-color:var(--white); }
+.cipherSubmit {
+  width:100%; margin-top:12px; padding:12px;
+  background:rgba(0,229,255,0.1); border:1px solid var(--accent);
+  color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:14px;
+  font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:3px;
+  transition:all 0.2s;
+}
+.cipherSubmit:hover { background:rgba(0,229,255,0.22); }
+
+/* Sequence puzzle */
+.seqPuzzle { text-align:center; }
+.seqDisplay {
+  display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+  margin-bottom:20px;
+}
+.seqSlot {
+  width:52px; height:52px; border-radius:4px;
+  border:2px solid var(--border); background:var(--panel);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:var(--white);
+  transition:all 0.2s;
+}
+.seqSlot.filled { border-color:var(--accent); background:rgba(0,229,255,0.1); }
+.seqSlot.correct-slot { border-color:var(--green); background:rgba(0,230,118,0.1); }
+.seqOptions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:14px; }
+.seqOption {
+  width:52px; height:52px; border-radius:4px;
+  border:1px solid var(--dim); background:rgba(255,255,255,0.04);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; transition:all 0.15s;
+}
+.seqOption:hover { border-color:var(--accent); background:rgba(0,229,255,0.1); }
+.seqOption.used { opacity:0.2; pointer-events:none; }
+
+/* Observation puzzle */
+.obsPuzzle { text-align:center; max-width:480px; }
+.obsScene {
+  background:rgba(0,0,0,0.5); border:1px solid var(--border);
+  border-radius:6px; padding:22px; margin-bottom:18px;
+  font-family:'Rajdhani',sans-serif; font-size:15px; line-height:1.8;
+  color:var(--white); text-align:left; position:relative;
+}
+.obsClue { color:var(--gold); cursor:pointer; border-bottom:1px dashed var(--gold); }
+.obsClue:hover { color:var(--white); }
+.obsQuestion { font-size:13px; color:var(--text); margin-bottom:14px; text-align:left; letter-spacing:0.5px; }
+.obsChoices { display:flex; flex-direction:column; gap:8px; }
+.obsChoice {
+  padding:10px 16px; background:rgba(255,255,255,0.03);
+  border:1px solid var(--border); border-radius:3px;
+  cursor:pointer; font-size:13px; color:var(--text); text-align:left;
+  transition:all 0.15s; font-family:'Rajdhani',sans-serif;
+}
+.obsChoice:hover { border-color:var(--accent); background:rgba(0,229,255,0.08); color:var(--white); }
+.obsChoice.correct { border-color:var(--green); background:rgba(0,230,118,0.1); color:var(--green); pointer-events:none; }
+.obsChoice.wrong   { border-color:var(--red); background:rgba(255,45,85,0.08); color:var(--red); pointer-events:none; }
+
+/* Symbol matching puzzle */
+.symbolPuzzle { text-align:center; }
+.symbolGrid {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:10px; max-width:340px; margin:0 auto 16px;
+}
+.symbolCard {
+  height:72px; border-radius:4px; border:2px solid var(--border);
+  background:var(--panel); cursor:pointer; display:flex;
+  align-items:center; justify-content:center; font-size:26px;
+  transition:all 0.2s;
+}
+.symbolCard:hover { border-color:var(--accent); transform:scale(1.05); }
+.symbolCard.selected { border-color:var(--gold); background:rgba(255,201,71,0.12); }
+.symbolCard.matched { border-color:var(--green); background:rgba(0,230,118,0.1); pointer-events:none; }
+.symbolCard.error { border-color:var(--red); animation:shakeCard 0.3s ease; }
+@keyframes shakeCard { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+.symbolPair { font-size:11px; color:var(--dim); letter-spacing:2px; margin-top:8px; }
+
+/* Decode puzzle (rune/symbol → letter) */
+.decodePuzzle { max-width:480px; width:100%; }
+.decodeKey {
+  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; justify-content:center;
+}
+.decodeKeyItem {
+  background:rgba(255,255,255,0.04); border:1px solid var(--border);
+  border-radius:3px; padding:5px 10px; font-size:13px; text-align:center;
+  min-width:44px;
+}
+.decodeKeyItem .sym { font-size:18px; display:block; }
+.decodeKeyItem .ltr { font-size:9px; color:var(--accent); letter-spacing:2px; margin-top:2px; }
+.decodeTarget {
+  font-size:24px; letter-spacing:8px; text-align:center;
+  background:rgba(0,0,0,0.4); border:1px solid var(--border);
+  border-radius:4px; padding:14px; margin-bottom:14px;
+  color:var(--gold);
+}
+.decodeInput {
+  width:100%; padding:11px; background:rgba(0,229,255,0.04);
+  border:2px solid var(--accent); color:var(--accent);
+  font-family:'Share Tech Mono',monospace; font-size:20px;
+  text-align:center; letter-spacing:5px; outline:none; border-radius:3px;
+}
+.decodeSubmit {
+  width:100%; margin-top:10px; padding:11px;
+  background:rgba(0,229,255,0.1); border:1px solid var(--accent);
+  color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:14px;
+  font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:3px;
+  transition:all 0.2s;
+}
+.decodeSubmit:hover { background:rgba(0,229,255,0.22); }
+
+/* Pattern puzzle */
+.patternPuzzle { text-align:center; }
+.patternGrid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:10px; max-width:240px; margin:0 auto 18px;
+}
+.patternCell {
+  height:68px; border-radius:4px;
+  border:2px solid var(--border); background:var(--panel);
+  cursor:pointer; transition:all 0.2s; position:relative;
+  font-size:22px; display:flex; align-items:center; justify-content:center;
+}
+.patternCell:hover { border-color:var(--accent); }
+.patternCell.active { border-color:var(--accent); background:rgba(0,229,255,0.15); }
+.patternCell.path { border-color:var(--gold); background:rgba(255,201,71,0.1); }
+.patternCell.correct-path { border-color:var(--green); background:rgba(0,230,118,0.1); }
+.patternInstructions { font-size:11px; color:var(--dim); margin-bottom:12px; letter-spacing:1px; }
+
+/* Puzzle feedback bar */
+#puzzleFeedback {
+  position:fixed; bottom:0; left:0; right:0; height:44px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; letter-spacing:2px; transform:translateY(100%);
+  transition:transform 0.3s ease; z-index:50;
+}
+#puzzleFeedback.show { transform:translateY(0); }
+#puzzleFeedback.success { background:rgba(0,100,50,0.97); border-top:1px solid var(--green); color:var(--green); }
+#puzzleFeedback.fail    { background:rgba(100,20,20,0.97); border-top:1px solid var(--red); color:var(--red); }
+
+/* Progress dots */
+#progressBar {
+  display:flex; gap:6px; padding:12px 18px;
+  border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.progDot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--border); transition:all 0.3s;
+}
+.progDot.active   { background:var(--accent); box-shadow:0 0 8px var(--accent); }
+.progDot.done     { background:var(--green); }
+.progDot.current  { background:var(--gold); box-shadow:0 0 8px var(--gold); }
+
+/* ═══════════════════════════════
+   CHAPTER COMPLETE
+═══════════════════════════════ */
+#completeScreen {
+  flex-direction:column; align-items:center; justify-content:center;
+  background:rgba(3,3,8,0.98);
+}
+#completeScreen::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,rgba(0,230,118,0.06) 0%,transparent 70%);
+}
+#completeContent { position:relative; z-index:2; text-align:center; max-width:560px; }
+#completeIcon { font-size:60px; margin-bottom:16px; animation:completePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
+@keyframes completePop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+#completeTitle { font-family:'Cinzel',serif; font-size:28px; color:var(--green); letter-spacing:4px; margin-bottom:8px; }
+#completeChapterName { font-family:'Rajdhani',sans-serif; font-size:16px; color:var(--dim); letter-spacing:3px; margin-bottom:32px; }
+.completeStars { display:flex; gap:12px; justify-content:center; margin-bottom:24px; font-size:36px; }
+.completeStar { transition:transform 0.3s; }
+.completeStar.earned { animation:starPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+@keyframes starPop { from{transform:scale(0) rotate(-30deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+.completeUnlock {
+  background:rgba(0,229,255,0.08); border:1px solid var(--accent);
+  border-radius:4px; padding:16px 22px; margin-bottom:28px;
+  font-size:12px; color:var(--accent); letter-spacing:1px; line-height:1.8;
+}
+.completeUnlock h4 { font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:4px; color:var(--dim); margin-bottom:6px; }
+.completeBtns { display:flex; gap:12px; justify-content:center; }
+.cmpBtn {
+  padding:12px 28px; font-family:'Rajdhani',sans-serif; font-size:14px;
+  font-weight:700; letter-spacing:3px; border-radius:3px; cursor:pointer;
+  transition:all 0.2s;
+}
+.cmpBtn.primary { background:rgba(0,229,255,0.12); border:2px solid var(--accent); color:var(--accent); }
+.cmpBtn.primary:hover { background:rgba(0,229,255,0.25); }
+.cmpBtn.secondary { background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--dim); }
+.cmpBtn.secondary:hover { border-color:var(--text); color:var(--text); }
+
+/* ═══════════════════════════════
+   HINT MODAL
+═══════════════════════════════ */
+#hintModal {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(0,0,0,0.85);
+  display:none; align-items:center; justify-content:center;
+}
+#hintModal.open { display:flex; }
+.hintBox {
+  background:rgba(8,8,26,0.99); border:2px solid var(--gold);
+  border-radius:6px; padding:28px 32px; max-width:420px; width:90%;
+}
+.hintBox h3 { font-family:'Cinzel',serif; font-size:12px; color:var(--gold); letter-spacing:5px; margin-bottom:16px; }
+#hintText { font-family:'Rajdhani',sans-serif; font-size:15px; color:var(--white); line-height:1.7; margin-bottom:20px; }
+.hintClose {
+  width:100%; padding:10px; background:rgba(255,201,71,0.1); border:1px solid var(--gold);
+  color:var(--gold); font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700;
+  letter-spacing:3px; cursor:pointer; border-radius:3px;
+}
+.hintClose:hover { background:rgba(255,201,71,0.22); }
+
+/* ═══════════════════════════════
+   NOTIFICATION
+═══════════════════════════════ */
+#notification {
+  position:fixed; top:64px; left:50%; transform:translateX(-50%) translateY(-20px);
+  background:rgba(8,8,26,0.98); border:1px solid var(--accent);
+  padding:9px 22px; border-radius:3px; font-size:11px; color:var(--accent);
+  letter-spacing:1px; pointer-events:none; opacity:0;
+  transition:opacity 0.3s, transform 0.3s; white-space:nowrap; z-index:200;
+}
+#notification.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════
+   SAVE BADGE
+═══════════════════════════════ */
+#saveBadge {
+  position:fixed; bottom:14px; right:16px; font-size:9px; color:var(--gold);
+  letter-spacing:2px; opacity:0; transition:opacity 0.4s; pointer-events:none;
+}
+
+/* Misc */
+.dividerLine { width:100%; height:1px; background:var(--border); margin:8px 0; }
+.puzzleNextBtn {
+  margin-top:16px; padding:12px 32px;
+  background:rgba(0,229,255,0.1); border:2px solid var(--accent);
+  color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:14px;
+  font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:3px;
+  transition:all 0.2s;
+}
+.puzzleNextBtn:hover { background:rgba(0,229,255,0.22); box-shadow:0 0 20px rgba(0,229,255,0.2); }
+.puzzleResetBtn {
+  margin-top:8px; padding:8px 22px;
+  background:transparent; border:1px solid var(--dim);
+  color:var(--dim); font-family:'Share Tech Mono',monospace; font-size:10px;
+  letter-spacing:2px; cursor:pointer; border-radius:3px; transition:all 0.2s;
+}
+.puzzleResetBtn:hover { border-color:var(--text); color:var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ── TITLE SCREEN ── -->
+<div id="titleScreen" class="screen active">
+  <canvas id="titleCanvas"></canvas>
+  <div id="titleContent">
+    <div id="titleEyeContainer"><div id="titleEye"></div></div>
+    <div class="titleLogo">PERSONA</div>
+    <div class="titleSub">E C H O  &nbsp;  O F  &nbsp;  S H A D O W S</div>
+    <div class="titleTagline">A PUZZLE OF IDENTITY · CHAPTER I — IV</div>
+    <button class="titleMenuBtn" onclick="goToName()">▶ &nbsp; NEW GAME</button>
+    <button class="titleMenuBtn" onclick="goToChapters()" id="continueBtn" style="display:none">▷ &nbsp; CONTINUE</button>
+    <button class="titleMenuBtn secondary" onclick="goToChapters()" id="chapSelectBtn" style="display:none">≡ &nbsp; CHAPTER SELECT</button>
+  </div>
+  <div class="titleVer">v1.0 · ECHO OF SHADOWS</div>
+</div>
+
+<!-- ── NAME ENTRY ── -->
+<div id="nameScreen" class="screen">
+  <div class="nameBox">
+    <h2>✦ &nbsp; AWAKEN &nbsp; ✦</h2>
+    <p>A voice calls to you<br>from the Velvet Room.<br><br><em>"What is your name,<br>wanderer of shadows?"</em></p>
+    <input id="nameInput" type="text" maxlength="16" placeholder="YOUR NAME" autocomplete="off" spellcheck="false">
+    <div class="nameHint">UP TO 16 CHARACTERS · PRESS ENTER TO BEGIN</div>
+    <button id="nameConfirmBtn" onclick="confirmName()" disabled>▶ &nbsp; BEGIN JOURNEY</button>
+  </div>
+</div>
+
+<!-- ── CHAPTER SELECT ── -->
+<div id="chapterScreen" class="screen">
+  <div class="chapterHeader">
+    <h1>✦ &nbsp; JOURNEY &nbsp; ✦</h1>
+    <h2>CHAPTER SELECT</h2>
+  </div>
+  <div id="chapterPlayerInfo">Playing as <span id="chapPlayerName">—</span></div>
+  <div id="chapterList"></div>
+</div>
+
+<!-- ── GAME SCREEN ── -->
+<div id="gameScreen" class="screen">
+  <div id="gameHud">
+    <div>
+      <div id="hudChapter">CHAPTER I</div>
+      <div id="hudScene">THE AWAKENING</div>
+    </div>
+    <div class="hudSep"></div>
+    <div id="hudStars"></div>
+    <div class="hudSep"></div>
+    <div id="hudHints" onclick="showHint()">💡 HINT</div>
+    <div id="hudBack" onclick="confirmBack()">← CHAPTERS</div>
+  </div>
+  <div id="progressBar"></div>
+  <div id="gameMain">
+    <div id="narrativePanel">
+      <div id="narrativeScroll"></div>
+      <div id="choicePanel"></div>
+    </div>
+    <div id="puzzleArea">
+      <div id="puzzleTitle">LOADING PUZZLE...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHAPTER COMPLETE ── -->
+<div id="completeScreen" class="screen">
+  <div id="completeContent">
+    <div id="completeIcon">🌙</div>
+    <div id="completeTitle">CHAPTER COMPLETE</div>
+    <div id="completeChapterName">THE AWAKENING</div>
+    <div class="completeStars" id="completeStars">
+      <span class="completeStar">☆</span>
+      <span class="completeStar">☆</span>
+      <span class="completeStar">☆</span>
+    </div>
+    <div class="completeUnlock" id="completeUnlock">
+      <h4>✦ UNLOCKED ✦</h4>
+      <div id="completeUnlockText">Chapter II: The Mirror</div>
+    </div>
+    <div class="completeBtns">
+      <button class="cmpBtn primary" onclick="goToChapters()">≡ CHAPTERS</button>
+      <button class="cmpBtn secondary" onclick="replayChapter()">↩ REPLAY</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HINT MODAL ── -->
+<div id="hintModal">
+  <div class="hintBox">
+    <h3>💡 &nbsp; HINT</h3>
+    <div id="hintText">—</div>
+    <button class="hintClose" onclick="closeHint()">✕ &nbsp; CLOSE</button>
+  </div>
+</div>
+
+<!-- ── FEEDBACK / NOTIF / SAVE ── -->
+<div id="puzzleFeedback"></div>
+<div id="notification"></div>
+<div id="saveBadge">✦ SAVED</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  GAME DATA — CHAPTERS & SCENES
+//
+//  HOW TO ADD A NEW CHAPTER:
+//  1. Add entry to CHAPTERS array with id, title, desc, scenes[], unlockCondition
+//  2. unlockCondition: function(save) → true/false
+//     Examples:
+//       () => true                                    — always unlocked
+//       (s) => s.completedChapters.includes('ch1')   — after ch1 done
+//       (s) => s.completedChapters.length >= 2        — after 2 chapters done
+//       (s) => s.flags.foundKey === true              — after flag set
+//       (s) => s.score >= 150                         — after score threshold
+//  3. Each scene has: id, type, narrative[], puzzle{}
+//     PUZZLE TYPES: 'memory', 'cipher', 'sequence', 'observation', 'symbol', 'decode', 'pattern'
+// ═══════════════════════════════════════════════
+
+const CHAPTERS = [
+
+// ──────────────────────────────────────────
+// CHAPTER I — THE AWAKENING
+// Trigger: Always unlocked (first chapter)
+// ──────────────────────────────────────────
+{
+  id: 'ch1',
+  title: 'The Awakening',
+  subtitle: 'I',
+  desc: 'You wake in the Velvet Room. A pair of pale eyes watch from the dark. "Your journey begins with a question..."',
+  icon: '🌑',
+  unlockCondition: () => true,
+  unlockText: 'Always available',
+  scenes: [
+    {
+      id: 'ch1_s1',
+      title: 'Velvet Room',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The room has no walls — only a corridor stretching into violet darkness. A long-nosed figure sits at a piano that plays itself.' },
+        { speaker: 'IGOR', text: '"Welcome... to the Velvet Room."', color: '#b388ff' },
+        { speaker: 'IGOR', text: '"This place exists between dream and reality, mind and matter. You have been chosen as a Wild Card."', color: '#b388ff' },
+        { speaker: 'NARRATOR', text: 'He gestures to a table covered in six face-down cards.' },
+        { speaker: 'IGOR', text: '"Before your journey begins — you must remember. Match the cards, and prove your mind is awake."', color: '#b388ff' },
+      ],
+      puzzle: {
+        type: 'memory',
+        title: 'VELVET ROOM MEMORY',
+        hint: 'Click two cards to flip them. Find all matching pairs. If they don\'t match, they flip back — memorize the positions!',
+        config: {
+          pairs: ['🌙','⭐','🔮','🗝️','🃏','👁️'],
+          gridCols: 4,
+        }
+      }
+    },
+    {
+      id: 'ch1_s2',
+      title: 'The First Door',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The matched cards rise into the air and form a glowing door. Igor nods approvingly.' },
+        { speaker: 'IGOR', text: '"Excellent. Memory is the foundation of identity."', color: '#b388ff' },
+        { speaker: 'IGOR', text: '"But a door needs a key. The Shadows have hidden it behind a cipher. Can you decode their language?"', color: '#b388ff' },
+        { speaker: 'NARRATOR', text: 'A stone tablet materializes, covered in strange symbols.' },
+      ],
+      puzzle: {
+        type: 'cipher',
+        title: 'SHADOW CIPHER',
+        hint: 'Each letter has shifted forward by 3 in the alphabet (Caesar cipher). A→D, B→E... so reverse it: D→A, E→B...',
+        config: {
+          encoded: 'RHÁLJV',
+          displayEncoded: 'VHOYHW',
+          answer: 'VELVET',
+          hint2: 'Shift each letter BACK by 3 positions in the alphabet.'
+        }
+      }
+    },
+    {
+      id: 'ch1_s3',
+      title: 'Faces of Shadow',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The door swings open, revealing a chamber with four pedestals. Upon each stands a masked figure.' },
+        { speaker: 'IGOR', text: '"The Shadows wear many faces. But each element has its true symbol."', color: '#b388ff' },
+        { speaker: 'IGOR', text: '"Match the Shadow to its element. Order matters — align them by ascending elemental power."', color: '#b388ff' },
+        { speaker: 'PLAYER', text: '"How will I know which is strongest?"' },
+        { speaker: 'IGOR', text: '"Fire tames Ice. Ice tames Wind. Wind tames Thunder. Trust that hierarchy."', color: '#b388ff' },
+      ],
+      puzzle: {
+        type: 'sequence',
+        title: 'ELEMENTAL ORDER',
+        hint: 'Order by elemental chain: Fire (weakest in chain) → Ice → Wind → Thunder (strongest in chain). Drag or click in order.',
+        config: {
+          prompt: 'Arrange the elements from WEAKEST to STRONGEST in the elemental chain:',
+          items: ['🔥 Fire', '❄️ Ice', '🌪️ Wind', '⚡ Thunder'],
+          answer: ['🔥 Fire', '❄️ Ice', '🌪️ Wind', '⚡ Thunder'],
+        }
+      }
+    },
+    {
+      id: 'ch1_s4',
+      title: 'The Awakening',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The four elements ignite in sequence — a column of light erupts from the chamber floor.' },
+        { speaker: 'IGOR', text: '"You have proven yourself worthy of awakening."', color: '#b388ff' },
+        { speaker: 'NARRATOR', text: 'In the light, you see a scene: a school rooftop, a figure standing at the edge of something dangerous. What is wrong here?' },
+        { speaker: 'IGOR', text: '"Observe. See what others miss. That is the Wild Card\'s gift."', color: '#b388ff' },
+      ],
+      puzzle: {
+        type: 'observation',
+        title: 'ROOFTOP OBSERVATION',
+        hint: 'Read the scene carefully. Look for the detail that is out of place or logically inconsistent.',
+        config: {
+          scene: `The school rooftop. 3:00 PM — the sun casts long shadows westward. 
+A student stands near the railing, staring at a <span class="obsClue" onclick="clueClick('shadow')">shadow on the ground</span> that points EAST. 
+They wear a <span class="obsClue" onclick="clueClick('clock')">watch showing 8:00 AM</span> despite the afternoon light. 
+A <span class="obsClue" onclick="clueClick('uniform')">winter uniform</span> in summer heat. 
+Music plays from broken headphones — the left earbud sparks.`,
+          question: 'What detail is physically IMPOSSIBLE in this scene?',
+          choices: [
+            { text: 'A winter uniform worn in summer', correct: false, feedback: 'Unusual but not physically impossible — people layer clothing.' },
+            { text: 'The shadow pointing EAST at 3 PM', correct: true, feedback: 'Correct! In the northern hemisphere, afternoon sun is in the west — shadows point EAST. Wait... that\'s actually correct. But the sun casting shadows at 3 PM pointing east would be fine. The IMPOSSIBLE detail is: a watch showing 8 AM when the sun position confirms it\'s 3 PM — time itself is wrong.' },
+            { text: 'Broken headphones playing music', correct: false, feedback: 'Possible — the headphone wire could be damaged only at the earbud joint.' },
+            { text: 'The watch showing 8:00 AM at 3:00 PM', correct: true, feedback: '✓ Exactly! A stopped or wrong watch is physically possible, but combined with sun position confirming 3 PM — the student\'s watch is lying. This is the Shadow\'s tell: they distort time perception.' },
+          ],
+          multiCorrect: true,
+        }
+      }
+    },
+  ],
+  completionReward: {
+    text: 'Chapter II: The Mirror — unlocked!\nA new Persona fragment has awakened.',
+    flag: 'ch1_complete',
+  }
+},
+
+// ──────────────────────────────────────────
+// CHAPTER II — THE MIRROR
+// Trigger: Complete Chapter I
+// ──────────────────────────────────────────
+{
+  id: 'ch2',
+  title: 'The Mirror',
+  subtitle: 'II',
+  desc: 'Tartarus rises at midnight. At its heart — a mirror that shows not your face, but your Shadow. Face yourself.',
+  icon: '🪞',
+  unlockCondition: (s) => s.completedChapters.includes('ch1'),
+  unlockText: 'Complete Chapter I',
+  scenes: [
+    {
+      id: 'ch2_s1',
+      title: 'Midnight Tower',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'Midnight. Tartarus has risen from the school grounds — a tower of twisting corridors and locked doors.' },
+        { speaker: 'NARRATOR', text: 'The first floor. Glyphs carved into the walls pulse with pale light. Each glyph is a piece of a forgotten language.' },
+        { speaker: 'UNKNOWN', text: '"Decode the glyph, and the floor will open."', color:'#e0aaff' },
+      ],
+      puzzle: {
+        type: 'decode',
+        title: 'TARTARUS GLYPHS',
+        hint: 'Use the key table above to translate each symbol to its letter. The symbols are shown in the key.',
+        config: {
+          keyMap: { '⚡':'S', '🌙':'H', '👁️':'A', '🔮':'D', '🗝️':'O', '⭐':'W' },
+          encoded: ['⚡','🌙','👁️','🔮','🗝️','⭐'],
+          answer: 'SHADOW',
+        }
+      }
+    },
+    {
+      id: 'ch2_s2',
+      title: 'Twin Masks',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The second floor. Two alcoves, each containing a Persona mask. The masks are identical — except for subtle differences.' },
+        { speaker: 'NARRATOR', text: 'Twelve symbols line the walls. Six belong to the mask of Light, six to the mask of Dark. They must be separated.' },
+        { speaker: 'SHADOW', text: '"You cannot tell us apart... you never could."', color:'#ff6b9d' },
+        { speaker: 'PLAYER', text: '"Light creates. Dark destroys. I just need to look closer."' },
+      ],
+      puzzle: {
+        type: 'symbol',
+        title: 'LIGHT & SHADOW SORT',
+        hint: 'Click pairs of matching symbols. Light symbols: ☀️🌟💫✨🕯️🔆 — Dark symbols: 🌑🌒🌑🕳️💀🖤. Match identical symbols.',
+        config: {
+          pairs: [
+            ['☀️','🌑'], ['🌟','💀'], ['💫','🕳️'],
+            ['✨','🖤'], ['🕯️','🌒'], ['🔆','🌚']
+          ],
+        }
+      }
+    },
+    {
+      id: 'ch2_s3',
+      title: 'The Mirror Room',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The top floor. A single enormous mirror fills the far wall. As you approach, the reflection warps — it shows a different figure. Your Shadow.' },
+        { speaker: 'SHADOW_SELF', text: '"I know what you\'re afraid of. I know the truth you hide."', color:'#ff2d55' },
+        { speaker: 'PLAYER', text: '"..."' },
+        { speaker: 'SHADOW_SELF', text: '"Five truths lie in this room. Four are mine — lies. One is yours — real. Can you find the real one?"', color:'#ff2d55' },
+      ],
+      puzzle: {
+        type: 'observation',
+        title: 'SHADOW TRUTHS',
+        hint: 'One statement reflects a genuine universal truth. The others are distortions a Shadow would use to manipulate. Think carefully about which is actually true.',
+        config: {
+          scene: `The mirror room grows cold. Your Shadow speaks five statements:
+
+"<span class='obsClue' onclick=\"clueClick('s1')\">1. Strength means never needing others.</span>"
+"<span class='obsClue' onclick=\"clueClick('s2')\">2. Every person wears a different mask for different people.</span>"
+"<span class='obsClue' onclick=\"clueClick('s3')\">3. Accepting a weakness means surrendering to it.</span>"
+"<span class='obsClue' onclick=\"clueClick('s4')\">4. What you fear most defines your entire identity.</span>"
+"<span class='obsClue' onclick=\"clueClick('s5')\">5. The darkness inside you is evil and must be destroyed.</span>"`,
+          question: 'Which statement is genuinely TRUE (not a Shadow\'s distortion)?',
+          choices: [
+            { text: '1 — Strength means never needing others', correct: false, feedback: 'This is a Shadow\'s lie. True strength often comes from accepting help and connection.' },
+            { text: '2 — Everyone wears different masks for different people', correct: true, feedback: '✓ True. Carl Jung called this the "Persona" — the social masks we wear. Acknowledging this is the first step to understanding the self.' },
+            { text: '3 — Accepting weakness means surrendering to it', correct: false, feedback: 'A Shadow\'s distortion. Accepting a weakness means understanding it — not being defeated by it.' },
+            { text: '4 — Fear defines your entire identity', correct: false, feedback: 'Fear is part of you, but identity is far more complex. This is a Shadow\'s reductive trap.' },
+            { text: '5 — Inner darkness must be destroyed', correct: false, feedback: 'The core lesson of Persona: you don\'t destroy your Shadow — you accept and integrate it.' },
+          ],
+        }
+      }
+    },
+    {
+      id: 'ch2_s4',
+      title: 'Accepting the Shadow',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The mirror cracks — and then shatters into a thousand shards that float, suspended, around you.' },
+        { speaker: 'SHADOW_SELF', text: '"You... accept me?"', color:'#ff2d55' },
+        { speaker: 'PLAYER', text: '"You\'re a part of me. Denying you only makes you stronger."' },
+        { speaker: 'SHADOW_SELF', text: '"Then... let us be one."', color:'#b388ff' },
+        { speaker: 'NARRATOR', text: 'The Shadow dissolves. The mirror shards form a new Persona mask — stronger than before. The tower shudders and begins to descend.' },
+        { speaker: 'IGOR', text: '"Magnificent. You have faced yourself — and triumphed."', color: '#b388ff' },
+      ],
+      puzzle: {
+        type: 'pattern',
+        title: 'PERSONA AWAKENING',
+        hint: 'Connect the glowing nodes in the correct order. The path spells out the awakening sequence: start from the eye (center), then spiral outward clockwise.',
+        config: {
+          grid: [
+            ['🌑','👁️','🌑'],
+            ['🗝️','⭐','🔮'],
+            ['🌑','🌙','🌑'],
+          ],
+          solution: [[0,1],[1,1],[1,2],[2,1],[1,0],[0,1]],
+          instructionText: 'Tap the EYE first, then follow the path: Right → Down → Left → Up → back to Eye',
+        }
+      }
+    },
+  ],
+  completionReward: {
+    text: 'Chapter III: The Labyrinth — unlocked!\nSocial Link: The Moon — established.',
+    flag: 'ch2_complete',
+  }
+},
+
+// ──────────────────────────────────────────
+// CHAPTER III — THE LABYRINTH
+// Trigger: Complete Chapters I and II
+// ──────────────────────────────────────────
+{
+  id: 'ch3',
+  title: 'The Labyrinth',
+  subtitle: 'III',
+  desc: 'Deep beneath Port Island, an ancient labyrinth holds the memories of lost Persona-users. Navigate the maze of minds.',
+  icon: '🏛️',
+  unlockCondition: (s) => s.completedChapters.includes('ch1') && s.completedChapters.includes('ch2'),
+  unlockText: 'Complete Chapters I & II',
+  scenes: [
+    {
+      id: 'ch3_s1',
+      title: 'Ancient Halls',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'Port Island, sub-level 7. Your team has found a pre-civilization chamber beneath the ruins. Walls lined with carved tablets.' },
+        { speaker: 'YUKARI', text: '"These symbols... they\'re older than any known language."', color:'#ff8fab' },
+        { speaker: 'JUNPEI', text: '"So we\'re basically treasure hunters now? Cool."', color:'#90caf9' },
+        { speaker: 'NARRATOR', text: 'The central tablet glows — it expects an answer.' },
+      ],
+      puzzle: {
+        type: 'decode',
+        title: 'ANCIENT TABLET',
+        hint: 'Use the key to decode the symbols. Read left to right.',
+        config: {
+          keyMap: { '🏛️':'A', '⚔️':'R', '🛡️':'C', '👑':'N', '🌿':'A', '🔱':'P' },
+          encoded: ['🔱','🏛️','⚔️','👑','🏛️'],
+          answer: 'PARNA',
+          note: 'Note: 🏛️ and 🌿 both = A',
+        }
+      }
+    },
+    {
+      id: 'ch3_s2',
+      title: 'Memory Fragments',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'A projection materializes — fragments of a past explorer\'s memory, scattered across six pedestals. The memories must be reconstructed in order.' },
+        { speaker: 'YUKARI', text: '"Someone was here before us. These are their last moments."', color:'#ff8fab' },
+        { speaker: 'FUUKA', text: '"I\'m detecting six distinct emotional signatures. They correspond to stages of a journey."', color:'#c8e6c9' },
+      ],
+      puzzle: {
+        type: 'sequence',
+        title: 'MEMORY RECONSTRUCTION',
+        hint: 'A hero\'s journey follows: Call → Descent → Trial → Crisis → Revelation → Return. Arrange the memory fragments in that mythic order.',
+        config: {
+          prompt: 'Reconstruct the explorer\'s journey in mythic order:',
+          items: ['⚡ Crisis point', '🌟 Revelation', '🚪 The Call', '🔥 Trial by fire', '🌑 Descent', '🏠 Return'],
+          answer: ['🚪 The Call', '🌑 Descent', '🔥 Trial by fire', '⚡ Crisis point', '🌟 Revelation', '🏠 Return'],
+        }
+      }
+    },
+    {
+      id: 'ch3_s3',
+      title: 'The Guardian',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'At the labyrinth\'s center: a colossal stone guardian, frozen in place. Its chest contains twelve carved symbols — but only six slots. A combination lock.' },
+        { speaker: 'AKIHIKO', text: '"This thing has been here for centuries. Someone built it to protect something important."', color:'#e0e0e0' },
+        { speaker: 'NARRATOR', text: 'Beside the guardian, an inscription: "The gods of thunder, ice, flame, shadow, wind, and light. Call them in the order the world was made dark."' },
+        { speaker: 'JUNPEI', text: '"The world was made dark... like, the order shadows invaded?"', color:'#90caf9' },
+      ],
+      puzzle: {
+        type: 'symbol',
+        title: 'GUARDIAN LOCK',
+        hint: 'The inscription says "order the world was made dark" — match each element symbol to its Shadow counterpart. Click two cards at once to match pairs.',
+        config: {
+          pairs: [
+            ['⚡ Thunder','🌑 Dark Thunder'],
+            ['❄️ Ice','💀 Void Ice'],
+            ['🔥 Flame','🕳️ Dark Flame'],
+            ['👁️ Shadow','🖤 Void Shadow'],
+            ['🌪️ Wind','🌚 Dark Wind'],
+            ['🌟 Light','💫 Void Light'],
+          ],
+        }
+      }
+    },
+    {
+      id: 'ch3_s4',
+      title: 'The Heart of the Labyrinth',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The guardian steps aside, revealing a chamber. At its center: a crystallized memory — the final record of the first Persona-user.' },
+        { speaker: 'MEMORY', text: '"If you have reached this place... then the cycle continues. The shadows never truly die. But neither do the ones who face them."', color:'#b388ff' },
+        { speaker: 'MEMORY', text: '"One final test. The cipher of the first Wild Card. Decode my name — and you will receive my power."', color:'#b388ff' },
+        { speaker: 'NARRATOR', text: 'A complex cipher wheel appears before you.' },
+      ],
+      puzzle: {
+        type: 'cipher',
+        title: 'THE FIRST WILD CARD',
+        hint: 'The cipher shifts each letter by 7 positions backward. Z-7=S, A-7=T... Try working through each letter.',
+        config: {
+          displayEncoded: 'AOPZAV',
+          answer: 'THISTLE',
+          hint2: 'Hint: Each letter shifts FORWARD by 7. T+7=A, H+7=O, I+7=P... The name is a thorny flower.',
+        }
+      }
+    },
+  ],
+  completionReward: {
+    text: 'Chapter IV: The Eclipse — unlocked!\nAncient Persona fragment absorbed.\nAll Social Links: +1 Rank.',
+    flag: 'ch3_complete',
+  }
+},
+
+// ──────────────────────────────────────────
+// CHAPTER IV — THE ECLIPSE
+// Trigger: Complete all 3 previous chapters
+// BONUS CHAPTER — hardest puzzles
+// ──────────────────────────────────────────
+{
+  id: 'ch4',
+  title: 'The Eclipse',
+  subtitle: 'IV',
+  desc: 'The Dark Hour peaks. Nyx approaches. Only by solving the final mysteries of the human heart can the Eclipse be stopped.',
+  icon: '🌑',
+  unlockCondition: (s) =>
+    s.completedChapters.includes('ch1') &&
+    s.completedChapters.includes('ch2') &&
+    s.completedChapters.includes('ch3'),
+  unlockText: 'Complete all three chapters',
+  scenes: [
+    {
+      id: 'ch4_s1',
+      title: 'The Dark Hour',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'January. The final Dark Hour. Time has stopped for everyone but you. The sky is a coffin-lid of starless black.' },
+        { speaker: 'IGOR', text: '"The end approaches. Six seals protect the Final Door. Each seal is a memory of those you have met."', color: '#b388ff' },
+        { speaker: 'IGOR', text: '"Remember them. Truly remember. That is the only key."', color: '#b388ff' },
+        { speaker: 'NARRATOR', text: 'Twelve face-down cards appear. They hold the faces of everyone you have encountered.' },
+      ],
+      puzzle: {
+        type: 'memory',
+        title: 'FINAL SEAL — MEMORY',
+        hint: 'Larger grid, same rules — but you only get 10 seconds to view the cards at the start before they all flip. Memorize quickly!',
+        config: {
+          pairs: ['🌙','⭐','🔮','🗝️','🃏','👁️','🌹','🦋','🏛️','🌊'],
+          gridCols: 5,
+          previewTime: 10,
+        }
+      }
+    },
+    {
+      id: 'ch4_s2',
+      title: 'Six Arcana',
+      narrative: [
+        { speaker: 'NARRATOR', text: 'The six seals manifest as Arcana cards — the symbolic language of fate. Each Arcana has a true theme. Misattribute them, and the seal breaks against you.' },
+        { speaker: 'IGOR', text: '"The Arcana is the means by which all is revealed. Each has its truth."', color: '#b388ff' },
+      ],
+      puzzle: {
+        type: 'sequence',
+        title: 'THE SIX ARCANA',
+        hint: 'Major Arcana order by traditional meaning-weight: Fool (beginning/innocence) → Strength → Justice → Death (transformation) → Star (hope) → World (completion).',
+        config: {
+          prompt: 'Arrange the Arcana from the beginning of the journey to its completion:',
+          items: ['⚖️ Justice', '🌟 The Star', '🌍 The World', '🤡 The Fool', '💪 Strength', '💀 Death'],
+          answer: ['🤡 The Fool', '💪 Strength', '⚖️ Justice', '💀 Death', '🌟 The Star', '🌍 The World'],
+        }
+      }
+    },
+    {
+      id: 'ch4_s3',
+      title: 'The Final Cipher',
+      narrative: [
+        { speaker: 'NYX', text: '"You have come far, Wild Card. But words cannot stop what I am."', color:'#7c4dff' },
+        { speaker: 'PLAYER', text: '"I\'m not here to stop you with words. I\'m here to answer the question that called you here."' },
+        { speaker: 'NYX', text: '"...What question?"', color:'#7c4dff' },
+        { speaker: 'PLAYER', text: '"The one written in the stars. In a language older than human fear."' },
+        { speaker: 'NARRATOR', text: 'Stars re-arrange above. They form a pattern — a cipher in the oldest script.' },
+      ],
+      puzzle: {
+        type: 'decode',
+        title: 'LANGUAGE OF THE STARS',
+        hint: 'Each constellation symbol maps to a letter. Read the key carefully.',
+        config: {
+          keyMap: { '✦':'L', '✧':'I', '❋':'V', '✵':'E', '✸':'R', '❂':'N' },
+          encoded: ['✦','✧','❋','✵'],
+          answer: 'LIVE',
+        }
+      }
+    },
+    {
+      id: 'ch4_s4',
+      title: 'Answer',
+      narrative: [
+        { speaker: 'NYX', text: '"...LIVE."', color:'#7c4dff' },
+        { speaker: 'NYX', text: '"That is... not the answer I expected from mortals."', color:'#b388ff' },
+        { speaker: 'PLAYER', text: '"Every person I met chose to live, despite the pain. That\'s the answer to your question about humanity."' },
+        { speaker: 'NARRATOR', text: 'Nyx is still. The eclipse pauses. One final truth must be stated — the pattern of the Great Seal, to bind the Dark Hour forever.' },
+        { speaker: 'IGOR', text: '"The final pattern. Draw the Great Seal, and your journey is complete."', color: '#b388ff' },
+      ],
+      puzzle: {
+        type: 'pattern',
+        title: 'THE GREAT SEAL',
+        hint: 'The Great Seal pattern: Center → Top → Right → Bottom → Left → Center. Tap in that order.',
+        config: {
+          grid: [
+            ['🌑','🌟','🌑'],
+            ['🌟','👁️','🌟'],
+            ['🌑','🌟','🌑'],
+          ],
+          solution: [[1,1],[0,1],[1,2],[2,1],[1,0],[1,1]],
+          instructionText: 'Tap: Center → Top → Right → Bottom → Left → Center',
+        }
+      }
+    },
+  ],
+  completionReward: {
+    text: 'True Ending achieved.\nAll Arcana bonds: MAXIMUM.\n"I am thou... thou art I."',
+    flag: 'ch4_complete',
+  }
+},
+
+];
+
+// ═══════════════════════════════════════════════
+//  SAVE SYSTEM
+// ═══════════════════════════════════════════════
+
+const SAVE_KEY = 'persona_eos_save_v2';
+
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function writeSave(data) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    showSaveBadge();
+  } catch(e) {}
+}
+
+function defaultSave(name) {
+  return {
+    playerName: name,
+    completedChapters: [],
+    chapterStars: {},
+    score: 0,
+    flags: {},
+    hints: 5,
+  };
+}
+
+let SAVE = loadSave();
+
+// ═══════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════
+
+const G = {
+  currentChapter: null,
+  currentSceneIdx: 0,
+  puzzleSolved: false,
+  mistakes: 0,
+  hintsUsed: 0,
+  // for memory puzzle
+  memFlipped: [],
+  memMatched: [],
+  memLocked: false,
+  // for sequence puzzle
+  seqSelected: [],
+  // for symbol/pattern
+  symSelected: [],
+  symMatched: [],
+  patPath: [],
+  patExpected: [],
+};
+
+// ═══════════════════════════════════════════════
+//  TITLE SCREEN
+// ═══════════════════════════════════════════════
+
+function initTitle() {
+  const canvas = document.getElementById('titleCanvas');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  const particles = Array.from({length:160}, () => ({
+    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+    r: Math.random()*1.4+0.2,
+    vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.25,
+    a: Math.random(), da:(Math.random()*0.01+0.004)*(Math.random()<0.5?1:-1),
+    c: Math.random()<0.4 ? '#00e5ff' : Math.random()<0.6 ? '#b388ff' : '#ff2d55',
+  }));
+
+  (function animTitle() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of particles) {
+      p.x+=p.vx; p.y+=p.vy; p.a+=p.da;
+      if(p.a>1||p.a<0) p.da*=-1;
+      if(p.x<0)p.x=canvas.width; if(p.x>canvas.width)p.x=0;
+      if(p.y<0)p.y=canvas.height; if(p.y>canvas.height)p.y=0;
+      ctx.globalAlpha=Math.max(0,Math.min(1,p.a));
+      ctx.fillStyle=p.c;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    requestAnimationFrame(animTitle);
+  })();
+
+  // Show buttons if save exists
+  if(SAVE) {
+    document.getElementById('continueBtn').style.display='block';
+    document.getElementById('chapSelectBtn').style.display='block';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  SCREEN NAV
+// ═══════════════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goToName() {
+  showScreen('nameScreen');
+  const inp = document.getElementById('nameInput');
+  inp.value = '';
+  document.getElementById('nameConfirmBtn').disabled = true;
+  inp.addEventListener('input', () => {
+    document.getElementById('nameConfirmBtn').disabled = inp.value.trim().length===0;
+  });
+  inp.addEventListener('keydown', e => { if(e.key==='Enter'&&inp.value.trim().length>0) confirmName(); });
+  setTimeout(()=>inp.focus(),400);
+}
+
+function confirmName() {
+  const name = document.getElementById('nameInput').value.trim() || 'Protagonist';
+  SAVE = defaultSave(name);
+  writeSave(SAVE);
+  goToChapters();
+}
+
+function goToChapters() {
+  if(!SAVE) { goToName(); return; }
+  showScreen('chapterScreen');
+  document.getElementById('chapPlayerName').textContent = SAVE.playerName;
+  renderChapterList();
+}
+
+function renderChapterList() {
+  const list = document.getElementById('chapterList');
+  list.innerHTML = '';
+  for(const ch of CHAPTERS) {
+    const unlocked  = ch.unlockCondition(SAVE);
+    const completed = SAVE.completedChapters.includes(ch.id);
+    const stars     = SAVE.chapterStars[ch.id] || 0;
+
+    const div = document.createElement('div');
+    div.className = 'chapterCard' + (completed?' completed':unlocked?' unlocked':' locked');
+
+    let badge = '';
+    if(completed)  badge = `<span class="chapterBadge badge-completed">✓ COMPLETE</span>`;
+    else if(unlocked) badge = `<span class="chapterBadge badge-unlocked">▶ PLAY</span>`;
+    else badge = `<span class="chapterBadge badge-locked">🔒 LOCKED</span>`;
+
+    let starStr = completed ? (Array.from({length:3},(_,i)=>i<stars?'★':'☆').join('')) : '';
+    let lockReason = !unlocked ? `<div class="chapterLockReason">🔒 Requires: ${ch.unlockText}</div>` : '';
+
+    div.innerHTML = `
+      <div class="chapterNum">${ch.subtitle}</div>
+      <div class="chapterInfo">
+        <div class="chapterTitle">${ch.icon} &nbsp; ${ch.title}</div>
+        <div class="chapterDesc">${ch.desc}</div>
+        <div class="chapterMeta">${completed?starStr+' &nbsp;':''} ${ch.scenes.length} scenes · ${ch.scenes.length} puzzles${lockReason}</div>
+      </div>
+      ${badge}`;
+
+    if(unlocked) div.onclick = () => startChapter(ch.id);
+    list.appendChild(div);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  CHAPTER / SCENE ENGINE
+// ═══════════════════════════════════════════════
+
+function startChapter(chId) {
+  G.currentChapter = CHAPTERS.find(c=>c.id===chId);
+  G.currentSceneIdx = 0;
+  G.puzzleSolved = false;
+  G.mistakes = 0;
+  G.hintsUsed = 0;
+
+  showScreen('gameScreen');
+  loadScene(0);
+}
+
+function loadScene(idx) {
+  const ch = G.currentChapter;
+  const scene = ch.scenes[idx];
+  G.currentSceneIdx = idx;
+  G.puzzleSolved = false;
+  G.mistakes = 0;
+
+  // HUD
+  document.getElementById('hudChapter').textContent = `CHAPTER ${ch.subtitle} — ${ch.title.toUpperCase()}`;
+  document.getElementById('hudScene').textContent   = scene.title;
+  document.getElementById('hudHints').textContent   = `💡 HINTS (${SAVE.hints})`;
+
+  // Stars
+  const starsEl = document.getElementById('hudStars');
+  starsEl.innerHTML = '★★★'.split('').map((_,i)=>`<span class="hudStar" style="color:var(--gold)">★</span>`).join('');
+
+  // Progress dots
+  const prog = document.getElementById('progressBar');
+  prog.innerHTML = ch.scenes.map((_,i) =>
+    `<div class="progDot ${i<idx?'done':i===idx?'current':''}" id="dot_${i}"></div>`
+  ).join('');
+
+  // Narrative
+  const scroll = document.getElementById('narrativeScroll');
+  scroll.innerHTML = '';
+  showNarrativeLines(scene.narrative, () => {
+    // After narrative, show choices or puzzle start
+    renderChoicePanel([
+      { text: '▶  Proceed to Puzzle', action: () => startPuzzle(scene) }
+    ]);
+  });
+}
+
+function showNarrativeLines(lines, callback, idx=0) {
+  if(idx >= lines.length) { if(callback) callback(); return; }
+  const line = lines[idx];
+  addNarrLine(line.speaker, line.text, line.color, line.speaker==='NARRATOR');
+  setTimeout(() => showNarrativeLines(lines, callback, idx+1), 280);
+}
+
+function addNarrLine(speaker, text, color='#dde0ff', isNarrator=false) {
+  const scroll = document.getElementById('narrativeScroll');
+  if(speaker && !isNarrator) {
+    const sp = document.createElement('div');
+    sp.className = 'narrSpeaker new';
+    sp.style.color = color || 'var(--accent)';
+    sp.textContent = speaker;
+    scroll.appendChild(sp);
+  }
+  const div = document.createElement('div');
+  div.className = 'narrLine new' + (isNarrator?' narrator':'');
+  div.style.borderLeftColor = isNarrator ? 'var(--dim)' : (color||'var(--accent)');
+  div.innerHTML = text;
+  scroll.appendChild(div);
+  scroll.scrollTop = scroll.scrollHeight;
+}
+
+function renderChoicePanel(choices) {
+  const panel = document.getElementById('choicePanel');
+  panel.innerHTML = '';
+  for(const c of choices) {
+    const btn = document.createElement('button');
+    btn.className = 'choiceBtn';
+    btn.textContent = c.text;
+    btn.onclick = () => { panel.innerHTML=''; if(c.action) c.action(); };
+    panel.appendChild(btn);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE ROUTER
+// ═══════════════════════════════════════════════
+
+function startPuzzle(scene) {
+  const p = scene.puzzle;
+  const area = document.getElementById('puzzleArea');
+  area.innerHTML = `<div id="puzzleTitle">${p.title}</div>`;
+  G.puzzleSolved = false;
+
+  addNarrLine('SYSTEM', `[ PUZZLE ACTIVE: ${p.title} ]`, '#ffc947', false);
+
+  if(p.type === 'memory')      buildMemoryPuzzle(p.config, area);
+  else if(p.type === 'cipher') buildCipherPuzzle(p.config, area);
+  else if(p.type === 'sequence') buildSequencePuzzle(p.config, area);
+  else if(p.type === 'observation') buildObsPuzzle(p.config, area);
+  else if(p.type === 'symbol')  buildSymbolPuzzle(p.config, area);
+  else if(p.type === 'decode')  buildDecodePuzzle(p.config, area);
+  else if(p.type === 'pattern') buildPatternPuzzle(p.config, area);
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: MEMORY
+// ═══════════════════════════════════════════════
+
+function buildMemoryPuzzle(cfg, area) {
+  const pairs = [...cfg.pairs, ...cfg.pairs];
+  // Shuffle
+  for(let i=pairs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pairs[i],pairs[j]]=[pairs[j],pairs[i]]; }
+
+  G.memFlipped = [];
+  G.memMatched = [];
+  G.memLocked  = false;
+
+  const grid = document.createElement('div');
+  grid.className = 'memGrid';
+  grid.style.gridTemplateColumns = `repeat(${cfg.gridCols}, 70px)`;
+
+  pairs.forEach((sym, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'memCell';
+    cell.dataset.val = sym;
+    cell.dataset.idx = i;
+    cell.innerHTML = `<span class="cellBack" style="opacity:0">${sym}</span>`;
+    cell.onclick = () => memFlip(cell, sym, i);
+    grid.appendChild(cell);
+  });
+  area.appendChild(grid);
+
+  // Preview mode (show all briefly)
+  if(cfg.previewTime) {
+    G.memLocked = true;
+    const cells = grid.querySelectorAll('.memCell');
+    cells.forEach(c=>{ c.querySelector('.cellBack').style.opacity='1'; c.classList.add('face-up'); });
+    const countEl = document.createElement('div');
+    countEl.style.cssText='font-size:12px;color:var(--gold);margin-top:10px;letter-spacing:2px;';
+    countEl.textContent = `MEMORIZE — ${cfg.previewTime} seconds`;
+    area.appendChild(countEl);
+    let t=cfg.previewTime;
+    const interval=setInterval(()=>{
+      t--;
+      countEl.textContent=`MEMORIZE — ${t} seconds`;
+      if(t<=0){
+        clearInterval(interval);
+        cells.forEach(c=>{ c.querySelector('.cellBack').style.opacity='0'; c.classList.remove('face-up'); });
+        countEl.textContent='GO!';
+        setTimeout(()=>countEl.remove(),600);
+        G.memLocked=false;
+      }
+    },1000);
+  }
+}
+
+function memFlip(cell, val, idx) {
+  if(G.memLocked || G.memMatched.includes(idx) || G.memFlipped.length===2) return;
+  if(G.memFlipped.includes(idx)) return;
+
+  cell.querySelector('.cellBack').style.opacity='1';
+  cell.classList.add('face-up');
+  G.memFlipped.push(idx);
+
+  if(G.memFlipped.length===2) {
+    G.memLocked=true;
+    const [i1,i2]=G.memFlipped;
+    const cells=document.querySelectorAll('.memCell');
+    const c1=cells[i1], c2=cells[i2];
+
+    if(c1.dataset.val===c2.dataset.val) {
+      setTimeout(()=>{
+        c1.classList.add('matched'); c2.classList.add('matched');
+        G.memMatched.push(i1,i2);
+        G.memFlipped=[];
+        G.memLocked=false;
+        showFeedback('✓ Match found!', true);
+        // Check win
+        const totalPairs = document.querySelectorAll('.memCell').length/2;
+        if(G.memMatched.length===totalPairs*2) puzzleSuccess();
+      },400);
+    } else {
+      G.mistakes++;
+      c1.classList.add('wrong-flash'); c2.classList.add('wrong-flash');
+      setTimeout(()=>{
+        c1.classList.remove('wrong-flash','face-up'); c2.classList.remove('wrong-flash','face-up');
+        c1.querySelector('.cellBack').style.opacity='0';
+        c2.querySelector('.cellBack').style.opacity='0';
+        G.memFlipped=[];
+        G.memLocked=false;
+      },800);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: CIPHER
+// ═══════════════════════════════════════════════
+
+function buildCipherPuzzle(cfg, area) {
+  const wrap = document.createElement('div');
+  wrap.className = 'cipherPuzzle';
+  wrap.innerHTML = `
+    <div class="cipherDisplay">${cfg.displayEncoded}</div>
+    <div class="cipherHint">Decode the cipher to reveal the hidden word</div>
+    <input class="cipherInput" id="cipherAnswer" type="text" maxlength="${cfg.answer.length+2}"
+           placeholder="TYPE ANSWER" autocomplete="off" spellcheck="false">
+    <button class="cipherSubmit" onclick="checkCipher('${cfg.answer}')">▶ SUBMIT</button>
+    <button class="puzzleResetBtn" style="margin-top:6px;width:100%" onclick="document.getElementById('cipherAnswer').value=''">✕ CLEAR</button>`;
+  area.appendChild(wrap);
+
+  const inp = document.getElementById('cipherAnswer');
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') checkCipher(cfg.answer); });
+  inp.addEventListener('input', () => { inp.value=inp.value.toUpperCase(); });
+  setTimeout(()=>inp.focus(),200);
+}
+
+function checkCipher(answer) {
+  const val = (document.getElementById('cipherAnswer')?.value||'').toUpperCase().trim();
+  if(val===answer.toUpperCase()) {
+    puzzleSuccess();
+  } else {
+    G.mistakes++;
+    showFeedback(`✗ "${val}" is not correct. Try again.`, false);
+    const inp=document.getElementById('cipherAnswer');
+    if(inp){ inp.style.borderColor='var(--red)'; setTimeout(()=>inp.style.borderColor='var(--accent)',800); }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: SEQUENCE
+// ═══════════════════════════════════════════════
+
+function buildSequencePuzzle(cfg, area) {
+  G.seqSelected = [];
+  const shuffled=[...cfg.items]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+
+  const wrap = document.createElement('div');
+  wrap.className = 'seqPuzzle';
+  wrap.innerHTML = `<div class="cipherHint" style="margin-bottom:14px">${cfg.prompt}</div>
+    <div class="seqDisplay" id="seqSlots">${cfg.items.map((_,i)=>`<div class="seqSlot" id="seq_slot_${i}"></div>`).join('')}</div>
+    <div class="cipherHint" style="margin:0 0 8px">Choose in order:</div>
+    <div class="seqOptions" id="seqOptions">
+      ${shuffled.map(it=>`<div class="seqOption" onclick="seqPick(this,'${it.replace(/'/g,"\\'")}','${cfg.answer.indexOf(it)}')" data-item="${it}">${it}</div>`).join('')}
+    </div>
+    <button class="puzzleResetBtn" onclick="resetSequence()">↩ RESET</button>`;
+  area.appendChild(wrap);
+}
+
+function seqPick(el, item, correctPos) {
+  if(el.classList.contains('used')||G.puzzleSolved) return;
+  const scene=G.currentChapter.scenes[G.currentSceneIdx];
+  const answer=scene.puzzle.config.answer;
+  const slotIdx=G.seqSelected.length;
+  if(slotIdx>=answer.length) return;
+
+  const slot=document.getElementById(`seq_slot_${slotIdx}`);
+  slot.textContent=item; slot.classList.add('filled');
+  el.classList.add('used');
+  G.seqSelected.push(item);
+
+  if(item===answer[slotIdx]) {
+    slot.classList.add('correct-slot');
+    showFeedback('✓ Correct position!',true);
+  } else {
+    G.mistakes++;
+    slot.style.borderColor='var(--red)';
+    showFeedback('✗ Wrong position. Resetting...',false);
+    setTimeout(resetSequence, 900);
+    return;
+  }
+
+  if(G.seqSelected.length===answer.length) {
+    // Check full sequence
+    const correct=answer.every((a,i)=>G.seqSelected[i]===a);
+    if(correct) puzzleSuccess();
+  }
+}
+
+function resetSequence() {
+  G.seqSelected=[];
+  const scene=G.currentChapter.scenes[G.currentSceneIdx];
+  const n=scene.puzzle.config.answer.length;
+  for(let i=0;i<n;i++){
+    const sl=document.getElementById(`seq_slot_${i}`);
+    if(sl){sl.textContent='';sl.className='seqSlot';}
+  }
+  document.querySelectorAll('.seqOption').forEach(o=>o.classList.remove('used'));
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: OBSERVATION
+// ═══════════════════════════════════════════════
+
+function buildObsPuzzle(cfg, area) {
+  const wrap=document.createElement('div');
+  wrap.className='obsPuzzle';
+
+  const correctCount=cfg.choices.filter(c=>c.correct).length;
+
+  wrap.innerHTML=`
+    <div class="obsScene" id="obsSceneText">${cfg.scene}</div>
+    <div class="obsQuestion">${cfg.question}${cfg.multiCorrect?'<br><small style="color:var(--dim)">(Multiple correct answers possible — select all that apply)</small>':''}</div>
+    <div class="obsChoices">
+      ${cfg.choices.map((c,i)=>`<div class="obsChoice" onclick="obsChoose(this,${i})">${c.text}</div>`).join('')}
+    </div>`;
+  area.appendChild(wrap);
+  G._obsCorrectChosen=0;
+  G._obsTotal=cfg.choices.filter(c=>c.correct).length;
+}
+
+function obsChoose(el, idx) {
+  if(el.classList.contains('correct')||el.classList.contains('wrong')) return;
+  const scene=G.currentChapter.scenes[G.currentSceneIdx];
+  const ch=scene.puzzle.config.choices[idx];
+  if(ch.correct){
+    el.classList.add('correct');
+    el.textContent+=' ✓';
+    addNarrLine('OBSERVATION',ch.feedback,'#00e676');
+    G._obsCorrectChosen=(G._obsCorrectChosen||0)+1;
+    if(G._obsCorrectChosen>=G._obsTotal) puzzleSuccess();
+    else showFeedback('✓ Good observation! Find the rest.',true);
+  } else {
+    el.classList.add('wrong');
+    G.mistakes++;
+    addNarrLine('OBSERVATION',ch.feedback,'#ff2d55');
+    showFeedback('✗ Not quite — keep looking.',false);
+  }
+}
+
+function clueClick(id) {
+  showFeedback(`🔍 Clue: "${id}" — examine this detail carefully.`, true);
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: SYMBOL (pairing)
+// ═══════════════════════════════════════════════
+
+function buildSymbolPuzzle(cfg, area) {
+  G.symSelected=[];
+  G.symMatched=[];
+
+  // Flatten pairs into single pool and shuffle
+  const allCards=[];
+  cfg.pairs.forEach((pair,pi)=>{
+    pair.forEach((sym,si)=>allCards.push({sym,pairId:pi,cardId:`${pi}_${si}`}));
+  });
+  for(let i=allCards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[allCards[i],allCards[j]]=[allCards[j],allCards[i]];}
+
+  const wrap=document.createElement('div');
+  wrap.className='symbolPuzzle';
+  const grid=document.createElement('div');
+  grid.className='symbolGrid';
+
+  allCards.forEach(card=>{
+    const div=document.createElement('div');
+    div.className='symbolCard';
+    div.textContent=card.sym;
+    div.dataset.pairId=card.pairId;
+    div.dataset.cardId=card.cardId;
+    div.onclick=()=>symSelect(div,card);
+    grid.appendChild(div);
+  });
+
+  wrap.appendChild(grid);
+  wrap.innerHTML+=`<div class="symbolPair">Select two cards that belong together</div>`;
+  area.appendChild(wrap);
+}
+
+function symSelect(el, card) {
+  if(G.symMatched.includes(card.pairId)||G.symSelected.find(c=>c.cardId===card.cardId)) return;
+  if(G.symSelected.length===2) return;
+
+  el.classList.add('selected');
+  G.symSelected.push(card);
+
+  if(G.symSelected.length===2){
+    const [a,b]=G.symSelected;
+    const allCards=document.querySelectorAll('.symbolCard');
+
+    if(a.pairId===b.pairId){
+      setTimeout(()=>{
+        allCards.forEach(c=>{
+          if(c.dataset.pairId==a.pairId){ c.classList.remove('selected'); c.classList.add('matched'); }
+        });
+        G.symMatched.push(a.pairId);
+        G.symSelected=[];
+        showFeedback('✓ Pair matched!',true);
+        const scene=G.currentChapter.scenes[G.currentSceneIdx];
+        if(G.symMatched.length===scene.puzzle.config.pairs.length) puzzleSuccess();
+      },300);
+    } else {
+      G.mistakes++;
+      allCards.forEach(c=>c.classList.add('error'));
+      setTimeout(()=>{
+        allCards.forEach(c=>c.classList.remove('error','selected'));
+        G.symSelected=[];
+        showFeedback('✗ Not a pair. Try again.',false);
+      },700);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: DECODE
+// ═══════════════════════════════════════════════
+
+function buildDecodePuzzle(cfg, area) {
+  const keyItems=Object.entries(cfg.keyMap).map(([sym,ltr])=>
+    `<div class="decodeKeyItem"><span class="sym">${sym}</span><span class="ltr">${ltr}</span></div>`
+  ).join('');
+
+  const encoded=cfg.encoded.join(' ');
+
+  const wrap=document.createElement('div');
+  wrap.className='decodePuzzle';
+  wrap.innerHTML=`
+    <div class="cipherHint" style="margin-bottom:8px">SYMBOL KEY:</div>
+    <div class="decodeKey">${keyItems}</div>
+    <div class="decodeTarget">${cfg.encoded.join('  ')}</div>
+    ${cfg.note?`<div class="cipherHint">${cfg.note}</div>`:''}
+    <input class="decodeInput" id="decodeAns" type="text" maxlength="${cfg.answer.length+2}" placeholder="DECODED WORD" autocomplete="off" spellcheck="false">
+    <button class="decodeSubmit" onclick="checkDecode('${cfg.answer}')">▶ SUBMIT</button>`;
+  area.appendChild(wrap);
+
+  const inp=document.getElementById('decodeAns');
+  inp.addEventListener('input',()=>inp.value=inp.value.toUpperCase());
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') checkDecode(cfg.answer); });
+  setTimeout(()=>inp.focus(),200);
+}
+
+function checkDecode(answer) {
+  const val=(document.getElementById('decodeAns')?.value||'').toUpperCase().trim();
+  if(val===answer.toUpperCase()) puzzleSuccess();
+  else {
+    G.mistakes++;
+    showFeedback(`✗ "${val}" is incorrect. Re-check the symbol key.`,false);
+    const inp=document.getElementById('decodeAns');
+    if(inp){inp.style.borderColor='var(--red)';setTimeout(()=>inp.style.borderColor='var(--accent)',900);}
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE: PATTERN
+// ═══════════════════════════════════════════════
+
+function buildPatternPuzzle(cfg, area) {
+  G.patPath=[];
+  G.patExpected=cfg.solution;
+
+  const wrap=document.createElement('div');
+  wrap.className='patternPuzzle';
+  wrap.innerHTML=`<div class="patternInstructions">${cfg.instructionText}</div>`;
+
+  const grid=document.createElement('div');
+  grid.className='patternGrid';
+
+  cfg.grid.forEach((row,ri)=>row.forEach((sym,ci)=>{
+    const cell=document.createElement('div');
+    cell.className='patternCell';
+    cell.textContent=sym;
+    cell.dataset.r=ri; cell.dataset.c=ci;
+    cell.onclick=()=>patTap(cell,ri,ci);
+    grid.appendChild(cell);
+  }));
+
+  wrap.appendChild(grid);
+  wrap.innerHTML+=`<div id="patProgress" style="margin-top:10px;font-size:10px;color:var(--dim);letter-spacing:1px">Tap: 0 / ${cfg.solution.length}</div>`;
+  wrap.innerHTML+=`<button class="puzzleResetBtn" style="margin-top:8px" onclick="resetPattern()">↩ RESET</button>`;
+  area.appendChild(wrap);
+}
+
+function patTap(cell,r,c){
+  if(G.puzzleSolved) return;
+  const step=G.patPath.length;
+  const expected=G.patExpected[step];
+  if(!expected) return;
+
+  if(expected[0]===r&&expected[1]===c){
+    cell.classList.add('path');
+    G.patPath.push([r,c]);
+    document.getElementById('patProgress').textContent=`Tap: ${G.patPath.length} / ${G.patExpected.length}`;
+    if(G.patPath.length===G.patExpected.length){
+      document.querySelectorAll('.patternCell').forEach(c=>c.classList.add('correct-path'));
+      puzzleSuccess();
+    }
+  } else {
+    G.mistakes++;
+    showFeedback('✗ Wrong node. Resetting...',false);
+    setTimeout(resetPattern,700);
+  }
+}
+
+function resetPattern(){
+  G.patPath=[];
+  document.querySelectorAll('.patternCell').forEach(c=>c.classList.remove('path','correct-path','active'));
+  const pr=document.getElementById('patProgress');
+  if(pr){
+    const scene=G.currentChapter.scenes[G.currentSceneIdx];
+    pr.textContent=`Tap: 0 / ${scene.puzzle.config.solution.length}`;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PUZZLE SUCCESS / NEXT SCENE
+// ═══════════════════════════════════════════════
+
+function puzzleSuccess() {
+  if(G.puzzleSolved) return;
+  G.puzzleSolved=true;
+
+  const stars = G.mistakes===0 ? 3 : G.mistakes<=2 ? 2 : 1;
+
+  showFeedback('✦ PUZZLE SOLVED ✦',true);
+  addNarrLine('SYSTEM',`✦ Puzzle solved! Performance: ${'★'.repeat(stars)}${'☆'.repeat(3-stars)}`, '#ffc947');
+
+  // Update star tracking
+  const best=Math.max(SAVE.chapterStars[G.currentChapter.id]||0, stars);
+  SAVE.chapterStars[G.currentChapter.id]=best;
+  SAVE.score=(SAVE.score||0)+(stars*10);
+
+  // Show continue button
+  setTimeout(()=>{
+    const area=document.getElementById('puzzleArea');
+    const btn=document.createElement('button');
+    btn.className='puzzleNextBtn';
+    const isLast=G.currentSceneIdx===G.currentChapter.scenes.length-1;
+    btn.textContent=isLast?'✦ COMPLETE CHAPTER':'▶ NEXT SCENE';
+    btn.onclick=()=>{ isLast?completeChapter():nextScene(); };
+    area.appendChild(btn);
+  },800);
+}
+
+function nextScene() {
+  loadScene(G.currentSceneIdx+1);
+  document.getElementById('puzzleArea').innerHTML='<div id="puzzleTitle"></div>';
+}
+
+function completeChapter() {
+  const ch=G.currentChapter;
+  if(!SAVE.completedChapters.includes(ch.id)){
+    SAVE.completedChapters.push(ch.id);
+    if(ch.completionReward?.flag) SAVE.flags[ch.completionReward.flag]=true;
+  }
+  const stars=SAVE.chapterStars[ch.id]||1;
+  writeSave(SAVE);
+
+  // Show complete screen
+  showScreen('completeScreen');
+  document.getElementById('completeChapterName').textContent=`${ch.icon}  ${ch.title}`;
+
+  // Animate stars
+  const starsEl=document.getElementById('completeStars');
+  starsEl.innerHTML=Array.from({length:3},(_,i)=>
+    `<span class="completeStar${i<stars?' earned':''}" style="color:${i<stars?'var(--gold)':'var(--dim)'};;animation-delay:${0.2+i*0.15}s">${i<stars?'★':'☆'}</span>`
+  ).join('');
+
+  document.getElementById('completeUnlockText').textContent=ch.completionReward?.text||'';
+
+  document.getElementById('replayChapterBtn_hidden')?.remove();
+}
+
+function replayChapter() { startChapter(G.currentChapter.id); }
+
+// ═══════════════════════════════════════════════
+//  HINT SYSTEM
+// ═══════════════════════════════════════════════
+
+function showHint() {
+  if(!SAVE || SAVE.hints<=0){ notify('No hints remaining!'); return; }
+  const scene=G.currentChapter?.scenes[G.currentSceneIdx];
+  if(!scene) return;
+  SAVE.hints=Math.max(0,SAVE.hints-1);
+  writeSave(SAVE);
+  document.getElementById('hudHints').textContent=`💡 HINTS (${SAVE.hints})`;
+  document.getElementById('hintText').textContent=scene.puzzle.hint;
+  document.getElementById('hintModal').classList.add('open');
+  G.hintsUsed++;
+}
+
+function closeHint() { document.getElementById('hintModal').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════
+//  FEEDBACK / NOTIFY / MISC
+// ═══════════════════════════════════════════════
+
+let _fbTimer=null;
+function showFeedback(msg, success) {
+  const fb=document.getElementById('puzzleFeedback');
+  fb.textContent=msg;
+  fb.className='show '+(success?'success':'fail');
+  clearTimeout(_fbTimer);
+  _fbTimer=setTimeout(()=>fb.classList.remove('show'),2200);
+}
+
+let _notifTimer=null;
+function notify(msg) {
+  const n=document.getElementById('notification');
+  n.textContent=msg; n.classList.add('show');
+  clearTimeout(_notifTimer);
+  _notifTimer=setTimeout(()=>n.classList.remove('show'),2800);
+}
+
+function showSaveBadge() {
+  const b=document.getElementById('saveBadge');
+  b.style.opacity='1';
+  setTimeout(()=>b.style.opacity='0',2000);
+}
+
+function confirmBack() {
+  if(confirm('Return to Chapter Select? Current progress in this puzzle will be lost.')) {
+    writeSave(SAVE);
+    goToChapters();
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════
+
+window.addEventListener('load', () => {
+  initTitle();
+  SAVE=loadSave();
+  if(SAVE){
+    document.getElementById('continueBtn').style.display='block';
+    document.getElementById('chapSelectBtn').style.display='block';
+  }
+});
+</script>
+</body>
+</html>
