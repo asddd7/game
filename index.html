@@ -3,1920 +3,2929 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PERSONA: ECHO OF SHADOWS — Puzzle Game</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>PERSONA: WORLD OF SHADOWS</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:      #030308;
-  --panel:   #08081a;
-  --border:  #1c1c40;
-  --accent:  #00e5ff;
-  --red:     #ff2d55;
-  --gold:    #ffc947;
-  --green:   #00e676;
-  --purple:  #b388ff;
-  --dim:     #4a4a7a;
-  --text:    #c8ccee;
-  --white:   #e8ecff;
-}
+  :root {
+    --bg: #04040e;
+    --panel: #0a0a1e;
+    --panel2: #10102a;
+    --accent: #00e5ff;
+    --accent2: #ff2d6b;
+    --gold: #ffd740;
+    --green: #00e676;
+    --blue: #2979ff;
+    --text: #dde0ff;
+    --dim: #5a5a90;
+    --border: #1e1e4a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); font-family: 'Share Tech Mono', monospace; color: var(--text); overflow: hidden; user-select: none; }
 
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); font-family:'Share Tech Mono', monospace; color:var(--text); }
+  #gameCanvas { display:block; }
 
-/* ── SCREENS ── */
-.screen { position:fixed; inset:0; display:none; }
-.screen.active { display:flex; }
+  /* HUD */
+  #hud {
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    pointer-events:none; z-index:10;
+  }
 
-/* ═══════════════════════════════
-   TITLE SCREEN
-═══════════════════════════════ */
-#titleScreen {
-  flex-direction:column; align-items:center; justify-content:center;
-  background:#030308;
-}
-#titleCanvas { position:absolute; inset:0; pointer-events:none; }
-#titleContent { position:relative; z-index:2; text-align:center; }
-#titleEyeContainer {
-  width:120px; height:120px; margin:0 auto 32px;
-  position:relative;
-}
-#titleEye {
-  width:120px; height:120px;
-  border-radius:50%; border:2px solid var(--accent);
-  background: radial-gradient(circle at 40% 35%, #1a0040 0%, #030308 60%);
-  display:flex; align-items:center; justify-content:center;
-  animation: eyePulse 3s ease-in-out infinite;
-  box-shadow: 0 0 40px rgba(0,229,255,0.3), inset 0 0 30px rgba(0,229,255,0.1);
-}
-@keyframes eyePulse {
-  0%,100% { box-shadow:0 0 40px rgba(0,229,255,0.3),inset 0 0 30px rgba(0,229,255,0.1); }
-  50%     { box-shadow:0 0 80px rgba(0,229,255,0.6),inset 0 0 50px rgba(0,229,255,0.2); }
-}
-#titleEye::after {
-  content:''; width:40px; height:40px; border-radius:50%;
-  background: radial-gradient(circle at 35% 30%, #4488ff, #000080);
-  box-shadow:0 0 20px rgba(0,100,255,0.8);
-  animation: eyeMove 6s ease-in-out infinite;
-}
-@keyframes eyeMove {
-  0%,100%{transform:translate(0,0)} 25%{transform:translate(8px,-4px)} 50%{transform:translate(0,6px)} 75%{transform:translate(-8px,-2px)}
-}
-.titleLogo {
-  font-family:'Cinzel',serif; font-weight:900;
-  font-size:clamp(36px,7vw,72px);
-  color:var(--white);
-  letter-spacing:0.15em;
-  text-shadow:0 0 60px rgba(0,229,255,0.4);
-  margin-bottom:6px;
-}
-.titleSub {
-  font-size:clamp(9px,1.5vw,13px);
-  color:var(--accent); letter-spacing:0.5em;
-  margin-bottom:8px;
-}
-.titleTagline {
-  font-size:10px; color:var(--dim); letter-spacing:3px;
-  margin-bottom:48px;
-}
-.titleMenuBtn {
-  display:block; width:280px; margin:0 auto 10px;
-  padding:14px 0; font-family:'Rajdhani',sans-serif;
-  font-size:16px; font-weight:600; letter-spacing:3px;
-  background:rgba(0,229,255,0.07); border:1px solid var(--accent);
-  color:var(--accent); cursor:pointer; border-radius:2px;
-  transition:all 0.2s; text-align:center;
-}
-.titleMenuBtn:hover { background:rgba(0,229,255,0.18); box-shadow:0 0 20px rgba(0,229,255,0.25); }
-.titleMenuBtn.secondary { border-color:var(--dim); color:var(--dim); background:transparent; font-size:13px; }
-.titleMenuBtn.secondary:hover { border-color:var(--text); color:var(--text); background:rgba(255,255,255,0.04); }
-.titleVer { position:absolute; bottom:14px; right:18px; font-size:9px; color:var(--dim); letter-spacing:2px; }
+  /* Top bar */
+  #topBar {
+    position:absolute; top:0; left:0; right:0; height:54px;
+    background: linear-gradient(180deg, rgba(4,4,14,0.97) 0%, transparent 100%);
+    display:flex; align-items:center; padding:0 20px; gap:24px;
+    pointer-events:none;
+  }
+  #clockWidget {
+    display:flex; flex-direction:column; align-items:center;
+    background: rgba(10,10,30,0.9); border:1px solid var(--border);
+    padding:4px 14px; border-radius:4px;
+  }
+  #clockTime { font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:var(--gold); line-height:1; }
+  #clockDate { font-size:9px; color:var(--dim); }
+  #playerBars { display:flex; flex-direction:column; gap:4px; }
+  .statRow { display:flex; align-items:center; gap:6px; }
+  .statLabel { font-size:9px; color:var(--dim); width:18px; }
+  .barOuter { width:160px; height:8px; background:#1a1a3a; border-radius:2px; border:1px solid var(--border); }
+  .barInner { height:100%; border-radius:2px; transition:width 0.3s; }
+  .barHp { background: linear-gradient(90deg, #00c853, #00e676); }
+  .barSp { background: linear-gradient(90deg, #1565c0, #2979ff); }
+  .barExp{ background: linear-gradient(90deg, #e65100, #ffd740); }
+  #playerName { font-family:'Rajdhani',sans-serif; font-size:13px; color:var(--accent); }
+  #playerLevel{ font-size:9px; color:var(--gold); }
+  #locationTag {
+    margin-left:auto; font-size:11px; color:var(--accent);
+    background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.3);
+    padding:4px 12px; border-radius:3px;
+  }
+  #timeOfDayLabel { font-size:10px; color:var(--dim); }
+  #weatherIcon { font-size:20px; }
 
-/* ═══════════════════════════════
-   NAME ENTRY
-═══════════════════════════════ */
-#nameScreen {
-  flex-direction:column; align-items:center; justify-content:center;
-  background:radial-gradient(ellipse at 50% 40%, #0d0030 0%, #030308 65%);
-}
-#nameScreen::before {
-  content:''; position:absolute; inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.012) 3px,rgba(0,229,255,0.012) 4px);
-  pointer-events:none;
-}
-.nameBox {
-  position:relative; z-index:2; text-align:center;
-  background:rgba(8,8,26,0.95); border:2px solid var(--accent);
-  border-radius:6px; padding:40px 52px; min-width:460px;
-  box-shadow:0 0 80px rgba(0,229,255,0.1);
-}
-.nameBox h2 { font-family:'Cinzel',serif; font-size:11px; color:var(--dim); letter-spacing:6px; margin-bottom:28px; }
-.nameBox p { font-family:'Rajdhani',sans-serif; font-size:18px; color:var(--white); margin-bottom:24px; line-height:1.6; }
-#nameInput {
-  background:rgba(0,229,255,0.04); border:none; border-bottom:2px solid var(--accent);
-  color:var(--accent); font-family:'Cinzel',serif; font-size:26px; font-weight:700;
-  text-align:center; width:100%; padding:8px 12px; outline:none; letter-spacing:5px;
-  caret-color:var(--red);
-}
-#nameInput::placeholder { color:var(--dim); font-size:16px; letter-spacing:2px; }
-.nameHint { font-size:9px; color:var(--dim); margin:10px 0 20px; letter-spacing:2px; }
-#nameConfirmBtn {
-  width:100%; padding:13px; background:rgba(0,229,255,0.1);
-  border:2px solid var(--accent); color:var(--accent);
-  font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:700;
-  letter-spacing:4px; cursor:pointer; border-radius:2px; transition:all 0.2s;
-}
-#nameConfirmBtn:hover { background:rgba(0,229,255,0.22); box-shadow:0 0 24px rgba(0,229,255,0.3); }
-#nameConfirmBtn:disabled { opacity:0.3; cursor:default; }
+  /* Minimap */
+  #minimap {
+    position:absolute; top:12px; right:12px;
+    width:140px; height:140px;
+    background:rgba(4,4,14,0.92); border:1px solid var(--border);
+    border-radius:4px; overflow:hidden;
+    pointer-events:none;
+  }
+  #minimapCanvas { display:block; }
+  #minimapLabel { position:absolute; bottom:4px; left:0; right:0; text-align:center; font-size:8px; color:var(--dim); }
 
-/* ═══════════════════════════════
-   CHAPTER SELECT
-═══════════════════════════════ */
-#chapterScreen {
-  flex-direction:column; align-items:center; justify-content:center;
-  background:var(--bg);
-}
-#chapterScreen::before {
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(ellipse at 20% 50%,rgba(0,229,255,0.04) 0%,transparent 60%),
-             radial-gradient(ellipse at 80% 20%,rgba(255,45,85,0.04) 0%,transparent 60%);
-}
-.chapterHeader { position:relative; z-index:2; text-align:center; margin-bottom:36px; }
-.chapterHeader h1 { font-family:'Cinzel',serif; font-size:11px; color:var(--dim); letter-spacing:8px; margin-bottom:8px; }
-.chapterHeader h2 { font-family:'Rajdhani',sans-serif; font-size:28px; color:var(--white); letter-spacing:2px; }
-#chapterPlayerInfo {
-  position:relative; z-index:2;
-  font-size:10px; color:var(--dim); letter-spacing:2px; margin-bottom:28px;
-}
-#chapterPlayerInfo span { color:var(--accent); }
-#chapterList { position:relative; z-index:2; width:680px; max-width:95vw; }
-.chapterCard {
-  display:flex; align-items:center; gap:20px;
-  background:rgba(8,8,26,0.9); border:1px solid var(--border);
-  border-radius:4px; padding:18px 22px; margin-bottom:10px;
-  cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden;
-}
-.chapterCard::before {
-  content:''; position:absolute; left:0; top:0; bottom:0;
-  width:3px; background:var(--dim); transition:background 0.2s;
-}
-.chapterCard.unlocked:hover { border-color:var(--accent); background:rgba(0,229,255,0.06); }
-.chapterCard.unlocked:hover::before { background:var(--accent); }
-.chapterCard.unlocked::before { background:var(--accent); }
-.chapterCard.locked { opacity:0.45; cursor:default; }
-.chapterCard.locked::before { background:var(--dim); }
-.chapterCard.completed::before { background:var(--green); }
-.chapterNum {
-  font-family:'Cinzel',serif; font-size:28px; font-weight:900;
-  color:var(--dim); min-width:48px; text-align:center;
-}
-.chapterCard.unlocked .chapterNum { color:var(--accent); }
-.chapterCard.completed .chapterNum { color:var(--green); }
-.chapterInfo { flex:1; }
-.chapterTitle { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:var(--white); margin-bottom:3px; }
-.chapterDesc  { font-size:10px; color:var(--dim); letter-spacing:1px; line-height:1.6; }
-.chapterMeta  { font-size:9px; color:var(--dim); margin-top:5px; }
-.chapterBadge {
-  font-size:9px; padding:3px 10px; border-radius:2px; letter-spacing:2px;
-}
-.badge-locked { background:rgba(255,255,255,0.04); border:1px solid var(--dim); color:var(--dim); }
-.badge-unlocked { background:rgba(0,229,255,0.1); border:1px solid var(--accent); color:var(--accent); }
-.badge-completed { background:rgba(0,230,118,0.1); border:1px solid var(--green); color:var(--green); }
-.badge-replay { background:rgba(255,201,71,0.1); border:1px solid var(--gold); color:var(--gold); }
-.chapterLockReason { font-size:9px; color:var(--red); margin-top:4px; letter-spacing:1px; }
+  /* Bottom HUD */
+  #bottomHud {
+    position:absolute; bottom:0; left:0; right:0; height:56px;
+    background: linear-gradient(0deg, rgba(4,4,14,0.97) 0%, transparent 100%);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-size:10px; color:var(--dim);
+    pointer-events:none;
+  }
+  .key { background:rgba(255,255,255,0.08); border:1px solid var(--border); padding:2px 7px; border-radius:3px; color:var(--text); }
 
-/* ═══════════════════════════════
-   GAME SCREEN (Puzzle)
-═══════════════════════════════ */
-#gameScreen {
-  flex-direction:column; background:var(--bg);
-}
+  /* Dialog box */
+  #dialogBox {
+    position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+    width:700px; max-width:95vw;
+    background:rgba(8,8,24,0.97); border:2px solid var(--accent);
+    border-radius:6px; padding:18px 24px;
+    pointer-events:all; display:none;
+  }
+  #dialogSpeaker { font-family:'Rajdhani',sans-serif; font-size:14px; color:var(--accent2); margin-bottom:6px; }
+  #dialogText { font-size:12px; line-height:1.7; color:var(--text); min-height:36px; }
+  #dialogChoices { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .dialogChoice {
+    background:rgba(0,229,255,0.1); border:1px solid var(--accent);
+    color:var(--accent); padding:5px 14px; border-radius:3px;
+    cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:11px;
+    transition:background 0.15s;
+    pointer-events:all;
+  }
+  .dialogChoice:hover { background:rgba(0,229,255,0.25); }
+  #dialogContinue { font-size:10px; color:var(--dim); margin-top:8px; animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-/* Top HUD */
-#gameHud {
-  height:54px; background:rgba(3,3,8,0.98); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; padding:0 18px; gap:18px; flex-shrink:0; z-index:20;
-}
-#hudChapter { font-family:'Cinzel',serif; font-size:11px; color:var(--dim); letter-spacing:3px; }
-#hudScene   { font-family:'Rajdhani',sans-serif; font-size:15px; color:var(--accent); letter-spacing:1px; }
-.hudSep     { width:1px; height:20px; background:var(--border); }
-#hudStars   { display:flex; gap:4px; }
-.hudStar    { font-size:14px; }
-#hudHints   { font-size:10px; color:var(--gold); letter-spacing:1px; cursor:pointer; }
-#hudHints:hover { color:var(--white); }
-#hudBack { margin-left:auto; font-size:10px; color:var(--dim); letter-spacing:2px; cursor:pointer; padding:5px 12px; border:1px solid var(--border); border-radius:2px; }
-#hudBack:hover { color:var(--text); border-color:var(--text); }
+  /* Shop panel */
+  #shopPanel {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:560px; max-height:85vh;
+    background:rgba(6,6,20,0.98); border:2px solid var(--gold);
+    border-radius:8px; padding:24px;
+    pointer-events:all; display:none; overflow-y:auto;
+  }
+  #shopPanel h2 { font-family:'Rajdhani',sans-serif; font-size:22px; color:var(--gold); margin-bottom:4px; }
+  #shopGold { font-size:11px; color:var(--gold); margin-bottom:16px; }
+  .shopItem {
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    padding:10px 14px; border-radius:4px; margin-bottom:8px;
+  }
+  .shopItem:hover { border-color:var(--gold); background:rgba(255,215,64,0.06); }
+  .shopItemName { font-size:12px; color:var(--text); }
+  .shopItemDesc { font-size:10px; color:var(--dim); margin-top:2px; }
+  .shopItemPrice { font-size:12px; color:var(--gold); margin-right:12px; }
+  .shopBtn {
+    background:rgba(255,215,64,0.15); border:1px solid var(--gold);
+    color:var(--gold); padding:4px 12px; border-radius:3px;
+    cursor:pointer; font-size:11px; font-family:'Share Tech Mono',monospace;
+  }
+  .shopBtn:hover { background:rgba(255,215,64,0.3); }
+  .shopClose {
+    display:block; margin-top:16px;
+    background:rgba(255,45,107,0.1); border:1px solid var(--accent2);
+    color:var(--accent2); padding:8px; border-radius:4px;
+    cursor:pointer; text-align:center; font-size:12px;
+  }
+  .shopClose:hover { background:rgba(255,45,107,0.25); }
 
-/* Main game area */
-#gameMain {
-  flex:1; display:grid;
-  grid-template-columns:320px 1fr;
-  overflow:hidden; min-height:0;
-}
+  /* Battle screen */
+  #battleScreen {
+    position:absolute; inset:0;
+    background:rgba(2,0,10,0.97);
+    display:none; flex-direction:column;
+    pointer-events:all;
+  }
+  #battleBg {
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 30%, #1a0030 0%, #02000a 70%);
+  }
+  #battleContent { position:relative; z-index:2; display:flex; flex-direction:column; height:100%; padding:20px; }
+  #battleHeader { text-align:center; margin-bottom:16px; }
+  #battleTitle { font-family:'Rajdhani',sans-serif; font-size:28px; color:var(--accent2); letter-spacing:4px; }
+  #battleArena { display:flex; gap:20px; flex:1; min-height:0; }
 
-/* Left: Narrative panel */
-#narrativePanel {
-  background:rgba(5,5,14,0.98); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; overflow:hidden;
-}
-#narrativeScroll {
-  flex:1; overflow-y:auto; padding:22px 20px;
-  scrollbar-width:thin; scrollbar-color:var(--border) transparent;
-}
-#narrativeScroll::-webkit-scrollbar { width:3px; }
-#narrativeScroll::-webkit-scrollbar-track { background:transparent; }
-#narrativeScroll::-webkit-scrollbar-thumb { background:var(--border); }
+  /* Enemy section */
+  #enemySection { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  #enemySprite { width:180px; height:180px; position:relative; }
+  #enemyInfo { text-align:center; margin-top:10px; }
+  #enemyName { font-family:'Rajdhani',sans-serif; font-size:20px; }
+  #enemyWeak { font-size:10px; color:var(--gold); margin-top:3px; }
+  .battleBar { width:220px; height:12px; background:#1a1a3a; border-radius:3px; border:1px solid var(--border); margin:4px 0; }
+  .battleBarFill { height:100%; border-radius:3px; transition:width 0.4s; }
 
-.narrSpeaker {
-  font-size:9px; letter-spacing:3px; text-transform:uppercase;
-  margin-bottom:5px; margin-top:16px;
-}
-.narrLine {
-  font-family:'Rajdhani',sans-serif; font-size:14px; line-height:1.75;
-  color:var(--white); margin-bottom:12px;
-  border-left:2px solid transparent; padding-left:10px;
-}
-.narrLine.new {
-  border-left-color:var(--accent);
-  animation:narrFade 0.5s ease;
-}
-@keyframes narrFade { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:none} }
-.narrLine.narrator {
-  color:var(--dim); font-style:italic; font-size:12px;
-  border-left-color:var(--dim);
-}
-.narrLine.system {
-  color:var(--gold); font-size:11px; letter-spacing:1px;
-  border-left-color:var(--gold);
-}
+  /* Player section */
+  #playerSection { width:260px; display:flex; flex-direction:column; gap:10px; }
+  #battlePlayerName { font-family:'Rajdhani',sans-serif; font-size:16px; color:var(--accent); }
+  #battlePlayerStats { font-size:11px; color:var(--dim); line-height:1.8; }
+  #skillList { flex:1; overflow-y:auto; }
+  .skillItem {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 12px; border:1px solid var(--border);
+    border-radius:4px; margin-bottom:6px; cursor:pointer;
+    background:rgba(255,255,255,0.03); transition:all 0.15s;
+  }
+  .skillItem:hover, .skillItem.selected { border-color:var(--accent); background:rgba(0,229,255,0.1); }
+  .skillItem.selected { border-color:var(--accent2); background:rgba(255,45,107,0.1); }
+  .skillName { font-size:12px; }
+  .skillType { font-size:9px; padding:2px 6px; border-radius:2px; }
+  .skillCost { font-size:10px; color:var(--blue); }
 
-/* Choice buttons */
-#choicePanel {
-  padding:14px 16px; border-top:1px solid var(--border);
-  display:flex; flex-direction:column; gap:7px; flex-shrink:0;
-}
-.choiceBtn {
-  width:100%; padding:10px 14px; text-align:left;
-  background:rgba(255,255,255,0.03); border:1px solid var(--border);
-  color:var(--text); font-family:'Rajdhani',sans-serif; font-size:13px;
-  cursor:pointer; border-radius:3px; transition:all 0.15s; letter-spacing:0.5px;
-}
-.choiceBtn:hover { background:rgba(0,229,255,0.1); border-color:var(--accent); color:var(--white); }
-.choiceBtn.correct { border-color:var(--green); background:rgba(0,230,118,0.1); color:var(--green); }
-.choiceBtn.wrong   { border-color:var(--red); background:rgba(255,45,85,0.1); color:var(--red); }
-.choiceBtn:disabled { cursor:default; opacity:0.6; }
+  /* Battle log */
+  #battleLog {
+    height:150px; background:rgba(0,0,0,0.5);
+    border:1px solid var(--border); border-radius:4px;
+    padding:10px 14px; overflow-y:auto; font-size:11px; line-height:1.8;
+  }
+  #battleActions { display:flex; gap:8px; margin-top:10px; }
+  .battleBtn {
+    flex:1; padding:10px; background:rgba(0,229,255,0.1);
+    border:1px solid var(--accent); color:var(--accent);
+    border-radius:4px; cursor:pointer; font-size:12px;
+    font-family:'Share Tech Mono',monospace; transition:all 0.15s;
+  }
+  .battleBtn:hover { background:rgba(0,229,255,0.25); }
+  .battleBtn.danger { border-color:var(--accent2); color:var(--accent2); background:rgba(255,45,107,0.08); }
+  .battleBtn.danger:hover { background:rgba(255,45,107,0.2); }
 
-/* Right: Puzzle area */
-#puzzleArea {
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding:28px; overflow-y:auto; position:relative;
-}
-#puzzleTitle {
-  font-family:'Cinzel',serif; font-size:13px; letter-spacing:4px;
-  color:var(--dim); margin-bottom:20px; text-align:center;
-}
+  /* Notification */
+  #notification {
+    position:absolute; top:65px; left:50%; transform:translateX(-50%);
+    background:rgba(10,10,30,0.95); border:1px solid var(--accent);
+    padding:8px 20px; border-radius:4px; font-size:12px; color:var(--accent);
+    pointer-events:none; opacity:0; transition:opacity 0.3s;
+    white-space:nowrap;
+  }
 
-/* ── PUZZLE TYPES ── */
+  /* Inventory */
+  #inventoryPanel {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:480px; background:rgba(6,6,20,0.98);
+    border:2px solid var(--accent); border-radius:8px;
+    padding:24px; pointer-events:all; display:none; max-height:80vh; overflow-y:auto;
+  }
+  #inventoryPanel h2 { font-family:'Rajdhani',sans-serif; font-size:20px; color:var(--accent); margin-bottom:16px; }
+  .invItem {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 12px; border:1px solid var(--border);
+    border-radius:4px; margin-bottom:6px;
+  }
+  .useBtn {
+    background:rgba(0,230,118,0.15); border:1px solid var(--green);
+    color:var(--green); padding:3px 10px; border-radius:3px;
+    cursor:pointer; font-size:10px;
+  }
+  .useBtn:hover { background:rgba(0,230,118,0.3); }
+  /* Name Entry Screen */
+  #nameEntryScreen {
+    position:fixed; inset:0; z-index:100;
+    background: #02000a;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  #nameEntryBg {
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 40%, #0d0030 0%, #02000a 65%);
+    overflow:hidden;
+  }
+  #nameEntryBg::before {
+    content:''; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,229,255,0.015) 3px, rgba(0,229,255,0.015) 4px);
+  }
+  #nameEntryContent {
+    position:relative; z-index:2;
+    display:flex; flex-direction:column; align-items:center;
+    gap:0;
+  }
+  #nameEntryLogo {
+    font-family:'Rajdhani',sans-serif; font-size:52px; font-weight:700;
+    color: var(--accent); letter-spacing:12px;
+    text-shadow: 0 0 40px rgba(0,229,255,0.6), 0 0 80px rgba(0,229,255,0.2);
+    animation: logoGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes logoGlow {
+    from { text-shadow: 0 0 30px rgba(0,229,255,0.5), 0 0 60px rgba(0,229,255,0.15); }
+    to   { text-shadow: 0 0 50px rgba(0,229,255,0.9), 0 0 100px rgba(0,229,255,0.4); }
+  }
+  #nameEntrySubtitle {
+    font-size:11px; color:var(--accent2); letter-spacing:6px; margin-top:6px;
+    margin-bottom:48px;
+  }
+  #nameEntryBox {
+    background: rgba(8,8,26,0.95); border:2px solid var(--accent);
+    border-radius:8px; padding:36px 48px; min-width:440px;
+    display:flex; flex-direction:column; align-items:center; gap:20px;
+    box-shadow: 0 0 60px rgba(0,229,255,0.1);
+  }
+  #nameEntryLabel {
+    font-size:10px; color:var(--dim); letter-spacing:4px; text-transform:uppercase;
+  }
+  #nameEntryPrompt {
+    font-family:'Rajdhani',sans-serif; font-size:18px; color:var(--text);
+    text-align:center; line-height:1.5;
+  }
+  #nameInput {
+    background: rgba(0,229,255,0.05); border:none; border-bottom:2px solid var(--accent);
+    color: var(--accent); font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:700;
+    text-align:center; width:280px; padding:8px 12px; outline:none;
+    letter-spacing:4px;
+    caret-color: var(--accent2);
+  }
+  #nameInput::placeholder { color:var(--dim); letter-spacing:2px; font-size:18px; }
+  #nameInput:focus { border-bottom-color:var(--accent2); }
+  #nameEntryHint { font-size:9px; color:var(--dim); }
+  #nameEntryBtn {
+    background: rgba(0,229,255,0.12); border:2px solid var(--accent);
+    color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700;
+    letter-spacing:4px; padding:12px 48px; border-radius:4px; cursor:pointer;
+    transition:all 0.2s;
+    pointer-events:all;
+  }
+  #nameEntryBtn:hover { background:rgba(0,229,255,0.25); box-shadow:0 0 20px rgba(0,229,255,0.3); }
+  #nameEntryBtn:disabled { opacity:0.3; cursor:default; }
+  #nameEntryParticles { position:absolute; inset:0; pointer-events:none; }
 
-/* Memory grid puzzle */
-.memGrid {
-  display:grid; gap:8px;
-  margin-bottom:20px;
-}
-.memCell {
-  width:70px; height:70px; border-radius:4px;
-  border:2px solid var(--border);
-  background:var(--panel); cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  font-size:24px; transition:all 0.2s; user-select:none;
-  position:relative;
-}
-.memCell.face-up { border-color:var(--accent); background:rgba(0,229,255,0.1); }
-.memCell.matched { border-color:var(--green); background:rgba(0,230,118,0.15); cursor:default; }
-.memCell.wrong-flash { border-color:var(--red); background:rgba(255,45,85,0.2); animation:wrongFlash 0.4s; }
-@keyframes wrongFlash { 0%,100%{transform:scale(1)} 50%{transform:scale(0.95)} }
-.memCell.hidden-anim { animation:flipHide 0.4s ease; }
-@keyframes flipHide { 0%{transform:rotateY(0)} 50%{transform:rotateY(90deg)} 100%{transform:rotateY(0)} }
-.memCell .cellBack { font-size:22px; }
+  /* Rename modal */
+  #renameModal {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:rgba(6,6,20,0.98); border:2px solid var(--accent2);
+    border-radius:8px; padding:28px 36px;
+    pointer-events:all; display:none;
+    flex-direction:column; align-items:center; gap:14px;
+    min-width:320px; z-index:20;
+  }
+  #renameModal h3 { font-family:'Rajdhani',sans-serif; font-size:18px; color:var(--accent2); letter-spacing:3px; }
+  #renameInput {
+    background:rgba(255,45,107,0.06); border:none; border-bottom:2px solid var(--accent2);
+    color:var(--accent2); font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700;
+    text-align:center; width:240px; padding:6px 10px; outline:none; letter-spacing:3px;
+  }
+  #renameInput:focus { border-bottom-color:var(--accent); }
+  .renameBtn {
+    padding:8px 24px; border-radius:4px; cursor:pointer;
+    font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:1px;
+  }
+  #renameSave { background:rgba(255,45,107,0.15); border:1px solid var(--accent2); color:var(--accent2); }
+  #renameSave:hover { background:rgba(255,45,107,0.3); }
+  #renameCancel { background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--dim); }
+  #renameCancel:hover { background:rgba(255,255,255,0.08); }
 
-/* Code cipher puzzle */
-.cipherPuzzle { width:100%; max-width:500px; }
-.cipherDisplay {
-  background:rgba(0,0,0,0.5); border:1px solid var(--border);
-  border-radius:4px; padding:18px 20px; margin-bottom:16px;
-  font-size:22px; letter-spacing:5px; text-align:center;
-  color:var(--gold); min-height:60px;
-}
-.cipherHint { font-size:11px; color:var(--dim); text-align:center; margin-bottom:14px; letter-spacing:1px; }
-.cipherInput {
-  width:100%; padding:12px 16px; background:rgba(0,229,255,0.05);
-  border:2px solid var(--accent); border-radius:3px;
-  color:var(--accent); font-family:'Share Tech Mono',monospace; font-size:18px;
-  text-align:center; outline:none; letter-spacing:4px;
-}
-.cipherInput:focus { border-color:var(--white); }
-.cipherSubmit {
-  width:100%; margin-top:12px; padding:12px;
-  background:rgba(0,229,255,0.1); border:1px solid var(--accent);
-  color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:14px;
-  font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:3px;
-  transition:all 0.2s;
-}
-.cipherSubmit:hover { background:rgba(0,229,255,0.22); }
+  .invClose {
+    display:block; margin-top:12px; text-align:center;
+    background:rgba(0,229,255,0.1); border:1px solid var(--accent);
+    color:var(--accent); padding:8px; border-radius:4px; cursor:pointer;
+  }
 
-/* Sequence puzzle */
-.seqPuzzle { text-align:center; }
-.seqDisplay {
-  display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
-  margin-bottom:20px;
-}
-.seqSlot {
-  width:52px; height:52px; border-radius:4px;
-  border:2px solid var(--border); background:var(--panel);
-  display:flex; align-items:center; justify-content:center;
-  font-size:20px; color:var(--white);
-  transition:all 0.2s;
-}
-.seqSlot.filled { border-color:var(--accent); background:rgba(0,229,255,0.1); }
-.seqSlot.correct-slot { border-color:var(--green); background:rgba(0,230,118,0.1); }
-.seqOptions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:14px; }
-.seqOption {
-  width:52px; height:52px; border-radius:4px;
-  border:1px solid var(--dim); background:rgba(255,255,255,0.04);
-  display:flex; align-items:center; justify-content:center;
-  font-size:20px; cursor:pointer; transition:all 0.15s;
-}
-.seqOption:hover { border-color:var(--accent); background:rgba(0,229,255,0.1); }
-.seqOption.used { opacity:0.2; pointer-events:none; }
+  /* Save/Load Panel */
+  #savePanel {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:540px; background:rgba(4,4,18,0.99);
+    border:2px solid var(--gold); border-radius:10px;
+    padding:28px; pointer-events:all; display:none;
+    z-index:30;
+  }
+  #savePanel h2 {
+    font-family:'Rajdhani',sans-serif; font-size:22px; color:var(--gold);
+    letter-spacing:4px; margin-bottom:6px; text-align:center;
+  }
+  #savePanelSub {
+    font-size:9px; color:var(--dim); text-align:center;
+    letter-spacing:3px; margin-bottom:22px;
+  }
+  .saveSlot {
+    background:rgba(255,255,255,0.03); border:1px solid var(--border);
+    border-radius:6px; padding:14px 18px; margin-bottom:10px;
+    transition:border-color 0.15s;
+  }
+  .saveSlot:hover { border-color:var(--gold); }
+  .saveSlot.empty { opacity:0.55; }
+  .saveSlotHeader {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:8px;
+  }
+  .saveSlotNum {
+    font-family:'Rajdhani',sans-serif; font-size:13px; color:var(--gold);
+    letter-spacing:2px;
+  }
+  .saveSlotTime { font-size:9px; color:var(--dim); }
+  .saveSlotInfo {
+    display:flex; gap:20px; margin-bottom:10px; flex-wrap:wrap;
+  }
+  .saveSlotStat { font-size:10px; color:var(--text); }
+  .saveSlotStat span { color:var(--accent); }
+  .saveSlotBtns { display:flex; gap:8px; }
+  .sBtn {
+    padding:5px 14px; border-radius:3px; cursor:pointer;
+    font-family:'Share Tech Mono',monospace; font-size:10px;
+    letter-spacing:1px; transition:all 0.15s;
+  }
+  .sBtnSave {
+    background:rgba(255,215,64,0.12); border:1px solid var(--gold);
+    color:var(--gold);
+  }
+  .sBtnSave:hover { background:rgba(255,215,64,0.28); }
+  .sBtnLoad {
+    background:rgba(0,229,255,0.1); border:1px solid var(--accent);
+    color:var(--accent);
+  }
+  .sBtnLoad:hover { background:rgba(0,229,255,0.25); }
+  .sBtnDel {
+    background:rgba(255,45,107,0.08); border:1px solid var(--accent2);
+    color:var(--accent2);
+  }
+  .sBtnDel:hover { background:rgba(255,45,107,0.22); }
+  .sBtnDisabled {
+    opacity:0.3; cursor:default; pointer-events:none;
+  }
+  .saveClose {
+    display:block; margin-top:16px; text-align:center;
+    background:rgba(255,45,107,0.08); border:1px solid var(--accent2);
+    color:var(--accent2); padding:9px; border-radius:4px; cursor:pointer;
+    font-size:11px; letter-spacing:2px; transition:background 0.15s;
+  }
+  .saveClose:hover { background:rgba(255,45,107,0.22); }
 
-/* Observation puzzle */
-.obsPuzzle { text-align:center; max-width:480px; }
-.obsScene {
-  background:rgba(0,0,0,0.5); border:1px solid var(--border);
-  border-radius:6px; padding:22px; margin-bottom:18px;
-  font-family:'Rajdhani',sans-serif; font-size:15px; line-height:1.8;
-  color:var(--white); text-align:left; position:relative;
-}
-.obsClue { color:var(--gold); cursor:pointer; border-bottom:1px dashed var(--gold); }
-.obsClue:hover { color:var(--white); }
-.obsQuestion { font-size:13px; color:var(--text); margin-bottom:14px; text-align:left; letter-spacing:0.5px; }
-.obsChoices { display:flex; flex-direction:column; gap:8px; }
-.obsChoice {
-  padding:10px 16px; background:rgba(255,255,255,0.03);
-  border:1px solid var(--border); border-radius:3px;
-  cursor:pointer; font-size:13px; color:var(--text); text-align:left;
-  transition:all 0.15s; font-family:'Rajdhani',sans-serif;
-}
-.obsChoice:hover { border-color:var(--accent); background:rgba(0,229,255,0.08); color:var(--white); }
-.obsChoice.correct { border-color:var(--green); background:rgba(0,230,118,0.1); color:var(--green); pointer-events:none; }
-.obsChoice.wrong   { border-color:var(--red); background:rgba(255,45,85,0.08); color:var(--red); pointer-events:none; }
+  /* Auto-save indicator */
+  #autoSaveIndicator {
+    position:absolute; bottom:64px; right:16px;
+    font-size:9px; color:var(--gold); opacity:0;
+    transition:opacity 0.4s; pointer-events:none;
+    letter-spacing:2px;
+  }
 
-/* Symbol matching puzzle */
-.symbolPuzzle { text-align:center; }
-.symbolGrid {
-  display:grid; grid-template-columns:repeat(4,1fr);
-  gap:10px; max-width:340px; margin:0 auto 16px;
-}
-.symbolCard {
-  height:72px; border-radius:4px; border:2px solid var(--border);
-  background:var(--panel); cursor:pointer; display:flex;
-  align-items:center; justify-content:center; font-size:26px;
-  transition:all 0.2s;
-}
-.symbolCard:hover { border-color:var(--accent); transform:scale(1.05); }
-.symbolCard.selected { border-color:var(--gold); background:rgba(255,201,71,0.12); }
-.symbolCard.matched { border-color:var(--green); background:rgba(0,230,118,0.1); pointer-events:none; }
-.symbolCard.error { border-color:var(--red); animation:shakeCard 0.3s ease; }
-@keyframes shakeCard { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
-.symbolPair { font-size:11px; color:var(--dim); letter-spacing:2px; margin-top:8px; }
+  /* Save confirm overlay */
+  #saveConfirm {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:rgba(4,4,18,0.99); border:2px solid var(--accent2);
+    border-radius:8px; padding:24px 32px; z-index:40;
+    pointer-events:all; display:none; text-align:center; min-width:300px;
+  }
+  #saveConfirm p { font-size:12px; color:var(--text); margin-bottom:16px; line-height:1.7; }
+  #saveConfirm h4 { font-family:'Rajdhani',sans-serif; font-size:16px; color:var(--accent2); margin-bottom:10px; }
+  .confirmBtns { display:flex; gap:10px; justify-content:center; }
 
-/* Decode puzzle (rune/symbol → letter) */
-.decodePuzzle { max-width:480px; width:100%; }
-.decodeKey {
-  display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; justify-content:center;
-}
-.decodeKeyItem {
-  background:rgba(255,255,255,0.04); border:1px solid var(--border);
-  border-radius:3px; padding:5px 10px; font-size:13px; text-align:center;
-  min-width:44px;
-}
-.decodeKeyItem .sym { font-size:18px; display:block; }
-.decodeKeyItem .ltr { font-size:9px; color:var(--accent); letter-spacing:2px; margin-top:2px; }
-.decodeTarget {
-  font-size:24px; letter-spacing:8px; text-align:center;
-  background:rgba(0,0,0,0.4); border:1px solid var(--border);
-  border-radius:4px; padding:14px; margin-bottom:14px;
-  color:var(--gold);
-}
-.decodeInput {
-  width:100%; padding:11px; background:rgba(0,229,255,0.04);
-  border:2px solid var(--accent); color:var(--accent);
-  font-family:'Share Tech Mono',monospace; font-size:20px;
-  text-align:center; letter-spacing:5px; outline:none; border-radius:3px;
-}
-.decodeSubmit {
-  width:100%; margin-top:10px; padding:11px;
-  background:rgba(0,229,255,0.1); border:1px solid var(--accent);
-  color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:14px;
-  font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:3px;
-  transition:all 0.2s;
-}
-.decodeSubmit:hover { background:rgba(0,229,255,0.22); }
+  /* ── STORY / CUTSCENE SYSTEM ── */
+  #cutsceneOverlay {
+    position:fixed; inset:0; z-index:200;
+    background:#000; display:none; flex-direction:column;
+    align-items:center; justify-content:center;
+    font-family:'Share Tech Mono',monospace;
+  }
+  #cutsceneBg {
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 50%, #0d0020 0%, #000 70%);
+    transition: background 1.5s ease;
+  }
+  #cutsceneVignette {
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.85) 100%);
+    pointer-events:none;
+  }
+  /* Scanlines */
+  #cutsceneOverlay::after {
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px);
+  }
+  #cutsceneContent {
+    position:relative; z-index:2;
+    width:100%; max-width:860px; padding:0 40px;
+    display:flex; flex-direction:column; align-items:center; gap:0;
+  }
+  #cutsceneChapter {
+    font-size:10px; color:var(--accent2); letter-spacing:6px;
+    margin-bottom:16px; opacity:0;
+    transition: opacity 0.8s ease;
+    text-transform:uppercase;
+  }
+  #cutsceneTitle {
+    font-family:'Rajdhani',sans-serif; font-size:38px; font-weight:700;
+    color:var(--text); text-align:center; letter-spacing:3px;
+    margin-bottom:36px; opacity:0;
+    transition: opacity 0.8s ease 0.3s;
+    text-shadow: 0 0 30px rgba(0,229,255,0.3);
+    line-height:1.2;
+  }
+  #cutsceneSpeakerBox {
+    width:100%; background:rgba(4,4,20,0.95);
+    border-left:3px solid var(--accent2); padding:6px 18px;
+    margin-bottom:8px; opacity:0; transition:opacity 0.3s;
+  }
+  #cutsceneSpeaker {
+    font-family:'Rajdhani',sans-serif; font-size:14px; font-weight:700;
+    letter-spacing:2px;
+  }
+  #cutsceneDialogBox {
+    width:100%; background:rgba(4,4,20,0.92);
+    border:1px solid var(--border); border-left:3px solid var(--accent2);
+    padding:20px 24px; min-height:80px;
+    opacity:0; transition:opacity 0.4s;
+  }
+  #cutsceneText {
+    font-size:13px; line-height:1.9; color:var(--text);
+  }
+  #cutsceneContinue {
+    font-size:9px; color:var(--dim); margin-top:12px;
+    animation:blink 1s infinite; letter-spacing:3px;
+  }
+  #cutsceneSkip {
+    position:absolute; bottom:30px; right:40px; z-index:3;
+    font-size:9px; color:var(--dim); cursor:pointer;
+    letter-spacing:2px; border:1px solid var(--border);
+    padding:5px 14px; border-radius:3px;
+    background:rgba(0,0,0,0.6);
+    transition:color 0.2s, border-color 0.2s;
+  }
+  #cutsceneSkip:hover { color:var(--text); border-color:var(--dim); }
+  #cutscenePortrait {
+    width:90px; height:90px; border-radius:50%;
+    border:2px solid var(--accent2); margin-bottom:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:36px; background:rgba(10,0,20,0.8);
+    flex-shrink:0;
+  }
 
-/* Pattern puzzle */
-.patternPuzzle { text-align:center; }
-.patternGrid {
-  display:grid; grid-template-columns:repeat(3,1fr);
-  gap:10px; max-width:240px; margin:0 auto 18px;
-}
-.patternCell {
-  height:68px; border-radius:4px;
-  border:2px solid var(--border); background:var(--panel);
-  cursor:pointer; transition:all 0.2s; position:relative;
-  font-size:22px; display:flex; align-items:center; justify-content:center;
-}
-.patternCell:hover { border-color:var(--accent); }
-.patternCell.active { border-color:var(--accent); background:rgba(0,229,255,0.15); }
-.patternCell.path { border-color:var(--gold); background:rgba(255,201,71,0.1); }
-.patternCell.correct-path { border-color:var(--green); background:rgba(0,230,118,0.1); }
-.patternInstructions { font-size:11px; color:var(--dim); margin-bottom:12px; letter-spacing:1px; }
+  /* Story notification banner */
+  #storyBanner {
+    position:fixed; top:0; left:0; right:0; z-index:150;
+    background: linear-gradient(135deg, rgba(10,0,30,0.97) 0%, rgba(20,0,10,0.97) 100%);
+    border-bottom:2px solid var(--accent2);
+    padding:14px 40px; display:none;
+    flex-direction:column; align-items:center; gap:4px;
+    pointer-events:all;
+  }
+  #storyBannerChapter { font-size:9px; color:var(--accent2); letter-spacing:5px; }
+  #storyBannerTitle   { font-family:'Rajdhani',sans-serif; font-size:22px; color:var(--text); letter-spacing:2px; }
+  #storyBannerSub     { font-size:10px; color:var(--dim); }
 
-/* Puzzle feedback bar */
-#puzzleFeedback {
-  position:fixed; bottom:0; left:0; right:0; height:44px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:13px; letter-spacing:2px; transform:translateY(100%);
-  transition:transform 0.3s ease; z-index:50;
-}
-#puzzleFeedback.show { transform:translateY(0); }
-#puzzleFeedback.success { background:rgba(0,100,50,0.97); border-top:1px solid var(--green); color:var(--green); }
-#puzzleFeedback.fail    { background:rgba(100,20,20,0.97); border-top:1px solid var(--red); color:var(--red); }
-
-/* Progress dots */
-#progressBar {
-  display:flex; gap:6px; padding:12px 18px;
-  border-bottom:1px solid var(--border); flex-shrink:0;
-}
-.progDot {
-  width:8px; height:8px; border-radius:50%;
-  background:var(--border); transition:all 0.3s;
-}
-.progDot.active   { background:var(--accent); box-shadow:0 0 8px var(--accent); }
-.progDot.done     { background:var(--green); }
-.progDot.current  { background:var(--gold); box-shadow:0 0 8px var(--gold); }
-
-/* ═══════════════════════════════
-   CHAPTER COMPLETE
-═══════════════════════════════ */
-#completeScreen {
-  flex-direction:column; align-items:center; justify-content:center;
-  background:rgba(3,3,8,0.98);
-}
-#completeScreen::before {
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(ellipse at 50% 50%,rgba(0,230,118,0.06) 0%,transparent 70%);
-}
-#completeContent { position:relative; z-index:2; text-align:center; max-width:560px; }
-#completeIcon { font-size:60px; margin-bottom:16px; animation:completePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275); }
-@keyframes completePop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-#completeTitle { font-family:'Cinzel',serif; font-size:28px; color:var(--green); letter-spacing:4px; margin-bottom:8px; }
-#completeChapterName { font-family:'Rajdhani',sans-serif; font-size:16px; color:var(--dim); letter-spacing:3px; margin-bottom:32px; }
-.completeStars { display:flex; gap:12px; justify-content:center; margin-bottom:24px; font-size:36px; }
-.completeStar { transition:transform 0.3s; }
-.completeStar.earned { animation:starPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both; }
-@keyframes starPop { from{transform:scale(0) rotate(-30deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
-.completeUnlock {
-  background:rgba(0,229,255,0.08); border:1px solid var(--accent);
-  border-radius:4px; padding:16px 22px; margin-bottom:28px;
-  font-size:12px; color:var(--accent); letter-spacing:1px; line-height:1.8;
-}
-.completeUnlock h4 { font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:4px; color:var(--dim); margin-bottom:6px; }
-.completeBtns { display:flex; gap:12px; justify-content:center; }
-.cmpBtn {
-  padding:12px 28px; font-family:'Rajdhani',sans-serif; font-size:14px;
-  font-weight:700; letter-spacing:3px; border-radius:3px; cursor:pointer;
-  transition:all 0.2s;
-}
-.cmpBtn.primary { background:rgba(0,229,255,0.12); border:2px solid var(--accent); color:var(--accent); }
-.cmpBtn.primary:hover { background:rgba(0,229,255,0.25); }
-.cmpBtn.secondary { background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--dim); }
-.cmpBtn.secondary:hover { border-color:var(--text); color:var(--text); }
-
-/* ═══════════════════════════════
-   HINT MODAL
-═══════════════════════════════ */
-#hintModal {
-  position:fixed; inset:0; z-index:100;
-  background:rgba(0,0,0,0.85);
-  display:none; align-items:center; justify-content:center;
-}
-#hintModal.open { display:flex; }
-.hintBox {
-  background:rgba(8,8,26,0.99); border:2px solid var(--gold);
-  border-radius:6px; padding:28px 32px; max-width:420px; width:90%;
-}
-.hintBox h3 { font-family:'Cinzel',serif; font-size:12px; color:var(--gold); letter-spacing:5px; margin-bottom:16px; }
-#hintText { font-family:'Rajdhani',sans-serif; font-size:15px; color:var(--white); line-height:1.7; margin-bottom:20px; }
-.hintClose {
-  width:100%; padding:10px; background:rgba(255,201,71,0.1); border:1px solid var(--gold);
-  color:var(--gold); font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:700;
-  letter-spacing:3px; cursor:pointer; border-radius:3px;
-}
-.hintClose:hover { background:rgba(255,201,71,0.22); }
-
-/* ═══════════════════════════════
-   NOTIFICATION
-═══════════════════════════════ */
-#notification {
-  position:fixed; top:64px; left:50%; transform:translateX(-50%) translateY(-20px);
-  background:rgba(8,8,26,0.98); border:1px solid var(--accent);
-  padding:9px 22px; border-radius:3px; font-size:11px; color:var(--accent);
-  letter-spacing:1px; pointer-events:none; opacity:0;
-  transition:opacity 0.3s, transform 0.3s; white-space:nowrap; z-index:200;
-}
-#notification.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* ═══════════════════════════════
-   SAVE BADGE
-═══════════════════════════════ */
-#saveBadge {
-  position:fixed; bottom:14px; right:16px; font-size:9px; color:var(--gold);
-  letter-spacing:2px; opacity:0; transition:opacity 0.4s; pointer-events:none;
-}
-
-/* Misc */
-.dividerLine { width:100%; height:1px; background:var(--border); margin:8px 0; }
-.puzzleNextBtn {
-  margin-top:16px; padding:12px 32px;
-  background:rgba(0,229,255,0.1); border:2px solid var(--accent);
-  color:var(--accent); font-family:'Rajdhani',sans-serif; font-size:14px;
-  font-weight:700; letter-spacing:3px; cursor:pointer; border-radius:3px;
-  transition:all 0.2s;
-}
-.puzzleNextBtn:hover { background:rgba(0,229,255,0.22); box-shadow:0 0 20px rgba(0,229,255,0.2); }
-.puzzleResetBtn {
-  margin-top:8px; padding:8px 22px;
-  background:transparent; border:1px solid var(--dim);
-  color:var(--dim); font-family:'Share Tech Mono',monospace; font-size:10px;
-  letter-spacing:2px; cursor:pointer; border-radius:3px; transition:all 0.2s;
-}
-.puzzleResetBtn:hover { border-color:var(--text); color:var(--text); }
+  /* Quest/trigger tracker HUD */
+  #questTracker {
+    position:absolute; top:60px; right:160px;
+    background:rgba(4,4,18,0.92); border:1px solid var(--border);
+    border-left:2px solid var(--accent2); padding:8px 14px;
+    font-size:9px; color:var(--dim); display:none;
+    max-width:220px; pointer-events:none;
+    border-radius:0 4px 4px 0;
+  }
+  #questTrackerTitle { color:var(--accent2); letter-spacing:2px; margin-bottom:6px; font-size:9px; }
+  .questItem { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
+  .questDot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .questDot.done { background:var(--green); }
+  .questDot.pending { background:var(--dim); border:1px solid var(--dim); background:transparent; }
+  .questText { font-size:9px; }
+  .questText.done { color:var(--dim); text-decoration:line-through; }
+  .questText.pending { color:var(--text); }
 </style>
 </head>
 <body>
+<canvas id="gameCanvas"></canvas>
 
-<!-- ── TITLE SCREEN ── -->
-<div id="titleScreen" class="screen active">
-  <canvas id="titleCanvas"></canvas>
-  <div id="titleContent">
-    <div id="titleEyeContainer"><div id="titleEye"></div></div>
-    <div class="titleLogo">PERSONA</div>
-    <div class="titleSub">E C H O  &nbsp;  O F  &nbsp;  S H A D O W S</div>
-    <div class="titleTagline">A PUZZLE OF IDENTITY · CHAPTER I — IV</div>
-    <button class="titleMenuBtn" onclick="goToName()">▶ &nbsp; NEW GAME</button>
-    <button class="titleMenuBtn" onclick="goToChapters()" id="continueBtn" style="display:none">▷ &nbsp; CONTINUE</button>
-    <button class="titleMenuBtn secondary" onclick="goToChapters()" id="chapSelectBtn" style="display:none">≡ &nbsp; CHAPTER SELECT</button>
-  </div>
-  <div class="titleVer">v1.0 · ECHO OF SHADOWS</div>
-</div>
-
-<!-- ── NAME ENTRY ── -->
-<div id="nameScreen" class="screen">
-  <div class="nameBox">
-    <h2>✦ &nbsp; AWAKEN &nbsp; ✦</h2>
-    <p>A voice calls to you<br>from the Velvet Room.<br><br><em>"What is your name,<br>wanderer of shadows?"</em></p>
-    <input id="nameInput" type="text" maxlength="16" placeholder="YOUR NAME" autocomplete="off" spellcheck="false">
-    <div class="nameHint">UP TO 16 CHARACTERS · PRESS ENTER TO BEGIN</div>
-    <button id="nameConfirmBtn" onclick="confirmName()" disabled>▶ &nbsp; BEGIN JOURNEY</button>
-  </div>
-</div>
-
-<!-- ── CHAPTER SELECT ── -->
-<div id="chapterScreen" class="screen">
-  <div class="chapterHeader">
-    <h1>✦ &nbsp; JOURNEY &nbsp; ✦</h1>
-    <h2>CHAPTER SELECT</h2>
-  </div>
-  <div id="chapterPlayerInfo">Playing as <span id="chapPlayerName">—</span></div>
-  <div id="chapterList"></div>
-</div>
-
-<!-- ── GAME SCREEN ── -->
-<div id="gameScreen" class="screen">
-  <div id="gameHud">
-    <div>
-      <div id="hudChapter">CHAPTER I</div>
-      <div id="hudScene">THE AWAKENING</div>
-    </div>
-    <div class="hudSep"></div>
-    <div id="hudStars"></div>
-    <div class="hudSep"></div>
-    <div id="hudHints" onclick="showHint()">💡 HINT</div>
-    <div id="hudBack" onclick="confirmBack()">← CHAPTERS</div>
-  </div>
-  <div id="progressBar"></div>
-  <div id="gameMain">
-    <div id="narrativePanel">
-      <div id="narrativeScroll"></div>
-      <div id="choicePanel"></div>
-    </div>
-    <div id="puzzleArea">
-      <div id="puzzleTitle">LOADING PUZZLE...</div>
+<!-- Name Entry Screen -->
+<div id="nameEntryScreen">
+  <canvas id="nameEntryParticles"></canvas>
+  <div id="nameEntryBg"></div>
+  <div id="nameEntryContent">
+    <div id="nameEntryLogo">PERSONA</div>
+    <div id="nameEntrySubtitle">W O R L D   O F   S H A D O W S</div>
+    <div id="nameEntryBox">
+      <div id="nameEntryLabel">✦ New Journey ✦</div>
+      <div id="nameEntryPrompt">What is your name,<br>young Persona-user?</div>
+      <input id="nameInput" type="text" maxlength="16" placeholder="Enter name..." autocomplete="off" spellcheck="false">
+      <div id="nameEntryHint">Up to 16 characters · Press ENTER to confirm</div>
+      <button id="nameEntryBtn" onclick="confirmName()" disabled>▶ BEGIN JOURNEY</button>
     </div>
   </div>
 </div>
 
-<!-- ── CHAPTER COMPLETE ── -->
-<div id="completeScreen" class="screen">
-  <div id="completeContent">
-    <div id="completeIcon">🌙</div>
-    <div id="completeTitle">CHAPTER COMPLETE</div>
-    <div id="completeChapterName">THE AWAKENING</div>
-    <div class="completeStars" id="completeStars">
-      <span class="completeStar">☆</span>
-      <span class="completeStar">☆</span>
-      <span class="completeStar">☆</span>
-    </div>
-    <div class="completeUnlock" id="completeUnlock">
-      <h4>✦ UNLOCKED ✦</h4>
-      <div id="completeUnlockText">Chapter II: The Mirror</div>
-    </div>
-    <div class="completeBtns">
-      <button class="cmpBtn primary" onclick="goToChapters()">≡ CHAPTERS</button>
-      <button class="cmpBtn secondary" onclick="replayChapter()">↩ REPLAY</button>
-    </div>
+<!-- Rename Modal (inside inventory) -->
+<div id="renameModal">
+  <h3>✎ RENAME</h3>
+  <input id="renameInput" type="text" maxlength="16" placeholder="New name..." autocomplete="off" spellcheck="false">
+  <div style="display:flex;gap:10px;margin-top:4px">
+    <button class="renameBtn" id="renameSave" onclick="saveRename()">✔ SAVE</button>
+    <button class="renameBtn" id="renameCancel" onclick="closeRename()">✕ CANCEL</button>
   </div>
 </div>
 
-<!-- ── HINT MODAL ── -->
-<div id="hintModal">
-  <div class="hintBox">
-    <h3>💡 &nbsp; HINT</h3>
-    <div id="hintText">—</div>
-    <button class="hintClose" onclick="closeHint()">✕ &nbsp; CLOSE</button>
+<!-- HUD -->
+<div id="hud">
+  <div id="topBar">
+    <div id="clockWidget">
+      <div id="clockTime">06:00</div>
+      <div id="clockDate">Apr 01 · Mon</div>
+    </div>
+    <div id="weatherIcon">☀️</div>
+    <div id="timeOfDayLabel">MORNING</div>
+    <div id="playerBars">
+      <div id="playerName">PROTAGONIST · <span id="playerLevel">Lv.1</span></div>
+      <div class="statRow"><span class="statLabel">HP</span><div class="barOuter"><div class="barInner barHp" id="hpBar" style="width:100%"></div></div><span id="hpText" style="font-size:9px;color:var(--dim);margin-left:4px">100/100</span></div>
+      <div class="statRow"><span class="statLabel">SP</span><div class="barOuter"><div class="barInner barSp" id="spBar" style="width:100%"></div></div><span id="spText" style="font-size:9px;color:var(--dim);margin-left:4px">60/60</span></div>
+      <div class="statRow"><span class="statLabel">EX</span><div class="barOuter"><div class="barInner barExp" id="expBar" style="width:0%"></div></div><span id="expText" style="font-size:9px;color:var(--dim);margin-left:4px">0/100</span></div>
+    </div>
+    <div id="locationTag">📍 IWATODAI CITY</div>
+  </div>
+
+  <div id="minimap">
+    <canvas id="minimapCanvas" width="140" height="140"></canvas>
+    <div id="minimapLabel">WORLD MAP</div>
+  </div>
+
+  <div id="notification"></div>
+
+  <div id="autoSaveIndicator">✦ AUTO-SAVED</div>
+
+  <!-- Quest tracker inside HUD so it respects z-index -->
+  <div id="questTracker2"></div>
+
+  <div id="dialogBox">
+    <div id="dialogSpeaker">???</div>
+    <div id="dialogText"></div>
+    <div id="dialogChoices"></div>
+    <div id="dialogContinue">▼ Press E or click to continue</div>
+  </div>
+
+  <div id="bottomHud">
+    <span class="key">WASD</span> Move &nbsp;
+    <span class="key">E</span> Interact &nbsp;
+    <span class="key">I</span> Inventory &nbsp;
+    <span class="key">F5</span> Quick Save &nbsp;
+    <span class="key">F9</span> Quick Load &nbsp;
+    <span class="key">SPACE</span> Attack nearby shadow
   </div>
 </div>
 
-<!-- ── FEEDBACK / NOTIF / SAVE ── -->
-<div id="puzzleFeedback"></div>
-<div id="notification"></div>
-<div id="saveBadge">✦ SAVED</div>
+<!-- Shop Panel -->
+<div id="shopPanel">
+  <h2 id="shopTitle">⚔ ITEM SHOP</h2>
+  <div id="shopGold">💰 Gold: <span id="shopGoldVal">500</span></div>
+  <div id="shopItems"></div>
+  <div class="shopClose" onclick="closeShop()">✕ LEAVE SHOP</div>
+</div>
+
+<!-- Inventory -->
+<div id="inventoryPanel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <h2 style="margin:0">🎒 INVENTORY</h2>
+    <div style="display:flex;gap:8px">
+      <button onclick="openSavePanel('save')" style="background:rgba(255,215,64,0.12);border:1px solid var(--gold);color:var(--gold);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">💾 SAVE</button>
+      <button onclick="openRename()" style="background:rgba(255,45,107,0.12);border:1px solid var(--accent2);color:var(--accent2);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">✎ RENAME</button>
+    </div>
+  </div>
+  <div id="invGold" style="font-size:11px;color:var(--gold);margin-bottom:12px;">💰 Gold: 500</div>
+  <div id="invItems"></div>
+  <div class="invClose" onclick="closeInventory()">✕ CLOSE</div>
+</div>
+
+<!-- Save/Load Panel -->
+<div id="savePanel">
+  <h2>💾 SAVE  /  LOAD</h2>
+  <div id="savePanelSub">SELECT A SAVE SLOT</div>
+  <div id="saveSlots"></div>
+  <div class="saveClose" onclick="closeSavePanel()">✕ CLOSE</div>
+</div>
+
+<!-- Save Overwrite Confirm -->
+<div id="saveConfirm">
+  <h4>⚠ OVERWRITE SAVE?</h4>
+  <p id="saveConfirmText">This slot already has data.<br>Overwrite it?</p>
+  <div class="confirmBtns">
+    <button class="sBtn sBtnSave" id="saveConfirmYes">✔ OVERWRITE</button>
+    <button class="sBtn sBtnDel" onclick="closeSaveConfirm()">✕ CANCEL</button>
+  </div>
+</div>
+
+<!-- ═══ STORY / CUTSCENE OVERLAY ═══ -->
+<div id="cutsceneOverlay">
+  <div id="cutsceneBg"></div>
+  <div id="cutsceneVignette"></div>
+  <div id="cutsceneContent">
+    <div id="cutsceneChapter">✦ CHAPTER I ✦</div>
+    <div id="cutsceneTitle">THE DARK HOUR</div>
+    <div style="display:flex;gap:20px;align-items:flex-start;width:100%;margin-top:12px">
+      <div id="cutscenePortrait">👤</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <div id="cutsceneSpeakerBox"><div id="cutsceneSpeaker" style="color:var(--accent2)">???</div></div>
+        <div id="cutsceneDialogBox">
+          <div id="cutsceneText"></div>
+          <div id="cutsceneContinue">▼ PRESS E / CLICK TO CONTINUE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="cutsceneSkip" onclick="skipCutscene()">SKIP ✕</div>
+</div>
+
+<!-- Story chapter banner -->
+<div id="storyBanner">
+  <div id="storyBannerChapter">CHAPTER I</div>
+  <div id="storyBannerTitle">THE DARK HOUR</div>
+  <div id="storyBannerSub">A new threat stirs in the shadows...</div>
+</div>
+
+<!-- Quest tracker -->
+<div id="questTracker">
+  <div id="questTrackerTitle">◆ CHAPTER I</div>
+  <div id="questTrackerItems"></div>
+</div>
+
+<!-- Battle Screen -->
+<div id="battleScreen">
+  <div id="battleBg"></div>
+  <div id="battleContent">
+    <div id="battleHeader">
+      <div id="battleTitle">⚔ SHADOW ENCOUNTER</div>
+    </div>
+    <div id="battleArena">
+      <div id="enemySection">
+        <canvas id="enemySprite" width="180" height="180"></canvas>
+        <div id="enemyInfo">
+          <div id="enemyName">Shadow</div>
+          <div id="enemyWeak">WEAK: —</div>
+          <div class="battleBar"><div class="battleBarFill" id="enemyHpFill" style="width:100%;background:linear-gradient(90deg,#b71c1c,#ef5350)"></div></div>
+          <div id="enemyHpText" style="font-size:10px;color:var(--dim)">HP: 100/100</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;flex:1;gap:12px;">
+        <div id="battleLog"></div>
+        <div id="skillList"></div>
+        <div id="battleActions">
+          <button class="battleBtn" onclick="battleUseSkill()">⚡ USE SKILL</button>
+          <button class="battleBtn" onclick="battleGuard()">🛡 GUARD</button>
+          <button class="battleBtn danger" onclick="battleFlee()">🏃 FLEE</button>
+        </div>
+      </div>
+
+      <div id="playerSection">
+        <div id="battlePlayerName">PROTAGONIST</div>
+        <div id="battlePlayerStats"></div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:6px;">SELECT SKILL:</div>
+        <div id="battleSkillList"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════════
-//  GAME DATA — CHAPTERS & SCENES
-//
-//  HOW TO ADD A NEW CHAPTER:
-//  1. Add entry to CHAPTERS array with id, title, desc, scenes[], unlockCondition
-//  2. unlockCondition: function(save) → true/false
-//     Examples:
-//       () => true                                    — always unlocked
-//       (s) => s.completedChapters.includes('ch1')   — after ch1 done
-//       (s) => s.completedChapters.length >= 2        — after 2 chapters done
-//       (s) => s.flags.foundKey === true              — after flag set
-//       (s) => s.score >= 150                         — after score threshold
-//  3. Each scene has: id, type, narrative[], puzzle{}
-//     PUZZLE TYPES: 'memory', 'cipher', 'sequence', 'observation', 'symbol', 'decode', 'pattern'
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  WORLD DATA
+// ═══════════════════════════════════════════
 
-const CHAPTERS = [
+const WORLD_W = 3200, WORLD_H = 2400;
 
-// ──────────────────────────────────────────
-// CHAPTER I — THE AWAKENING
-// Trigger: Always unlocked (first chapter)
-// ──────────────────────────────────────────
-{
-  id: 'ch1',
-  title: 'The Awakening',
-  subtitle: 'I',
-  desc: 'You wake in the Velvet Room. A pair of pale eyes watch from the dark. "Your journey begins with a question..."',
-  icon: '🌑',
-  unlockCondition: () => true,
-  unlockText: 'Always available',
-  scenes: [
-    {
-      id: 'ch1_s1',
-      title: 'Velvet Room',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The room has no walls — only a corridor stretching into violet darkness. A long-nosed figure sits at a piano that plays itself.' },
-        { speaker: 'IGOR', text: '"Welcome... to the Velvet Room."', color: '#b388ff' },
-        { speaker: 'IGOR', text: '"This place exists between dream and reality, mind and matter. You have been chosen as a Wild Card."', color: '#b388ff' },
-        { speaker: 'NARRATOR', text: 'He gestures to a table covered in six face-down cards.' },
-        { speaker: 'IGOR', text: '"Before your journey begins — you must remember. Match the cards, and prove your mind is awake."', color: '#b388ff' },
-      ],
-      puzzle: {
-        type: 'memory',
-        title: 'VELVET ROOM MEMORY',
-        hint: 'Click two cards to flip them. Find all matching pairs. If they don\'t match, they flip back — memorize the positions!',
-        config: {
-          pairs: ['🌙','⭐','🔮','🗝️','🃏','👁️'],
-          gridCols: 4,
-        }
-      }
-    },
-    {
-      id: 'ch1_s2',
-      title: 'The First Door',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The matched cards rise into the air and form a glowing door. Igor nods approvingly.' },
-        { speaker: 'IGOR', text: '"Excellent. Memory is the foundation of identity."', color: '#b388ff' },
-        { speaker: 'IGOR', text: '"But a door needs a key. The Shadows have hidden it behind a cipher. Can you decode their language?"', color: '#b388ff' },
-        { speaker: 'NARRATOR', text: 'A stone tablet materializes, covered in strange symbols.' },
-      ],
-      puzzle: {
-        type: 'cipher',
-        title: 'SHADOW CIPHER',
-        hint: 'Each letter has shifted forward by 3 in the alphabet (Caesar cipher). A→D, B→E... so reverse it: D→A, E→B...',
-        config: {
-          encoded: 'RHÁLJV',
-          displayEncoded: 'VHOYHW',
-          answer: 'VELVET',
-          hint2: 'Shift each letter BACK by 3 positions in the alphabet.'
-        }
-      }
-    },
-    {
-      id: 'ch1_s3',
-      title: 'Faces of Shadow',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The door swings open, revealing a chamber with four pedestals. Upon each stands a masked figure.' },
-        { speaker: 'IGOR', text: '"The Shadows wear many faces. But each element has its true symbol."', color: '#b388ff' },
-        { speaker: 'IGOR', text: '"Match the Shadow to its element. Order matters — align them by ascending elemental power."', color: '#b388ff' },
-        { speaker: 'PLAYER', text: '"How will I know which is strongest?"' },
-        { speaker: 'IGOR', text: '"Fire tames Ice. Ice tames Wind. Wind tames Thunder. Trust that hierarchy."', color: '#b388ff' },
-      ],
-      puzzle: {
-        type: 'sequence',
-        title: 'ELEMENTAL ORDER',
-        hint: 'Order by elemental chain: Fire (weakest in chain) → Ice → Wind → Thunder (strongest in chain). Drag or click in order.',
-        config: {
-          prompt: 'Arrange the elements from WEAKEST to STRONGEST in the elemental chain:',
-          items: ['🔥 Fire', '❄️ Ice', '🌪️ Wind', '⚡ Thunder'],
-          answer: ['🔥 Fire', '❄️ Ice', '🌪️ Wind', '⚡ Thunder'],
-        }
-      }
-    },
-    {
-      id: 'ch1_s4',
-      title: 'The Awakening',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The four elements ignite in sequence — a column of light erupts from the chamber floor.' },
-        { speaker: 'IGOR', text: '"You have proven yourself worthy of awakening."', color: '#b388ff' },
-        { speaker: 'NARRATOR', text: 'In the light, you see a scene: a school rooftop, a figure standing at the edge of something dangerous. What is wrong here?' },
-        { speaker: 'IGOR', text: '"Observe. See what others miss. That is the Wild Card\'s gift."', color: '#b388ff' },
-      ],
-      puzzle: {
-        type: 'observation',
-        title: 'ROOFTOP OBSERVATION',
-        hint: 'Read the scene carefully. Look for the detail that is out of place or logically inconsistent.',
-        config: {
-          scene: `The school rooftop. 3:00 PM — the sun casts long shadows westward. 
-A student stands near the railing, staring at a <span class="obsClue" onclick="clueClick('shadow')">shadow on the ground</span> that points EAST. 
-They wear a <span class="obsClue" onclick="clueClick('clock')">watch showing 8:00 AM</span> despite the afternoon light. 
-A <span class="obsClue" onclick="clueClick('uniform')">winter uniform</span> in summer heat. 
-Music plays from broken headphones — the left earbud sparks.`,
-          question: 'What detail is physically IMPOSSIBLE in this scene?',
-          choices: [
-            { text: 'A winter uniform worn in summer', correct: false, feedback: 'Unusual but not physically impossible — people layer clothing.' },
-            { text: 'The shadow pointing EAST at 3 PM', correct: true, feedback: 'Correct! In the northern hemisphere, afternoon sun is in the west — shadows point EAST. Wait... that\'s actually correct. But the sun casting shadows at 3 PM pointing east would be fine. The IMPOSSIBLE detail is: a watch showing 8 AM when the sun position confirms it\'s 3 PM — time itself is wrong.' },
-            { text: 'Broken headphones playing music', correct: false, feedback: 'Possible — the headphone wire could be damaged only at the earbud joint.' },
-            { text: 'The watch showing 8:00 AM at 3:00 PM', correct: true, feedback: '✓ Exactly! A stopped or wrong watch is physically possible, but combined with sun position confirming 3 PM — the student\'s watch is lying. This is the Shadow\'s tell: they distort time perception.' },
-          ],
-          multiCorrect: true,
-        }
-      }
-    },
-  ],
-  completionReward: {
-    text: 'Chapter II: The Mirror — unlocked!\nA new Persona fragment has awakened.',
-    flag: 'ch1_complete',
-  }
-},
-
-// ──────────────────────────────────────────
-// CHAPTER II — THE MIRROR
-// Trigger: Complete Chapter I
-// ──────────────────────────────────────────
-{
-  id: 'ch2',
-  title: 'The Mirror',
-  subtitle: 'II',
-  desc: 'Tartarus rises at midnight. At its heart — a mirror that shows not your face, but your Shadow. Face yourself.',
-  icon: '🪞',
-  unlockCondition: (s) => s.completedChapters.includes('ch1'),
-  unlockText: 'Complete Chapter I',
-  scenes: [
-    {
-      id: 'ch2_s1',
-      title: 'Midnight Tower',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'Midnight. Tartarus has risen from the school grounds — a tower of twisting corridors and locked doors.' },
-        { speaker: 'NARRATOR', text: 'The first floor. Glyphs carved into the walls pulse with pale light. Each glyph is a piece of a forgotten language.' },
-        { speaker: 'UNKNOWN', text: '"Decode the glyph, and the floor will open."', color:'#e0aaff' },
-      ],
-      puzzle: {
-        type: 'decode',
-        title: 'TARTARUS GLYPHS',
-        hint: 'Use the key table above to translate each symbol to its letter. The symbols are shown in the key.',
-        config: {
-          keyMap: { '⚡':'S', '🌙':'H', '👁️':'A', '🔮':'D', '🗝️':'O', '⭐':'W' },
-          encoded: ['⚡','🌙','👁️','🔮','🗝️','⭐'],
-          answer: 'SHADOW',
-        }
-      }
-    },
-    {
-      id: 'ch2_s2',
-      title: 'Twin Masks',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The second floor. Two alcoves, each containing a Persona mask. The masks are identical — except for subtle differences.' },
-        { speaker: 'NARRATOR', text: 'Twelve symbols line the walls. Six belong to the mask of Light, six to the mask of Dark. They must be separated.' },
-        { speaker: 'SHADOW', text: '"You cannot tell us apart... you never could."', color:'#ff6b9d' },
-        { speaker: 'PLAYER', text: '"Light creates. Dark destroys. I just need to look closer."' },
-      ],
-      puzzle: {
-        type: 'symbol',
-        title: 'LIGHT & SHADOW SORT',
-        hint: 'Click pairs of matching symbols. Light symbols: ☀️🌟💫✨🕯️🔆 — Dark symbols: 🌑🌒🌑🕳️💀🖤. Match identical symbols.',
-        config: {
-          pairs: [
-            ['☀️','🌑'], ['🌟','💀'], ['💫','🕳️'],
-            ['✨','🖤'], ['🕯️','🌒'], ['🔆','🌚']
-          ],
-        }
-      }
-    },
-    {
-      id: 'ch2_s3',
-      title: 'The Mirror Room',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The top floor. A single enormous mirror fills the far wall. As you approach, the reflection warps — it shows a different figure. Your Shadow.' },
-        { speaker: 'SHADOW_SELF', text: '"I know what you\'re afraid of. I know the truth you hide."', color:'#ff2d55' },
-        { speaker: 'PLAYER', text: '"..."' },
-        { speaker: 'SHADOW_SELF', text: '"Five truths lie in this room. Four are mine — lies. One is yours — real. Can you find the real one?"', color:'#ff2d55' },
-      ],
-      puzzle: {
-        type: 'observation',
-        title: 'SHADOW TRUTHS',
-        hint: 'One statement reflects a genuine universal truth. The others are distortions a Shadow would use to manipulate. Think carefully about which is actually true.',
-        config: {
-          scene: `The mirror room grows cold. Your Shadow speaks five statements:
-
-"<span class='obsClue' onclick=\"clueClick('s1')\">1. Strength means never needing others.</span>"
-"<span class='obsClue' onclick=\"clueClick('s2')\">2. Every person wears a different mask for different people.</span>"
-"<span class='obsClue' onclick=\"clueClick('s3')\">3. Accepting a weakness means surrendering to it.</span>"
-"<span class='obsClue' onclick=\"clueClick('s4')\">4. What you fear most defines your entire identity.</span>"
-"<span class='obsClue' onclick=\"clueClick('s5')\">5. The darkness inside you is evil and must be destroyed.</span>"`,
-          question: 'Which statement is genuinely TRUE (not a Shadow\'s distortion)?',
-          choices: [
-            { text: '1 — Strength means never needing others', correct: false, feedback: 'This is a Shadow\'s lie. True strength often comes from accepting help and connection.' },
-            { text: '2 — Everyone wears different masks for different people', correct: true, feedback: '✓ True. Carl Jung called this the "Persona" — the social masks we wear. Acknowledging this is the first step to understanding the self.' },
-            { text: '3 — Accepting weakness means surrendering to it', correct: false, feedback: 'A Shadow\'s distortion. Accepting a weakness means understanding it — not being defeated by it.' },
-            { text: '4 — Fear defines your entire identity', correct: false, feedback: 'Fear is part of you, but identity is far more complex. This is a Shadow\'s reductive trap.' },
-            { text: '5 — Inner darkness must be destroyed', correct: false, feedback: 'The core lesson of Persona: you don\'t destroy your Shadow — you accept and integrate it.' },
-          ],
-        }
-      }
-    },
-    {
-      id: 'ch2_s4',
-      title: 'Accepting the Shadow',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The mirror cracks — and then shatters into a thousand shards that float, suspended, around you.' },
-        { speaker: 'SHADOW_SELF', text: '"You... accept me?"', color:'#ff2d55' },
-        { speaker: 'PLAYER', text: '"You\'re a part of me. Denying you only makes you stronger."' },
-        { speaker: 'SHADOW_SELF', text: '"Then... let us be one."', color:'#b388ff' },
-        { speaker: 'NARRATOR', text: 'The Shadow dissolves. The mirror shards form a new Persona mask — stronger than before. The tower shudders and begins to descend.' },
-        { speaker: 'IGOR', text: '"Magnificent. You have faced yourself — and triumphed."', color: '#b388ff' },
-      ],
-      puzzle: {
-        type: 'pattern',
-        title: 'PERSONA AWAKENING',
-        hint: 'Connect the glowing nodes in the correct order. The path spells out the awakening sequence: start from the eye (center), then spiral outward clockwise.',
-        config: {
-          grid: [
-            ['🌑','👁️','🌑'],
-            ['🗝️','⭐','🔮'],
-            ['🌑','🌙','🌑'],
-          ],
-          solution: [[0,1],[1,1],[1,2],[2,1],[1,0],[0,1]],
-          instructionText: 'Tap the EYE first, then follow the path: Right → Down → Left → Up → back to Eye',
-        }
-      }
-    },
-  ],
-  completionReward: {
-    text: 'Chapter III: The Labyrinth — unlocked!\nSocial Link: The Moon — established.',
-    flag: 'ch2_complete',
-  }
-},
-
-// ──────────────────────────────────────────
-// CHAPTER III — THE LABYRINTH
-// Trigger: Complete Chapters I and II
-// ──────────────────────────────────────────
-{
-  id: 'ch3',
-  title: 'The Labyrinth',
-  subtitle: 'III',
-  desc: 'Deep beneath Port Island, an ancient labyrinth holds the memories of lost Persona-users. Navigate the maze of minds.',
-  icon: '🏛️',
-  unlockCondition: (s) => s.completedChapters.includes('ch1') && s.completedChapters.includes('ch2'),
-  unlockText: 'Complete Chapters I & II',
-  scenes: [
-    {
-      id: 'ch3_s1',
-      title: 'Ancient Halls',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'Port Island, sub-level 7. Your team has found a pre-civilization chamber beneath the ruins. Walls lined with carved tablets.' },
-        { speaker: 'YUKARI', text: '"These symbols... they\'re older than any known language."', color:'#ff8fab' },
-        { speaker: 'JUNPEI', text: '"So we\'re basically treasure hunters now? Cool."', color:'#90caf9' },
-        { speaker: 'NARRATOR', text: 'The central tablet glows — it expects an answer.' },
-      ],
-      puzzle: {
-        type: 'decode',
-        title: 'ANCIENT TABLET',
-        hint: 'Use the key to decode the symbols. Read left to right.',
-        config: {
-          keyMap: { '🏛️':'A', '⚔️':'R', '🛡️':'C', '👑':'N', '🌿':'A', '🔱':'P' },
-          encoded: ['🔱','🏛️','⚔️','👑','🏛️'],
-          answer: 'PARNA',
-          note: 'Note: 🏛️ and 🌿 both = A',
-        }
-      }
-    },
-    {
-      id: 'ch3_s2',
-      title: 'Memory Fragments',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'A projection materializes — fragments of a past explorer\'s memory, scattered across six pedestals. The memories must be reconstructed in order.' },
-        { speaker: 'YUKARI', text: '"Someone was here before us. These are their last moments."', color:'#ff8fab' },
-        { speaker: 'FUUKA', text: '"I\'m detecting six distinct emotional signatures. They correspond to stages of a journey."', color:'#c8e6c9' },
-      ],
-      puzzle: {
-        type: 'sequence',
-        title: 'MEMORY RECONSTRUCTION',
-        hint: 'A hero\'s journey follows: Call → Descent → Trial → Crisis → Revelation → Return. Arrange the memory fragments in that mythic order.',
-        config: {
-          prompt: 'Reconstruct the explorer\'s journey in mythic order:',
-          items: ['⚡ Crisis point', '🌟 Revelation', '🚪 The Call', '🔥 Trial by fire', '🌑 Descent', '🏠 Return'],
-          answer: ['🚪 The Call', '🌑 Descent', '🔥 Trial by fire', '⚡ Crisis point', '🌟 Revelation', '🏠 Return'],
-        }
-      }
-    },
-    {
-      id: 'ch3_s3',
-      title: 'The Guardian',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'At the labyrinth\'s center: a colossal stone guardian, frozen in place. Its chest contains twelve carved symbols — but only six slots. A combination lock.' },
-        { speaker: 'AKIHIKO', text: '"This thing has been here for centuries. Someone built it to protect something important."', color:'#e0e0e0' },
-        { speaker: 'NARRATOR', text: 'Beside the guardian, an inscription: "The gods of thunder, ice, flame, shadow, wind, and light. Call them in the order the world was made dark."' },
-        { speaker: 'JUNPEI', text: '"The world was made dark... like, the order shadows invaded?"', color:'#90caf9' },
-      ],
-      puzzle: {
-        type: 'symbol',
-        title: 'GUARDIAN LOCK',
-        hint: 'The inscription says "order the world was made dark" — match each element symbol to its Shadow counterpart. Click two cards at once to match pairs.',
-        config: {
-          pairs: [
-            ['⚡ Thunder','🌑 Dark Thunder'],
-            ['❄️ Ice','💀 Void Ice'],
-            ['🔥 Flame','🕳️ Dark Flame'],
-            ['👁️ Shadow','🖤 Void Shadow'],
-            ['🌪️ Wind','🌚 Dark Wind'],
-            ['🌟 Light','💫 Void Light'],
-          ],
-        }
-      }
-    },
-    {
-      id: 'ch3_s4',
-      title: 'The Heart of the Labyrinth',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The guardian steps aside, revealing a chamber. At its center: a crystallized memory — the final record of the first Persona-user.' },
-        { speaker: 'MEMORY', text: '"If you have reached this place... then the cycle continues. The shadows never truly die. But neither do the ones who face them."', color:'#b388ff' },
-        { speaker: 'MEMORY', text: '"One final test. The cipher of the first Wild Card. Decode my name — and you will receive my power."', color:'#b388ff' },
-        { speaker: 'NARRATOR', text: 'A complex cipher wheel appears before you.' },
-      ],
-      puzzle: {
-        type: 'cipher',
-        title: 'THE FIRST WILD CARD',
-        hint: 'The cipher shifts each letter by 7 positions backward. Z-7=S, A-7=T... Try working through each letter.',
-        config: {
-          displayEncoded: 'AOPZAV',
-          answer: 'THISTLE',
-          hint2: 'Hint: Each letter shifts FORWARD by 7. T+7=A, H+7=O, I+7=P... The name is a thorny flower.',
-        }
-      }
-    },
-  ],
-  completionReward: {
-    text: 'Chapter IV: The Eclipse — unlocked!\nAncient Persona fragment absorbed.\nAll Social Links: +1 Rank.',
-    flag: 'ch3_complete',
-  }
-},
-
-// ──────────────────────────────────────────
-// CHAPTER IV — THE ECLIPSE
-// Trigger: Complete all 3 previous chapters
-// BONUS CHAPTER — hardest puzzles
-// ──────────────────────────────────────────
-{
-  id: 'ch4',
-  title: 'The Eclipse',
-  subtitle: 'IV',
-  desc: 'The Dark Hour peaks. Nyx approaches. Only by solving the final mysteries of the human heart can the Eclipse be stopped.',
-  icon: '🌑',
-  unlockCondition: (s) =>
-    s.completedChapters.includes('ch1') &&
-    s.completedChapters.includes('ch2') &&
-    s.completedChapters.includes('ch3'),
-  unlockText: 'Complete all three chapters',
-  scenes: [
-    {
-      id: 'ch4_s1',
-      title: 'The Dark Hour',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'January. The final Dark Hour. Time has stopped for everyone but you. The sky is a coffin-lid of starless black.' },
-        { speaker: 'IGOR', text: '"The end approaches. Six seals protect the Final Door. Each seal is a memory of those you have met."', color: '#b388ff' },
-        { speaker: 'IGOR', text: '"Remember them. Truly remember. That is the only key."', color: '#b388ff' },
-        { speaker: 'NARRATOR', text: 'Twelve face-down cards appear. They hold the faces of everyone you have encountered.' },
-      ],
-      puzzle: {
-        type: 'memory',
-        title: 'FINAL SEAL — MEMORY',
-        hint: 'Larger grid, same rules — but you only get 10 seconds to view the cards at the start before they all flip. Memorize quickly!',
-        config: {
-          pairs: ['🌙','⭐','🔮','🗝️','🃏','👁️','🌹','🦋','🏛️','🌊'],
-          gridCols: 5,
-          previewTime: 10,
-        }
-      }
-    },
-    {
-      id: 'ch4_s2',
-      title: 'Six Arcana',
-      narrative: [
-        { speaker: 'NARRATOR', text: 'The six seals manifest as Arcana cards — the symbolic language of fate. Each Arcana has a true theme. Misattribute them, and the seal breaks against you.' },
-        { speaker: 'IGOR', text: '"The Arcana is the means by which all is revealed. Each has its truth."', color: '#b388ff' },
-      ],
-      puzzle: {
-        type: 'sequence',
-        title: 'THE SIX ARCANA',
-        hint: 'Major Arcana order by traditional meaning-weight: Fool (beginning/innocence) → Strength → Justice → Death (transformation) → Star (hope) → World (completion).',
-        config: {
-          prompt: 'Arrange the Arcana from the beginning of the journey to its completion:',
-          items: ['⚖️ Justice', '🌟 The Star', '🌍 The World', '🤡 The Fool', '💪 Strength', '💀 Death'],
-          answer: ['🤡 The Fool', '💪 Strength', '⚖️ Justice', '💀 Death', '🌟 The Star', '🌍 The World'],
-        }
-      }
-    },
-    {
-      id: 'ch4_s3',
-      title: 'The Final Cipher',
-      narrative: [
-        { speaker: 'NYX', text: '"You have come far, Wild Card. But words cannot stop what I am."', color:'#7c4dff' },
-        { speaker: 'PLAYER', text: '"I\'m not here to stop you with words. I\'m here to answer the question that called you here."' },
-        { speaker: 'NYX', text: '"...What question?"', color:'#7c4dff' },
-        { speaker: 'PLAYER', text: '"The one written in the stars. In a language older than human fear."' },
-        { speaker: 'NARRATOR', text: 'Stars re-arrange above. They form a pattern — a cipher in the oldest script.' },
-      ],
-      puzzle: {
-        type: 'decode',
-        title: 'LANGUAGE OF THE STARS',
-        hint: 'Each constellation symbol maps to a letter. Read the key carefully.',
-        config: {
-          keyMap: { '✦':'L', '✧':'I', '❋':'V', '✵':'E', '✸':'R', '❂':'N' },
-          encoded: ['✦','✧','❋','✵'],
-          answer: 'LIVE',
-        }
-      }
-    },
-    {
-      id: 'ch4_s4',
-      title: 'Answer',
-      narrative: [
-        { speaker: 'NYX', text: '"...LIVE."', color:'#7c4dff' },
-        { speaker: 'NYX', text: '"That is... not the answer I expected from mortals."', color:'#b388ff' },
-        { speaker: 'PLAYER', text: '"Every person I met chose to live, despite the pain. That\'s the answer to your question about humanity."' },
-        { speaker: 'NARRATOR', text: 'Nyx is still. The eclipse pauses. One final truth must be stated — the pattern of the Great Seal, to bind the Dark Hour forever.' },
-        { speaker: 'IGOR', text: '"The final pattern. Draw the Great Seal, and your journey is complete."', color: '#b388ff' },
-      ],
-      puzzle: {
-        type: 'pattern',
-        title: 'THE GREAT SEAL',
-        hint: 'The Great Seal pattern: Center → Top → Right → Bottom → Left → Center. Tap in that order.',
-        config: {
-          grid: [
-            ['🌑','🌟','🌑'],
-            ['🌟','👁️','🌟'],
-            ['🌑','🌟','🌑'],
-          ],
-          solution: [[1,1],[0,1],[1,2],[2,1],[1,0],[1,1]],
-          instructionText: 'Tap: Center → Top → Right → Bottom → Left → Center',
-        }
-      }
-    },
-  ],
-  completionReward: {
-    text: 'True Ending achieved.\nAll Arcana bonds: MAXIMUM.\n"I am thou... thou art I."',
-    flag: 'ch4_complete',
-  }
-},
-
+const CITIES = [
+  { id:'iwatodai', name:'Iwatodai City',  x:800,  y:700,  color:'#00e5ff', size:180, desc:'Your home city. The school and dorms are here.' },
+  { id:'gekkoukan',name:'Port Island',    x:1600, y:500,  color:'#ff2d6b', size:150, desc:'Industrial harbor with ancient ruins beneath.' },
+  { id:'inaba',    name:'Inaba Town',     x:2400, y:900,  color:'#ffd740', size:140, desc:'A quiet rural town hiding dark secrets.' },
+  { id:'velvet',   name:'Velvet Sanctum', x:1600, y:1400, color:'#ce93d8', size:120, desc:'A mysterious place outside of time.' },
+  { id:'summit',   name:'Dark Summit',    x:400,  y:1800, color:'#ef5350', size:100, desc:'Shadow-infested highland. Danger ahead.' },
 ];
 
-// ═══════════════════════════════════════════════
-//  SAVE SYSTEM
-// ═══════════════════════════════════════════════
+const BUILDINGS = [
+  // Iwatodai
+  { x:720,  y:640,  w:60, h:50,  label:'🏫 School',    city:'iwatodai', type:'npc',  npcId:'teacher' },
+  { x:820,  y:640,  w:50, h:50,  label:'🏠 Dorm',      city:'iwatodai', type:'rest',  npcId:null },
+  { x:720,  y:740,  w:55, h:45,  label:'⚔ Weapon',     city:'iwatodai', type:'shop', shopId:'weapon' },
+  { x:800,  y:740,  w:55, h:45,  label:'🧪 Items',      city:'iwatodai', type:'shop', shopId:'items' },
+  { x:880,  y:740,  w:55, h:45,  label:'💬 Bar',        city:'iwatodai', type:'npc',  npcId:'barkeep' },
+  // Port Island
+  { x:1520, y:450,  w:65, h:55,  label:'🏭 Factory',   city:'gekkoukan', type:'npc',  npcId:'engineer' },
+  { x:1600, y:450,  w:55, h:45,  label:'⚓ Harbor',    city:'gekkoukan', type:'npc',  npcId:'sailor' },
+  { x:1680, y:450,  w:55, h:55,  label:'🧪 Lab',       city:'gekkoukan', type:'shop', shopId:'rare' },
+  { x:1560, y:530,  w:65, h:45,  label:'🏰 Ruins',     city:'gekkoukan', type:'dungeon', dungeonId:'ruins' },
+  // Inaba
+  { x:2320, y:850,  w:55, h:45,  label:'🏪 Shop',      city:'inaba',    type:'shop', shopId:'items' },
+  { x:2400, y:850,  w:55, h:50,  label:'🗼 TV Tower',  city:'inaba',    type:'dungeon',dungeonId:'tower' },
+  { x:2480, y:850,  w:55, h:45,  label:'🌾 Farm',      city:'inaba',    type:'npc',  npcId:'farmer' },
+  { x:2360, y:930,  w:60, h:45,  label:'🏯 Shrine',    city:'inaba',    type:'npc',  npcId:'shrine_maiden' },
+  // Velvet
+  { x:1560, y:1360, w:70, h:60,  label:'🟣 Velvet Room',city:'velvet',  type:'npc',  npcId:'igor' },
+  // Summit
+  { x:380,  y:1760, w:60, h:50,  label:'⛰ Tartarus',   city:'summit',   type:'dungeon',dungeonId:'tartarus' },
+  { x:460,  y:1760, w:55, h:50,  label:'🏕 Base Camp',  city:'summit',   type:'rest',  npcId:null },
+];
 
-const SAVE_KEY = 'persona_eos_save_v2';
+const NPCS_DATA = {
+  teacher: { name:'Ms. Toriumi', color:'#81d4fa', lines:[ 'Welcome, transfer student.', 'Study hard and you\'ll unlock new abilities!', 'The school ranking affects your Academic stat.' ], socialLink:{ arcana:'The Emperor', rank:1 } },
+  barkeep: { name:'Bebe',        color:'#ffcc80', lines:[ 'What can I get you?', 'Heard some strange things happening at the harbor...', 'Stay sharp out there, kid.' ], socialLink:null },
+  engineer:{ name:'Hidetoshi',   color:'#a5d6a7', lines:[ 'We\'ve detected anomalous energy on this island.', 'The Shadows appear stronger near the ruins.', 'Bring samples from the dungeon for research.' ], socialLink:{ arcana:'The Emperor', rank:1 } },
+  sailor:  { name:'Old Tanaka',  color:'#b0bec5', lines:[ 'These waters hide ancient secrets...', 'Decades ago, something rose from the deep.', 'The harbor is cursed, I tell you.' ], socialLink:null },
+  farmer:  { name:'Daidara',     color:'#ffab91', lines:[ 'The crops have been dying since the Shadows appeared.', 'Life in Inaba used to be peaceful.', 'Maybe if you cleared the TV Tower, things would improve?' ], socialLink:{ arcana:'The Hermit', rank:1 } },
+  shrine_maiden:{ name:'Yukiko', color:'#f48fb1', lines:[ 'This shrine has stood for 300 years.', 'The Personas are awakened by true resolve.', 'Train your spirit here to boost SP.' ], socialLink:{ arcana:'The Priestess', rank:1 } },
+  igor:    { name:'Igor',        color:'#ce93d8', lines:[ 'Welcome to the Velvet Room...', 'This place exists between mind and matter.', 'Here, Personas may be fused to grow stronger.', 'Your Social Links determine fusion power.' ], socialLink:null },
+};
 
-function loadSave() {
+const SHOPS = {
+  weapon: {
+    name:'⚔ ARMORY',
+    items:[
+      { name:'Iron Sword',    desc:'ATK +5',  price:200, effect:{ atk:5 } },
+      { name:'Silver Blade',  desc:'ATK +12', price:500, effect:{ atk:12 } },
+      { name:'Void Katana',   desc:'ATK +22', price:1200,effect:{ atk:22 } },
+      { name:'Light Shield',  desc:'DEF +4',  price:180, effect:{ def:4 } },
+      { name:'Iron Armor',    desc:'DEF +10', price:450, effect:{ def:10 } },
+    ]
+  },
+  items: {
+    name:'🧪 ITEM SHOP',
+    items:[
+      { name:'Medicine',      desc:'Restore 50 HP',   price:80,  effect:{ hp:50 } },
+      { name:'Hi-Medicine',   desc:'Restore 120 HP',  price:200, effect:{ hp:120 } },
+      { name:'Ether',         desc:'Restore 30 SP',   price:100, effect:{ sp:30 } },
+      { name:'Hi-Ether',      desc:'Restore 80 SP',   price:260, effect:{ sp:80 } },
+      { name:'Revival Bead',  desc:'Revive from KO',  price:400, effect:{ revive:true } },
+    ]
+  },
+  rare: {
+    name:'🔬 RARE GOODS',
+    items:[
+      { name:'Soma',          desc:'Full HP+SP restore', price:1800, effect:{ hp:9999, sp:9999 } },
+      { name:'Homunculus',    desc:'Auto-survive 1 KO',  price:1500, effect:{ auto_revive:true } },
+      { name:'Snuff Soul',    desc:'Restore 50 SP',      price:300,  effect:{ sp:50 } },
+    ]
+  }
+};
+
+const SHADOWS = [
+  { name:'Slime Shadow',   hp:30,  atk:8,  def:3,  exp:25,  gold:40,  weak:'fire',    color:'#4caf50' },
+  { name:'Iron Shade',     hp:55,  atk:13, def:9,  exp:40,  gold:60,  weak:'ice',     color:'#78909c' },
+  { name:'Flame Spectre',  hp:45,  atk:16, def:5,  exp:50,  gold:75,  weak:'ice',     color:'#ef5350' },
+  { name:'Frost Wraith',   hp:50,  atk:14, def:7,  exp:55,  gold:80,  weak:'fire',    color:'#42a5f5' },
+  { name:'Thunder Beast',  hp:65,  atk:20, def:8,  exp:70,  gold:100, weak:'wind',    color:'#ffca28' },
+  { name:'Dark Omen',      hp:80,  atk:22, def:12, exp:90,  gold:120, weak:'electric',color:'#7e57c2' },
+  { name:'Void Reaper',    hp:110, atk:28, def:15, exp:140, gold:180, weak:'light',   color:'#e91e63' },
+  { name:'BOSS: Nyx Core', hp:250, atk:35, def:20, exp:500, gold:600, weak:'light',   color:'#880e4f' },
+];
+
+const SKILLS = [
+  { name:'Attack',  type:'physical', power:15, cost:0  },
+  { name:'Agi',     type:'fire',     power:22, cost:5  },
+  { name:'Bufu',    type:'ice',      power:22, cost:5  },
+  { name:'Zio',     type:'electric', power:22, cost:5  },
+  { name:'Garu',    type:'wind',     power:22, cost:5  },
+  { name:'Kouha',   type:'light',    power:28, cost:8  },
+  { name:'Dia',     type:'heal',     power:40, cost:6  },
+  { name:'Guard',   type:'defense',  power:0,  cost:0  },
+  { name:'Agidyne', type:'fire',     power:55, cost:16 },
+  { name:'Bufudyne',type:'ice',      power:55, cost:16 },
+];
+
+// ═══════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════
+
+const G = {
+  canvas: null, ctx: null,
+  W: window.innerWidth, H: window.innerHeight,
+
+  // Camera
+  cam: { x:0, y:0 },
+
+  // Player
+  player: {
+    x: 800, y: 700,
+    vx:0, vy:0, speed:3.2,
+    w:20, h:20,
+    hp:100, maxHp:100,
+    sp:60,  maxSp:60,
+    atk:15, def:10,
+    level:1, exp:0, nextExp:100,
+    gold:500,
+    skills: SKILLS.slice(0,7),
+    inventory: [],
+    equipped: { weapon:null, armor:null },
+    socialLinks: {},
+    flags: {},
+  },
+
+  // World entities
+  shadowEntities: [],
+
+  // Time
+  time: { hours:6, minutes:0, day:1, month:0 },
+  MONTHS: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+  DAYS:   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+  timeSpeed: 0.3, // minutes per frame tick
+
+  // Input
+  keys: {},
+
+  // State
+  state: 'world', // world, dialog, shop, battle, inventory
+  dialogQueue: [],
+  currentDialog: null,
+  currentShop: null,
+  currentNpc: null,
+
+  // Battle
+  battle: {
+    enemy: null,
+    selectedSkill: 0,
+    playerTurn: true,
+    log: [],
+    guarding: false,
+    result: null,
+  },
+
+  // Rendering
+  frame: 0,
+  particles: [],
+};
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+
+function init() {
+  G.canvas = document.getElementById('gameCanvas');
+  G.ctx = G.canvas.getContext('2d');
+  resize();
+
+  // Spawn shadows across the world
+  spawnShadows();
+
+  // Input
+  document.addEventListener('keydown', e => {
+    G.keys[e.key.toLowerCase()] = true;
+    if(e.key.toLowerCase()==='e') handleInteract();
+    if(e.key.toLowerCase()==='i') toggleInventory();
+    if(e.key.toLowerCase()===' ') { e.preventDefault(); tryAttack(); }
+    if(G.state==='battle') handleBattleKey(e.key);
+  });
+  document.addEventListener('keyup',  e => { G.keys[e.key.toLowerCase()] = false; });
+
+  // Start loop
+  loop();
+}
+
+function resize() {
+  G.W = window.innerWidth;
+  G.H = window.innerHeight;
+  G.canvas.width  = G.W;
+  G.canvas.height = G.H;
+}
+window.addEventListener('resize', resize);
+
+function spawnShadows() {
+  G.shadowEntities = [];
+  // Scatter shadows across the world, denser near dungeons
+  const zones = [
+    { x:300,  y:600,  r:200, count:6,  tier:0 },
+    { x:700,  y:1200, r:200, count:6,  tier:1 },
+    { x:1400, y:600,  r:250, count:8,  tier:2 },
+    { x:2200, y:1000, r:250, count:8,  tier:3 },
+    { x:400,  y:1800, r:300, count:10, tier:4 },
+    { x:1600, y:1400, r:150, count:5,  tier:5 },
+    { x:2600, y:1600, r:300, count:10, tier:6 },
+  ];
+  for(const z of zones) {
+    for(let i=0;i<z.count;i++) {
+      const angle = Math.random()*Math.PI*2;
+      const dist  = Math.random()*z.r;
+      G.shadowEntities.push({
+        x: z.x + Math.cos(angle)*dist,
+        y: z.y + Math.sin(angle)*dist,
+        type: Math.min(z.tier + Math.floor(Math.random()*2), SHADOWS.length-2),
+        alive: true,
+        vx: (Math.random()-0.5)*0.4,
+        vy: (Math.random()-0.5)*0.4,
+        phase: Math.random()*Math.PI*2,
+        w:18, h:18,
+      });
+    }
+  }
+  // Boss
+  G.shadowEntities.push({ x:400, y:1820, type:7, alive:true, vx:0, vy:0, phase:0, w:28, h:28, isBoss:true });
+}
+
+// ═══════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════
+
+function loop() {
+  requestAnimationFrame(loop);
+  G.frame++;
+
+  if(G.state === 'world' || G.state === 'dialog' || G.state === 'cutscene') {
+    updatePlayer();
+    updateShadows();
+    advanceTime();
+    // Auto-save every ~600 frames (≈ 3 in-game hours)
+    if(G.frame % 600 === 0 && G.player.name) autoSave();
+    // Story trigger check every 60 frames
+    if(G.frame % 60 === 0) checkStoryTriggers();
+  }
+
+  drawWorld();
+  drawDarkHourOverlay(); // atmospheric tint during Dark Hour
+  drawMinimap();
+  updateHUD();
+}
+
+// ═══════════════════════════════════════════
+//  TIME SYSTEM
+// ═══════════════════════════════════════════
+
+function advanceTime() {
+  G.time.minutes += G.timeSpeed;
+  if(G.time.minutes >= 60) {
+    G.time.minutes -= 60;
+    G.time.hours++;
+    if(G.time.hours >= 24) {
+      G.time.hours = 0;
+      G.time.day++;
+      if(G.time.day > 30) {
+        G.time.day = 1;
+        G.time.month = (G.time.month+1)%12;
+      }
+    }
+  }
+}
+
+function getSkyColor() {
+  const h = G.time.hours + G.time.minutes/60;
+  if(h < 5)  return { sky:'#02000a', horizon:'#1a0010', ambient:0.12 };
+  if(h < 6)  return { sky:'#0a0020', horizon:'#cc3300', ambient:0.25 };
+  if(h < 7)  return { sky:'#1a1060', horizon:'#ff6600', ambient:0.45 };
+  if(h < 9)  return { sky:'#0a2070', horizon:'#ff9900', ambient:0.7 };
+  if(h < 17) return { sky:'#050a20', horizon:'#0a2060', ambient:1.0 };
+  if(h < 18) return { sky:'#0a1030', horizon:'#ff5500', ambient:0.8 };
+  if(h < 20) return { sky:'#050820', horizon:'#cc2200', ambient:0.5 };
+  if(h < 22) return { sky:'#020510', horizon:'#220033', ambient:0.25 };
+  return { sky:'#02000a', horizon:'#1a0010', ambient:0.12 };
+}
+
+function getTimeLabel() {
+  const h = G.time.hours;
+  if(h < 5)  return { label:'MIDNIGHT', icon:'🌑' };
+  if(h < 7)  return { label:'DAWN',     icon:'🌅' };
+  if(h < 12) return { label:'MORNING',  icon:'☀️' };
+  if(h < 13) return { label:'NOON',     icon:'🌞' };
+  if(h < 17) return { label:'AFTERNOON',icon:'🌤️' };
+  if(h < 19) return { label:'EVENING',  icon:'🌆' };
+  if(h < 22) return { label:'NIGHT',    icon:'🌃' };
+  return { label:'LATE NIGHT', icon:'🌙' };
+}
+
+// ═══════════════════════════════════════════
+//  PLAYER UPDATE
+// ═══════════════════════════════════════════
+
+function updatePlayer() {
+  if(G.state !== 'world') return;
+  const p = G.player;
+  let dx=0, dy=0;
+  if(G.keys['w']||G.keys['arrowup'])    dy=-1;
+  if(G.keys['s']||G.keys['arrowdown'])  dy= 1;
+  if(G.keys['a']||G.keys['arrowleft'])  dx=-1;
+  if(G.keys['d']||G.keys['arrowright']) dx= 1;
+  if(dx&&dy){ dx*=0.707; dy*=0.707; }
+
+  const nx = p.x + dx*p.speed;
+  const ny = p.y + dy*p.speed;
+
+  // Boundary
+  p.x = Math.max(20, Math.min(WORLD_W-20, nx));
+  p.y = Math.max(20, Math.min(WORLD_H-20, ny));
+
+  // Smooth camera
+  const tx = p.x - G.W/2;
+  const ty = p.y - G.H/2;
+  G.cam.x += (tx - G.cam.x)*0.08;
+  G.cam.y += (ty - G.cam.y)*0.08;
+  G.cam.x = Math.max(0, Math.min(WORLD_W-G.W, G.cam.x));
+  G.cam.y = Math.max(0, Math.min(WORLD_H-G.H, G.cam.y));
+
+  // Shadow collision (trigger battle)
+  if(G.state === 'world') {
+    for(const s of G.shadowEntities) {
+      if(!s.alive) continue;
+      const dx2 = p.x - s.x, dy2 = p.y - s.y;
+      if(Math.sqrt(dx2*dx2+dy2*dy2) < 24) {
+        startBattle(s);
+        return;
+      }
+    }
+  }
+}
+
+function updateShadows() {
+  for(const s of G.shadowEntities) {
+    if(!s.alive) continue;
+    s.phase += 0.02;
+    s.x += s.vx + Math.sin(s.phase)*0.3;
+    s.y += s.vy + Math.cos(s.phase*0.7)*0.3;
+    s.x = Math.max(30, Math.min(WORLD_W-30, s.x));
+    s.y = Math.max(30, Math.min(WORLD_H-30, s.y));
+  }
+}
+
+// ═══════════════════════════════════════════
+//  DRAW WORLD
+// ═══════════════════════════════════════════
+
+function drawWorld() {
+  const ctx = G.ctx;
+  const sky = getSkyColor();
+  const cx = G.cam.x, cy = G.cam.y;
+
+  // Sky gradient bg
+  const grad = ctx.createLinearGradient(0,0,0,G.H);
+  grad.addColorStop(0, sky.sky);
+  grad.addColorStop(1, sky.horizon);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, G.W, G.H);
+
+  // Draw terrain tiles (simplified procedural)
+  drawTerrain(ctx, cx, cy, sky.ambient);
+
+  // Roads
+  drawRoads(ctx, cx, cy, sky.ambient);
+
+  // City zones
+  for(const city of CITIES) {
+    drawCity(ctx, city, cx, cy, sky.ambient);
+  }
+
+  // Buildings
+  for(const b of BUILDINGS) {
+    drawBuilding(ctx, b, cx, cy, sky.ambient);
+  }
+
+  // Shadows
+  drawShadowEntities(ctx, cx, cy, sky.ambient);
+
+  // Stars at night
+  if(sky.ambient < 0.4) drawStars(ctx, sky.ambient);
+
+  // Player
+  drawPlayer(ctx, cx, cy);
+
+  // Particles
+  updateParticles(ctx, cx, cy);
+}
+
+function drawTerrain(ctx, cx, cy, amb) {
+  // Grass base tiles
+  const tileSize = 80;
+  const startX = Math.floor(cx/tileSize)*tileSize;
+  const startY = Math.floor(cy/tileSize)*tileSize;
+
+  for(let x=startX; x<cx+G.W+tileSize; x+=tileSize) {
+    for(let y=startY; y<cy+G.H+tileSize; y+=tileSize) {
+      const sx = x-cx, sy = y-cy;
+      // Vary tile color by position
+      const v = ((Math.sin(x*0.01+3)*Math.cos(y*0.01+1))+1)*0.5;
+      const g = Math.floor(lerp(0x08, 0x12, v));
+      ctx.fillStyle = `rgb(${Math.floor(g*0.4)},${g},${Math.floor(g*0.6)})`;
+      ctx.fillRect(sx, sy, tileSize+1, tileSize+1);
+    }
+  }
+
+  // Water bodies
+  const waters = [
+    { x:1200, y:200,  w:600, h:300 },
+    { x:2000, y:1600, w:400, h:350 },
+    { x:100,  y:1000, w:300, h:250 },
+  ];
+  for(const w of waters) {
+    const sx = w.x-cx, sy = w.y-cy;
+    const wave = Math.sin(G.frame*0.03)*3;
+    const wGrad = ctx.createLinearGradient(sx,sy,sx,sy+w.h);
+    wGrad.addColorStop(0, `rgba(0,80,160,${0.7*amb+0.1})`);
+    wGrad.addColorStop(1, `rgba(0,40,100,${0.7*amb+0.1})`);
+    ctx.fillStyle = wGrad;
+    ctx.fillRect(sx+wave, sy, w.w, w.h);
+    // Wave lines
+    ctx.strokeStyle = `rgba(100,200,255,${0.2*amb})`;
+    ctx.lineWidth = 1;
+    for(let wy=sy+20; wy<sy+w.h; wy+=20) {
+      ctx.beginPath();
+      ctx.moveTo(sx, wy+Math.sin((sx+G.frame*0.05)*0.1)*4);
+      ctx.lineTo(sx+w.w, wy+Math.sin((sx+w.w+G.frame*0.05)*0.1)*4);
+      ctx.stroke();
+    }
+  }
+
+  // Mountain range
+  const mountains = [{x:2600,y:1200,w:600,h:500},{x:0,y:1600,w:500,h:600},{x:2800,y:400,w:400,h:400}];
+  for(const m of mountains) {
+    const sx=m.x-cx, sy=m.y-cy;
+    ctx.fillStyle = `rgba(20,15,30,${0.8*amb+0.1})`;
+    ctx.beginPath();
+    for(let i=0;i<=10;i++){
+      const px=sx+i*(m.w/10);
+      const py=sy+m.h - Math.abs(Math.sin(i*0.8+m.x*0.01))*m.h*0.7;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.lineTo(sx+m.w,sy+m.h); ctx.lineTo(sx,sy+m.h); ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawRoads(ctx, cx, cy, amb) {
+  ctx.strokeStyle = `rgba(60,50,30,${0.6*amb+0.15})`;
+  ctx.lineWidth = 10;
+  ctx.setLineDash([]);
+
+  const roads = [
+    // Horizontal
+    [100,700, 2600,700], [100,500, 2000,500], [1600,1400, 2600,1400],
+    // Vertical
+    [800,100,800,1800], [1600,200,1600,1600], [2400,600,2400,1200],
+    // Diagonals / connectors
+    [800,700, 1600,500], [1600,500, 2400,900], [800,700, 400,1800], [1600,1400,400,1800],
+  ];
+  for(const r of roads) {
+    ctx.beginPath();
+    ctx.moveTo(r[0]-cx, r[1]-cy);
+    ctx.lineTo(r[2]-cx, r[3]-cy);
+    ctx.stroke();
+    // Dashed center line
+    ctx.strokeStyle = `rgba(100,90,50,${0.3*amb})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([20,15]);
+    ctx.beginPath();
+    ctx.moveTo(r[0]-cx, r[1]-cy);
+    ctx.lineTo(r[2]-cx, r[3]-cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = `rgba(60,50,30,${0.6*amb+0.15})`;
+    ctx.lineWidth = 10;
+  }
+}
+
+function drawCity(ctx, city, cx, cy, amb) {
+  const sx = city.x - cx, sy = city.y - cy;
+  const r = city.size;
+
+  // Glow
+  const grd = ctx.createRadialGradient(sx,sy,r*0.1,sx,sy,r);
+  grd.addColorStop(0, city.color+'33');
+  grd.addColorStop(1, 'transparent');
+  ctx.fillStyle = grd;
+  ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.fill();
+
+  // Border ring
+  ctx.strokeStyle = city.color+'55';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8,6]);
+  ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Label
+  if(sx > -200 && sx < G.W+200 && sy > -200 && sy < G.H+200) {
+    ctx.font = 'bold 13px Rajdhani, monospace';
+    ctx.fillStyle = city.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(city.name, sx, sy - r - 8);
+    ctx.font = '9px Share Tech Mono';
+    ctx.fillStyle = `rgba(200,200,255,${0.5*amb+0.2})`;
+    ctx.fillText(city.desc, sx, sy - r + 6);
+  }
+}
+
+function drawBuilding(ctx, b, cx, cy, amb) {
+  const sx = b.x-cx, sy = b.y-cy;
+  if(sx < -100||sx>G.W+100||sy<-100||sy>G.H+100) return;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(sx+4, sy+4, b.w, b.h);
+
+  // Building body
+  const bColors = { npc:'#1a2040', shop:'#201a10', rest:'#101a20', dungeon:'#200010' };
+  ctx.fillStyle = bColors[b.type] || '#1a1a2a';
+  ctx.fillRect(sx, sy, b.w, b.h);
+
+  // Border
+  const bBorder = { npc:'#4488ff', shop:'#ffaa00', rest:'#00aa66', dungeon:'#ff2255' };
+  ctx.strokeStyle = bBorder[b.type] || '#446';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(sx, sy, b.w, b.h);
+
+  // Window lights at night
+  if(amb < 0.7 && b.type !== 'dungeon') {
+    const wCount = Math.floor(b.w/14);
+    for(let i=0;i<wCount;i++) {
+      const on = Math.sin(b.x*0.1+i*1.3+G.frame*0.01) > -0.3;
+      if(on) {
+        ctx.fillStyle = `rgba(255,220,100,${(1-amb)*0.7})`;
+        ctx.fillRect(sx+4+i*14, sy+5, 8, 7);
+      }
+    }
+  }
+
+  // Label
+  ctx.font = '8px Share Tech Mono';
+  ctx.fillStyle = '#ccd';
+  ctx.textAlign = 'center';
+  ctx.fillText(b.label, sx+b.w/2, sy-4);
+
+  // Interact hint
+  const p = G.player;
+  const dist = Math.sqrt((p.x-(b.x+b.w/2))**2+(p.y-(b.y+b.h/2))**2);
+  if(dist < 60) {
+    ctx.fillStyle = '#ffff00';
+    ctx.font = 'bold 10px Share Tech Mono';
+    ctx.fillText('[E]', sx+b.w/2, sy-14);
+  }
+}
+
+function drawShadowEntities(ctx, cx, cy, amb) {
+  for(const s of G.shadowEntities) {
+    if(!s.alive) continue;
+    const sx = s.x-cx, sy = s.y-cy;
+    if(sx<-60||sx>G.W+60||sy<-60||sy>G.H+60) continue;
+
+    const data = SHADOWS[s.type];
+    const pulse = Math.sin(G.frame*0.08+s.phase)*0.3+0.7;
+
+    // Aura
+    ctx.fillStyle = data.color+'33';
+    ctx.beginPath(); ctx.arc(sx,sy,s.w*1.5*pulse,0,Math.PI*2); ctx.fill();
+
+    // Body
+    if(s.isBoss) {
+      ctx.fillStyle = data.color;
+      const pts = [];
+      for(let i=0;i<5;i++){
+        const a = (i/5)*Math.PI*2 - Math.PI/2;
+        pts.push([sx+Math.cos(a)*s.w, sy+Math.sin(a)*s.w]);
+        const a2 = a+Math.PI/5;
+        pts.push([sx+Math.cos(a2)*s.w*0.5, sy+Math.sin(a2)*s.w*0.5]);
+      }
+      ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]));
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='7px Share Tech Mono'; ctx.textAlign='center';
+      ctx.fillText('BOSS',sx,sy+14);
+    } else {
+      ctx.fillStyle = data.color;
+      ctx.beginPath(); ctx.arc(sx,sy,s.w*0.7,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(sx,sy,s.w*0.7,0,Math.PI*2); ctx.stroke();
+    }
+
+    // Eyes
+    ctx.fillStyle='#fff';
+    ctx.beginPath(); ctx.arc(sx-4,sy-2,2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(sx+4,sy-2,2,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawStars(ctx, amb) {
+  const density = (1-amb/0.4);
+  if(Math.random()<0.01) {
+    G.particles.push({type:'star',x:Math.random()*G.W,y:Math.random()*G.H*0.4,life:300,maxLife:300});
+  }
+  ctx.fillStyle = `rgba(200,200,255,${density*0.6})`;
+  for(let i=0;i<80;i++) {
+    const px = (Math.sin(i*137.5)*0.5+0.5)*G.W;
+    const py = (Math.cos(i*97.3)*0.5+0.5)*G.H*0.5;
+    const r  = Math.sin(i*0.5+G.frame*0.02)*0.5+1.0;
+    ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function drawPlayer(ctx, cx, cy) {
+  const p = G.player;
+  const sx = p.x-cx, sy = p.y-cy;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.beginPath(); ctx.ellipse(sx,sy+10,10,5,0,0,Math.PI*2); ctx.fill();
+
+  // Body
+  const bob = Math.sin(G.frame*0.1)*1.5;
+  ctx.fillStyle = '#0a1040';
+  ctx.fillRect(sx-7, sy-12+bob, 14, 18);
+
+  // Uniform
+  ctx.fillStyle = '#112060';
+  ctx.fillRect(sx-6, sy-10+bob, 12, 12);
+
+  // Head
+  ctx.fillStyle = '#ffcc99';
+  ctx.beginPath(); ctx.arc(sx, sy-16+bob, 7, 0, Math.PI*2); ctx.fill();
+
+  // Hair
+  ctx.fillStyle = '#221100';
+  ctx.fillRect(sx-7, sy-22+bob, 14, 8);
+
+  // Eyes
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(sx-5, sy-17+bob, 3, 3);
+  ctx.fillRect(sx+2, sy-17+bob, 3, 3);
+  ctx.fillStyle = '#003';
+  ctx.fillRect(sx-4, sy-16+bob, 2, 2);
+  ctx.fillRect(sx+3, sy-16+bob, 2, 2);
+
+  // Headphones indicator
+  ctx.strokeStyle = '#00e5ff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(sx, sy-16+bob, 9, -Math.PI*0.8, -Math.PI*0.2);
+  ctx.stroke();
+  ctx.fillStyle = '#00e5ff';
+  ctx.beginPath(); ctx.arc(sx-8,sy-19+bob, 2.5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(sx+8,sy-19+bob, 2.5,0,Math.PI*2); ctx.fill();
+}
+
+function updateParticles(ctx, cx, cy) {
+  G.particles = G.particles.filter(p => p.life>0);
+  for(const p of G.particles) {
+    p.life--;
+    if(p.type==='hit') {
+      p.y -= 1.5; p.x += p.vx||0;
+      const a = p.life/p.maxLife;
+      ctx.fillStyle = `rgba(255,220,100,${a})`;
+      ctx.font = 'bold 14px Rajdhani';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.text||'!', p.x-cx, p.y-cy);
+    }
+  }
+}
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+// ═══════════════════════════════════════════
+//  MINIMAP
+// ═══════════════════════════════════════════
+
+// ── DARK HOUR VISUAL OVERLAY ──
+function drawDarkHourOverlay() {
+  if(!STORY || !STORY.seen || !STORY.seen['prologue']) return;
+  const h = G.time.hours;
+  const m = G.time.minutes;
+  const isDarkHour = (h === 0);
+  const isApproaching = (h === 23 && m >= 50);
+
+  if(!isDarkHour && !isApproaching) return;
+
+  const ctx = G.ctx;
+  let intensity = 0;
+
+  if(isApproaching) {
+    // Fade in: last 10 minutes of day
+    intensity = ((m - 50) / 10) * 0.4;
+  } else {
+    // Full dark hour
+    intensity = 0.4 + Math.sin(G.frame * 0.015) * 0.06;
+  }
+
+  // Purple/dark tint
+  ctx.fillStyle = `rgba(20,0,40,${intensity})`;
+  ctx.fillRect(0, 0, G.W, G.H);
+
+  // Green scanline flicker at full dark hour
+  if(isDarkHour) {
+    const flicker = Math.sin(G.frame * 0.08) * 0.5 + 0.5;
+    ctx.fillStyle = `rgba(0,30,0,${flicker * 0.12})`;
+    for(let y = 0; y < G.H; y += 4) {
+      ctx.fillRect(0, y, G.W, 1);
+    }
+
+    // "Dark Hour" text watermark top-center
+    ctx.save();
+    ctx.globalAlpha = 0.25 + Math.sin(G.frame * 0.05) * 0.1;
+    ctx.font = 'bold 11px Share Tech Mono, monospace';
+    ctx.fillStyle = '#9c27b0';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = '6px';
+    ctx.fillText('— THE DARK HOUR —', G.W / 2, 72);
+    ctx.restore();
+  }
+}
+
+function drawMinimap() {
+  const mc = document.getElementById('minimapCanvas');
+  const ctx = mc.getContext('2d');
+  const mW=140, mH=140;
+  const scX = mW/WORLD_W, scY = mH/WORLD_H;
+
+  ctx.fillStyle = '#04040e';
+  ctx.fillRect(0,0,mW,mH);
+
+  // Terrain color
+  ctx.fillStyle = '#0a120a';
+  ctx.fillRect(0,0,mW,mH);
+
+  // Roads (thin)
+  ctx.strokeStyle = '#332e15';
+  ctx.lineWidth = 1;
+  const roads = [[100,700,2600,700],[800,100,800,1800],[1600,200,1600,1600],[2400,600,2400,1200]];
+  for(const r of roads) {
+    ctx.beginPath(); ctx.moveTo(r[0]*scX,r[1]*scY); ctx.lineTo(r[2]*scX,r[3]*scY); ctx.stroke();
+  }
+
+  // Cities
+  for(const c of CITIES) {
+    ctx.fillStyle = c.color+'88';
+    ctx.beginPath(); ctx.arc(c.x*scX, c.y*scY, c.size*scX*0.6, 0,Math.PI*2); ctx.fill();
+  }
+
+  // Shadows (dots)
+  for(const s of G.shadowEntities) {
+    if(!s.alive) continue;
+    ctx.fillStyle = SHADOWS[s.type].color+'aa';
+    ctx.beginPath(); ctx.arc(s.x*scX,s.y*scY,1.5,0,Math.PI*2); ctx.fill();
+  }
+
+  // Camera viewport rect
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(G.cam.x*scX, G.cam.y*scY, G.W*scX, G.H*scY);
+
+  // Player
+  ctx.fillStyle = '#00e5ff';
+  ctx.beginPath(); ctx.arc(G.player.x*scX, G.player.y*scY, 2.5, 0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=0.5;
+  ctx.beginPath(); ctx.arc(G.player.x*scX, G.player.y*scY, 2.5, 0,Math.PI*2); ctx.stroke();
+}
+
+// ═══════════════════════════════════════════
+//  HUD UPDATE
+// ═══════════════════════════════════════════
+
+function updateHUD() {
+  const p = G.player;
+
+  // Stats bars
+  document.getElementById('hpBar').style.width  = (p.hp/p.maxHp*100)+'%';
+  document.getElementById('spBar').style.width  = (p.sp/p.maxSp*100)+'%';
+  document.getElementById('expBar').style.width = (p.exp/p.nextExp*100)+'%';
+  document.getElementById('hpText').textContent  = `${p.hp}/${p.maxHp}`;
+  document.getElementById('spText').textContent  = `${p.sp}/${p.maxSp}`;
+  document.getElementById('expText').textContent = `${p.exp}/${p.nextExp}`;
+  document.getElementById('playerLevel').textContent = `Lv.${p.level}`;
+  document.getElementById('playerName').textContent = (p.name||'Protagonist') + ' · ';
+
+  // Clock
+  const t = G.time;
+  const hh = String(t.hours).padStart(2,'0');
+  const mm = String(Math.floor(t.minutes)).padStart(2,'0');
+  document.getElementById('clockTime').textContent = `${hh}:${mm}`;
+  const dow = G.DAYS[(t.day-1)%7];
+  document.getElementById('clockDate').textContent = `${G.MONTHS[t.month]} ${String(t.day).padStart(2,'0')} · ${dow}`;
+
+  // Time of day
+  const tl = getTimeLabel();
+  document.getElementById('timeOfDayLabel').textContent = tl.label;
+  document.getElementById('weatherIcon').textContent = tl.icon;
+
+  // Location
+  let loc = 'OPEN WORLD';
+  for(const c of CITIES) {
+    const dx=G.player.x-c.x, dy=G.player.y-c.y;
+    if(Math.sqrt(dx*dx+dy*dy)<c.size+40){ loc=c.name; break; }
+  }
+  document.getElementById('locationTag').textContent = '📍 '+loc;
+}
+
+// ═══════════════════════════════════════════
+//  INTERACTION
+// ═══════════════════════════════════════════
+
+function handleInteract() {
+  if(G.state==='dialog') { advanceDialog(); return; }
+  if(G.state!=='world') return;
+
+  const p = G.player;
+  for(const b of BUILDINGS) {
+    const bx = b.x+b.w/2, by = b.y+b.h/2;
+    const dist = Math.sqrt((p.x-bx)**2+(p.y-by)**2);
+    if(dist < 65) {
+      if(b.type==='npc')      openNPC(b.npcId);
+      else if(b.type==='shop') openShop(b.shopId);
+      else if(b.type==='rest') doRest();
+      else if(b.type==='dungeon') enterDungeon(b.dungeonId);
+      return;
+    }
+  }
+}
+
+function tryAttack() {
+  if(G.state!=='world') return;
+  const p = G.player;
+  for(const s of G.shadowEntities) {
+    if(!s.alive) continue;
+    const dist = Math.sqrt((p.x-s.x)**2+(p.y-s.y)**2);
+    if(dist < 50) { startBattle(s); return; }
+  }
+}
+
+function openNPC(npcId) {
+  const npc = NPCS_DATA[npcId];
+  if(!npc) return;
+  G.state = 'dialog';
+  G.currentNpc = npc;
+  const lines = npc.lines;
+  G.dialogQueue = [...lines];
+
+  showDialog(npc.name, npc.color, G.dialogQueue.shift(), npc.socialLink ? [
+    { text:`Spend time with ${npc.name.split(' ')[0]}`, cb: () => deepenBond(npcId) },
+    { text:'See you later', cb: closeDialog },
+  ] : [
+    { text:'Thanks', cb: closeDialog },
+  ]);
+}
+
+function showDialog(speaker, color, text, choices) {
+  const box = document.getElementById('dialogBox');
+  box.style.display = 'block';
+  document.getElementById('dialogSpeaker').textContent = speaker;
+  document.getElementById('dialogSpeaker').style.color = color;
+  document.getElementById('dialogText').textContent = '';
+
+  // Typewriter
+  let i=0;
+  const iv = setInterval(()=>{
+    document.getElementById('dialogText').textContent += text[i++]||'';
+    if(i>=text.length) clearInterval(iv);
+  }, 22);
+
+  const ch = document.getElementById('dialogChoices');
+  ch.innerHTML = '';
+  if(choices) {
+    choices.forEach(c => {
+      const btn = document.createElement('div');
+      btn.className = 'dialogChoice';
+      btn.textContent = c.text;
+      btn.onclick = c.cb;
+      ch.appendChild(btn);
+    });
+    document.getElementById('dialogContinue').style.display='none';
+  } else {
+    document.getElementById('dialogContinue').style.display='block';
+  }
+}
+
+function advanceDialog() {
+  if(G.dialogQueue.length > 0) {
+    const npc = G.currentNpc;
+    showDialog(npc.name, npc.color, G.dialogQueue.shift(), G.dialogQueue.length===0 ? [
+      { text:`Spend time with ${npc.name.split(' ')[0]}`, cb: () => deepenBond(null) },
+      { text:'Goodbye', cb: closeDialog },
+    ] : null);
+  } else {
+    closeDialog();
+  }
+}
+
+function closeDialog() {
+  document.getElementById('dialogBox').style.display='none';
+  G.state = 'world';
+  G.currentNpc = null;
+  G.dialogQueue = [];
+}
+
+function deepenBond(npcId) {
+  closeDialog();
+  const gain = 15 + Math.floor(Math.random()*20);
+  notify(`✦ Social Link deepened! Bond +${gain} EXP`);
+  G.player.sp = Math.min(G.player.maxSp, G.player.sp+5);
+}
+
+function doRest() {
+  const p = G.player;
+  const hGain = Math.floor(p.maxHp*0.6);
+  const sGain = Math.floor(p.maxSp*0.5);
+  p.hp = Math.min(p.maxHp, p.hp+hGain);
+  p.sp = Math.min(p.maxSp, p.sp+sGain);
+  G.time.hours = 6; G.time.minutes = 0; G.time.day++;
+  notify(`😴 Rested — HP +${hGain}, SP +${sGain}. New day begins!`);
+}
+
+function enterDungeon(id) {
+  // Spawn extra shadows and notify
+  notify(`🏰 Entering ${id.toUpperCase()} dungeon... Shadows are stronger here!`);
+  // Teleport player near dungeon shadow cluster
+  const offsets = { ruins:[1570,530], tower:[2400,900], tartarus:[400,1800] };
+  if(offsets[id]) { G.player.x=offsets[id][0]; G.player.y=offsets[id][1]; }
+}
+
+// ═══════════════════════════════════════════
+//  SHOP
+// ═══════════════════════════════════════════
+
+function openShop(shopId) {
+  G.state = 'shop';
+  G.currentShop = shopId;
+  const shop = SHOPS[shopId];
+  document.getElementById('shopTitle').textContent = shop.name;
+  document.getElementById('shopGoldVal').textContent = G.player.gold;
+
+  const container = document.getElementById('shopItems');
+  container.innerHTML = '';
+  for(const item of shop.items) {
+    const div = document.createElement('div');
+    div.className = 'shopItem';
+    div.innerHTML = `
+      <div>
+        <div class="shopItemName">${item.name}</div>
+        <div class="shopItemDesc">${item.desc}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="shopItemPrice">💰 ${item.price}</span>
+        <button class="shopBtn" onclick="buyItem('${shopId}','${item.name}')">BUY</button>
+      </div>`;
+    container.appendChild(div);
+  }
+  document.getElementById('shopPanel').style.display='block';
+}
+
+function buyItem(shopId, itemName) {
+  const shop = SHOPS[shopId];
+  const item = shop.items.find(i=>i.name===itemName);
+  if(!item) return;
+  if(G.player.gold < item.price) { notify('❌ Not enough gold!'); return; }
+  G.player.gold -= item.price;
+  document.getElementById('shopGoldVal').textContent = G.player.gold;
+
+  // Apply equipment effects immediately or add to inventory
+  if(item.effect.atk || item.effect.def) {
+    G.player.atk += item.effect.atk||0;
+    G.player.def += item.effect.def||0;
+    notify(`⚔ Equipped ${item.name}! ATK/DEF updated.`);
+  } else {
+    G.player.inventory.push({ ...item });
+    notify(`🎒 Bought ${item.name}!`);
+  }
+}
+
+function closeShop() {
+  document.getElementById('shopPanel').style.display='none';
+  G.state='world';
+}
+
+// ═══════════════════════════════════════════
+//  INVENTORY
+// ═══════════════════════════════════════════
+
+function toggleInventory() {
+  if(G.state==='inventory') { closeInventory(); return; }
+  if(G.state!=='world') return;
+  G.state='inventory';
+  renderInventory();
+  document.getElementById('inventoryPanel').style.display='block';
+}
+
+function renderInventory() {
+  const p = G.player;
+  document.getElementById('invGold').textContent = `💰 Gold: ${p.gold}`;
+  const container = document.getElementById('invItems');
+  container.innerHTML='';
+  if(p.inventory.length===0){
+    container.innerHTML='<div style="color:var(--dim);font-size:11px;">No items.</div>'; return;
+  }
+  for(let i=0;i<p.inventory.length;i++){
+    const it=p.inventory[i];
+    const div=document.createElement('div'); div.className='invItem';
+    div.innerHTML=`<div><div style="font-size:12px">${it.name}</div><div style="font-size:10px;color:var(--dim)">${it.desc}</div></div>
+    <button class="useBtn" onclick="useItem(${i})">USE</button>`;
+    container.appendChild(div);
+  }
+}
+
+function useItem(idx) {
+  const p = G.player;
+  const it = p.inventory[idx];
+  if(!it) return;
+  if(it.effect.hp)  p.hp = Math.min(p.maxHp, p.hp + it.effect.hp);
+  if(it.effect.sp)  p.sp = Math.min(p.maxSp, p.sp + it.effect.sp);
+  p.inventory.splice(idx,1);
+  notify(`Used ${it.name}!`);
+  renderInventory();
+}
+
+function closeInventory() {
+  document.getElementById('inventoryPanel').style.display='none';
+  G.state='world';
+}
+
+// ═══════════════════════════════════════════
+//  BATTLE
+// ═══════════════════════════════════════════
+
+function startBattle(shadowEntity) {
+  G.state = 'battle';
+  const data = SHADOWS[shadowEntity.type];
+  G.battle.entity = shadowEntity;
+  G.battle.enemy = {
+    name: data.name, color: data.color, weak: data.weak,
+    hp: data.hp, maxHp: data.hp,
+    atk: data.atk, def: data.def,
+    exp: data.exp, gold: data.gold,
+  };
+  G.battle.selectedSkill = 0;
+  G.battle.playerTurn = true;
+  G.battle.guarding = false;
+  G.battle.result = null;
+  G.battle.log = [`⚠ A ${data.name} appeared!`, 'Choose your action!'];
+
+  document.getElementById('battleScreen').style.display='flex';
+  renderBattle();
+}
+
+function renderBattle() {
+  const p = G.player;
+  const e = G.battle.enemy;
+
+  // Enemy
+  document.getElementById('enemyName').textContent = e.name;
+  document.getElementById('enemyName').style.color = e.color;
+  document.getElementById('enemyWeak').textContent = `WEAK: ${e.weak.toUpperCase()}`;
+  document.getElementById('enemyHpFill').style.width = (e.hp/e.maxHp*100)+'%';
+  document.getElementById('enemyHpText').textContent = `HP: ${e.hp} / ${e.maxHp}`;
+  drawEnemySprite(e);
+
+  // Player
+  document.getElementById('battlePlayerName').textContent = `${p.name||'Protagonist'} · Lv.${p.level}`;
+  document.getElementById('battlePlayerStats').innerHTML =
+    `HP: <span style="color:var(--green)">${p.hp}/${p.maxHp}</span><br>
+     SP: <span style="color:var(--blue)">${p.sp}/${p.maxSp}</span><br>
+     ATK: ${p.atk} | DEF: ${p.def}<br>
+     ${G.battle.guarding ? '<span style="color:var(--gold)">[ GUARDING ]</span>' : ''}`;
+
+  // Skill list
+  const sl = document.getElementById('battleSkillList');
+  sl.innerHTML = '';
+  p.skills.forEach((sk,i) => {
+    const div = document.createElement('div');
+    div.className = 'skillItem' + (i===G.battle.selectedSkill?' selected':'');
+    const typeColors = {fire:'#ff5722',ice:'#29b6f6',electric:'#ffee58',wind:'#66bb6a',light:'#fffde7',heal:'#00e676',physical:'#ef9a9a',defense:'#b0bec5'};
+    const canUse = sk.cost===0||sk.cost<=p.sp;
+    div.innerHTML = `<span class="skillName" style="color:${typeColors[sk.type]||'#dde'}">${sk.name}</span>
+      <span class="skillType" style="background:${typeColors[sk.type]+'22'||'#111'};color:${typeColors[sk.type]||'#dde'}">${sk.type}</span>
+      <span class="skillCost" style="color:${canUse?'var(--blue)':'var(--accent2)'}">${sk.cost>0?'SP:'+sk.cost:'Free'}</span>`;
+    div.onclick = () => { G.battle.selectedSkill=i; renderBattle(); };
+    div.ondblclick = () => playerBattleAct(sk);
+    sl.appendChild(div);
+  });
+
+  // Log
+  const log = document.getElementById('battleLog');
+  log.innerHTML = G.battle.log.slice(-12).map(l => {
+    let color='#dde0ff';
+    if(l.includes('WEAK')||l.includes('★'))  color='#ffd740';
+    if(l.includes('damaged you'))             color='#ff2d6b';
+    if(l.includes('Victory')||l.includes('Level')) color='#00e676';
+    if(l.includes('defeated')||l.includes('Flee')) color='#ff2d6b';
+    return `<div style="color:${color}">${l}</div>`;
+  }).join('');
+  log.scrollTop = log.scrollHeight;
+
+  // Show/hide actions
+  const acts = document.getElementById('battleActions');
+  acts.style.display = (G.battle.result||!G.battle.playerTurn) ? 'none' : 'flex';
+}
+
+function drawEnemySprite(e) {
+  const canvas = document.getElementById('enemySprite');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,180,180);
+  const cx=90, cy=90;
+  const pulse = Math.sin(G.frame*0.06)*5;
+
+  // Glow
+  const grd = ctx.createRadialGradient(cx,cy,10,cx,cy,70+pulse);
+  grd.addColorStop(0, e.color+'66'); grd.addColorStop(1,'transparent');
+  ctx.fillStyle=grd; ctx.fillRect(0,0,180,180);
+
+  // Body based on type
+  ctx.fillStyle = e.color;
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2;
+
+  if(e.name.includes('Slime')) {
+    ctx.beginPath(); ctx.ellipse(cx,cy+pulse,40,30,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Bumps
+    ctx.beginPath(); ctx.ellipse(cx-20,cy-10+pulse,15,12,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+20,cy-10+pulse,15,12,0,0,Math.PI*2); ctx.fill();
+  } else if(e.name.includes('Iron')) {
+    ctx.beginPath();
+    ctx.moveTo(cx,cy-45+pulse); ctx.lineTo(cx+38,cy+30); ctx.lineTo(cx-38,cy+30);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    // Visor
+    ctx.fillStyle='rgba(0,200,255,0.5)';
+    ctx.fillRect(cx-20,cy-10+pulse,40,10);
+  } else if(e.name.includes('Flame')||e.name.includes('Spectre')) {
+    // Flame shape
+    for(let i=0;i<6;i++) {
+      const a=(i/6)*Math.PI*2;
+      ctx.fillStyle = i%2===0?e.color:'#ff8800';
+      ctx.beginPath(); ctx.ellipse(cx+Math.cos(a)*25,cy+Math.sin(a)*25+pulse,14,20,a,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.fillStyle=e.color; ctx.beginPath(); ctx.arc(cx,cy+pulse,20,0,Math.PI*2); ctx.fill();
+  } else if(e.name.includes('BOSS')) {
+    // Star/pentagram shape
+    ctx.fillStyle=e.color;
+    const pts=[];
+    for(let i=0;i<10;i++){
+      const a=(i/10)*Math.PI*2-Math.PI/2;
+      const r=i%2===0?55:25;
+      pts.push([cx+Math.cos(a)*r,cy+Math.sin(a)*(r+pulse*0.5)]);
+    }
+    ctx.beginPath(); pts.forEach((p,i)=>i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]));
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='bold 16px Rajdhani,sans-serif';
+    ctx.textAlign='center'; ctx.fillText('NYX',cx,cy+6+pulse);
+  } else {
+    // Generic orb
+    ctx.beginPath(); ctx.arc(cx,cy+pulse,38,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Inner ring
+    ctx.strokeStyle=e.color+'aa'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(cx,cy+pulse,25,0,Math.PI*2); ctx.stroke();
+  }
+
+  // Eyes (all enemies)
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath(); ctx.arc(cx-13,cy-5+pulse,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+13,cy-5+pulse,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#000';
+  ctx.beginPath(); ctx.arc(cx-12,cy-5+pulse,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+12,cy-5+pulse,3,0,Math.PI*2); ctx.fill();
+}
+
+function battleUseSkill() {
+  if(!G.battle.playerTurn || G.battle.result) return;
+  const sk = G.player.skills[G.battle.selectedSkill];
+  playerBattleAct(sk);
+}
+
+function playerBattleAct(skill) {
+  if(!G.battle.playerTurn||G.battle.result) return;
+  const p = G.player;
+  const e = G.battle.enemy;
+
+  if(skill.cost > p.sp) { G.battle.log.push('❌ Not enough SP!'); renderBattle(); return; }
+
+  p.sp = Math.max(0, p.sp-skill.cost);
+  G.battle.guarding = false;
+
+  if(skill.type==='heal') {
+    const h = skill.power + Math.floor(Math.random()*10);
+    p.hp = Math.min(p.maxHp, p.hp+h);
+    G.battle.log.push(`💚 ${skill.name} — Restored ${h} HP!`);
+  } else if(skill.type==='defense') {
+    G.battle.guarding=true;
+    G.battle.log.push('🛡 Took defensive stance!');
+  } else {
+    const isWeak = skill.type===e.weak;
+    const raw = skill.power + p.atk - e.def + Math.floor(Math.random()*8)-3;
+    const dmg = Math.max(1, Math.floor(raw*(isWeak?1.5:1)));
+    e.hp = Math.max(0, e.hp-dmg);
+    let msg = `⚡ ${skill.name} — ${dmg} dmg`;
+    if(isWeak) msg += ' ★ WEAK!';
+    G.battle.log.push(msg);
+    G.particles.push({type:'hit',x:e.name.length*10+200,y:200,vx:(Math.random()-0.5)*2,life:60,maxLife:60,text:isWeak?`★${dmg}`:`${dmg}`});
+  }
+
+  if(e.hp<=0){ endBattle(true); return; }
+  G.battle.playerTurn=false;
+  renderBattle();
+  setTimeout(enemyBattleAct, 900);
+}
+
+function enemyBattleAct() {
+  if(G.battle.result) return;
+  const p = G.player;
+  const e = G.battle.enemy;
+  const def = p.def * (G.battle.guarding?2:1);
+  const dmg = Math.max(1, e.atk + Math.floor(Math.random()*6) - def);
+  p.hp = Math.max(0, p.hp-dmg);
+  G.battle.guarding=false;
+  G.battle.log.push(`💥 ${e.name} attacked! ${dmg} damage to you.`);
+  if(p.hp<=0){ endBattle(false); return; }
+  G.battle.playerTurn=true;
+  renderBattle();
+}
+
+function battleGuard() {
+  playerBattleAct({ name:'Guard', type:'defense', power:0, cost:0 });
+}
+
+function battleFlee() {
+  if(Math.random()<0.55) {
+    G.battle.log.push('🏃 Escaped successfully!');
+    G.battle.result='flee';
+    renderBattle();
+    setTimeout(closeBattle,1200);
+  } else {
+    G.battle.log.push('❌ Couldn\'t escape!');
+    G.battle.playerTurn=false;
+    renderBattle();
+    setTimeout(enemyBattleAct,800);
+  }
+}
+
+function handleBattleKey(key) {
+  if(G.battle.result) return;
+  if(key==='ArrowUp')   { G.battle.selectedSkill=(G.battle.selectedSkill-1+G.player.skills.length)%G.player.skills.length; renderBattle(); }
+  if(key==='ArrowDown') { G.battle.selectedSkill=(G.battle.selectedSkill+1)%G.player.skills.length; renderBattle(); }
+  if(key==='Enter'||key===' ') { if(G.battle.playerTurn) battleUseSkill(); }
+}
+
+function endBattle(won) {
+  G.battle.result = won?'win':'lose';
+  if(won) {
+    const e=G.battle.enemy;
+    G.battle.log.push(`🏆 Victory! EXP +${e.exp}, Gold +${e.gold}`);
+    G.player.gold += e.gold;
+    grantExp(e.exp);
+    if(G.battle.entity) G.battle.entity.alive=false;
+    renderBattle();
+
+    // Add continue button
+    const acts=document.getElementById('battleActions');
+    acts.style.display='flex';
+    acts.innerHTML=`<button class="battleBtn" onclick="closeBattle()" style="border-color:var(--green);color:var(--green)">✔ CONTINUE</button>`;
+  } else {
+    G.battle.log.push('💀 You were defeated...');
+    G.player.hp = Math.floor(G.player.maxHp*0.5);
+    G.player.sp = Math.floor(G.player.maxSp*0.5);
+    renderBattle();
+    const acts=document.getElementById('battleActions');
+    acts.style.display='flex';
+    acts.innerHTML=`<button class="battleBtn danger" onclick="closeBattle()">↩ RETREAT (HP/SP half restored)</button>`;
+  }
+  renderBattle();
+}
+
+function grantExp(amount) {
+  const p=G.player;
+  p.exp+=amount;
+  while(p.exp>=p.nextExp){
+    p.exp-=p.nextExp;
+    p.level++;
+    p.nextExp=Math.floor(p.nextExp*1.28);
+    p.maxHp+=18; p.maxSp+=10; p.atk+=3; p.def+=2;
+    p.hp=p.maxHp; p.sp=p.maxSp;
+    G.battle.log.push(`★★ LEVEL UP! Now Lv.${p.level} ★★`);
+    // Unlock new skill every few levels
+    if(p.level===4 && p.skills.length<8) { p.skills.push(SKILLS[7]); G.battle.log.push('New skill: Agidyne!'); }
+    if(p.level===7 && p.skills.length<9) { p.skills.push(SKILLS[8]); G.battle.log.push('New skill: Bufudyne!'); }
+  }
+}
+
+// World-state level up (outside battle — used by dev shortcuts & story rewards)
+function grantExpWorld(amount) {
+  const p = G.player;
+  p.exp += amount;
+  while(p.exp >= p.nextExp) {
+    p.exp -= p.nextExp;
+    p.level++;
+    p.nextExp = Math.floor(p.nextExp * 1.28);
+    p.maxHp += 18; p.maxSp += 10; p.atk += 3; p.def += 2;
+    p.hp = p.maxHp; p.sp = p.maxSp;
+    notify(`★ LEVEL UP! Now Lv.${p.level} — HP/SP fully restored!`);
+    if(p.level === 4 && !p.skills.find(s=>s.name==='Agidyne'))  p.skills.push(SKILLS[8]);
+    if(p.level === 7 && !p.skills.find(s=>s.name==='Bufudyne')) p.skills.push(SKILLS[9]);
+  }
+}
+
+function closeBattle() {
+  document.getElementById('battleScreen').style.display='none';
+  G.state='world';
+  G.battle.entity=null;
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+
+function notify(msg) {
+  const n = document.getElementById('notification');
+  n.textContent = msg;
+  n.style.opacity='1';
+  clearTimeout(G._notifTimeout);
+  G._notifTimeout = setTimeout(()=>{ n.style.opacity='0'; },2800);
+}
+
+// ═══════════════════════════════════════════
+//  NAME ENTRY
+// ═══════════════════════════════════════════
+
+function initNameEntry() {
+  const input  = document.getElementById('nameInput');
+  const btn    = document.getElementById('nameEntryBtn');
+
+  // Enable button only when name is non-empty
+  input.addEventListener('input', () => {
+    const val = input.value.trim();
+    btn.disabled = val.length === 0;
+  });
+  input.addEventListener('keydown', e => {
+    if(e.key==='Enter' && input.value.trim().length>0) confirmName();
+  });
+
+  // Animated particle canvas
+  const pc = document.getElementById('nameEntryParticles');
+  pc.width  = window.innerWidth;
+  pc.height = window.innerHeight;
+  const pctx = pc.getContext('2d');
+  const stars = Array.from({length:120}, ()=>({
+    x: Math.random()*pc.width,
+    y: Math.random()*pc.height,
+    r: Math.random()*1.5+0.3,
+    vx:(Math.random()-0.5)*0.3,
+    vy:(Math.random()-0.5)*0.3,
+    alpha: Math.random(),
+    dAlpha:(Math.random()*0.015+0.005)*(Math.random()<0.5?1:-1),
+    color: Math.random()<0.5 ? '#00e5ff' : '#ff2d6b',
+  }));
+
+  function animParticles() {
+    if(!document.getElementById('nameEntryScreen').style.display ||
+       document.getElementById('nameEntryScreen').style.display !== 'none') {
+      pctx.clearRect(0,0,pc.width,pc.height);
+      for(const s of stars) {
+        s.x += s.vx; s.y += s.vy;
+        s.alpha += s.dAlpha;
+        if(s.alpha>=1||s.alpha<=0) s.dAlpha*=-1;
+        if(s.x<0)s.x=pc.width; if(s.x>pc.width)s.x=0;
+        if(s.y<0)s.y=pc.height;if(s.y>pc.height)s.y=0;
+        pctx.globalAlpha = Math.max(0,Math.min(1,s.alpha));
+        pctx.fillStyle = s.color;
+        pctx.beginPath(); pctx.arc(s.x,s.y,s.r,0,Math.PI*2); pctx.fill();
+      }
+      pctx.globalAlpha=1;
+      requestAnimationFrame(animParticles);
+    }
+  }
+  animParticles();
+  input.focus();
+}
+
+function confirmName() {
+  const raw  = document.getElementById('nameInput').value.trim();
+  const name = raw.length > 0 ? raw : 'Protagonist';
+  G.player.name = name;
+
+  // Animate out
+  const screen = document.getElementById('nameEntryScreen');
+  screen.style.transition = 'opacity 0.7s ease';
+  screen.style.opacity = '0';
+  setTimeout(() => {
+    screen.style.display = 'none';
+    document.getElementById('playerName').textContent = name + ' · ';
+    notify(`✦ Welcome, ${name}. Your journey begins.`);
+  }, 700);
+}
+
+// ═══════════════════════════════════════════
+//  RENAME (in-game)
+// ═══════════════════════════════════════════
+
+function openRename() {
+  const modal = document.getElementById('renameModal');
+  const input = document.getElementById('renameInput');
+  input.value = G.player.name || '';
+  modal.style.display = 'flex';
+  // Place modal inside inventory panel's stacking context
+  document.getElementById('inventoryPanel').appendChild(modal);
+  input.focus(); input.select();
+  input.onkeydown = e => { if(e.key==='Enter') saveRename(); if(e.key==='Escape') closeRename(); };
+}
+
+function saveRename() {
+  const val = document.getElementById('renameInput').value.trim();
+  if(val.length === 0) return;
+  const old = G.player.name;
+  G.player.name = val;
+  closeRename();
+  notify(`✦ Name changed: ${old} → ${val}`);
+  // Update HUD name immediately
+  document.getElementById('playerName').textContent = val + ' · ';
+}
+
+function closeRename() {
+  document.getElementById('renameModal').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════
+//  SAVE / LOAD SYSTEM
+// ═══════════════════════════════════════════
+
+const SAVE_KEY_PREFIX = 'persona_wos_save_';
+const AUTO_SAVE_KEY   = 'persona_wos_autosave';
+const SAVE_SLOTS      = 3;
+let   _savePanelMode  = 'save'; // 'save' or 'load'
+let   _pendingSlot    = null;
+
+function buildSaveData() {
+  const p = G.player;
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    player: {
+      name:    p.name || 'Protagonist',
+      x: p.x, y: p.y,
+      hp: p.hp, maxHp: p.maxHp,
+      sp: p.sp, maxSp: p.maxSp,
+      atk: p.atk, def: p.def,
+      level: p.level, exp: p.exp, nextExp: p.nextExp,
+      gold: p.gold,
+      skillIndices: p.skills.map(sk => SKILLS.findIndex(s=>s.name===sk.name)),
+      inventory: p.inventory.map(it => ({ name:it.name, desc:it.desc, price:it.price, effect:it.effect })),
+      socialLinks: p.socialLinks,
+      flags: p.flags,
+    },
+    time: { ...G.time },
+    dungeon: { shadowsAlive: G.shadowEntities.map(s=>s.alive) },
+    story: {
+      seen:         { ...STORY.seen },
+      bondCount:    STORY.bondCount,
+      bossDefeated: STORY.bossDefeated,
+    },
+  };
+}
+
+function applySaveData(data) {
+  const pd = data.player;
+  const p  = G.player;
+
+  p.name    = pd.name;
+  p.x       = pd.x;    p.y  = pd.y;
+  p.hp      = pd.hp;   p.maxHp = pd.maxHp;
+  p.sp      = pd.sp;   p.maxSp = pd.maxSp;
+  p.atk     = pd.atk;  p.def   = pd.def;
+  p.level   = pd.level; p.exp  = pd.exp; p.nextExp = pd.nextExp;
+  p.gold    = pd.gold;
+  p.skills  = pd.skillIndices
+                .map(i => SKILLS[i])
+                .filter(Boolean);
+  if(p.skills.length === 0) p.skills = SKILLS.slice(0,7);
+  p.inventory   = pd.inventory  || [];
+  p.socialLinks = pd.socialLinks || {};
+  p.flags       = pd.flags       || {};
+
+  G.time = { ...data.time };
+
+  // Restore shadow alive states
+  if(data.dungeon && data.dungeon.shadowsAlive) {
+    data.dungeon.shadowsAlive.forEach((alive, i) => {
+      if(G.shadowEntities[i]) G.shadowEntities[i].alive = alive;
+    });
+  }
+
+  // Restore story state
+  if(data.story) {
+    STORY.seen         = data.story.seen         || {};
+    STORY.bondCount    = data.story.bondCount     || 0;
+    STORY.bossDefeated = data.story.bossDefeated  || false;
+  }
+  updateQuestTracker();
+}
+
+function formatSaveDate(iso) {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' }) +
+           ' ' + d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return iso; }
+}
+
+function getSaveSlotData(slot) {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY_PREFIX + slot);
     return raw ? JSON.parse(raw) : null;
   } catch(e) { return null; }
 }
 
-function writeSave(data) {
+function writeSaveSlot(slot, data) {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    showSaveBadge();
+    localStorage.setItem(SAVE_KEY_PREFIX + slot, JSON.stringify(data));
+    return true;
+  } catch(e) {
+    notify('❌ Save failed — storage unavailable.');
+    return false;
+  }
+}
+
+// ── OPEN PANEL ──
+function openSavePanel(mode) {
+  _savePanelMode = mode || 'save';
+  const panel = document.getElementById('savePanel');
+  document.getElementById('savePanelSub').textContent =
+    mode === 'load' ? 'CHOOSE A FILE TO LOAD' : 'CHOOSE A SLOT TO SAVE';
+  renderSaveSlots();
+  panel.style.display = 'block';
+  // Close inventory if open
+  if(G.state === 'inventory') {
+    document.getElementById('inventoryPanel').style.display = 'none';
+  }
+  G.state = 'save_menu';
+}
+
+function closeSavePanel() {
+  document.getElementById('savePanel').style.display = 'none';
+  closeSaveConfirm();
+  G.state = 'world';
+}
+
+// ── RENDER SLOTS ──
+function renderSaveSlots() {
+  const container = document.getElementById('saveSlots');
+  container.innerHTML = '';
+
+  for(let slot = 1; slot <= SAVE_SLOTS; slot++) {
+    const data    = getSaveSlotData(slot);
+    const isEmpty = !data;
+    const div     = document.createElement('div');
+    div.className = 'saveSlot' + (isEmpty ? ' empty' : '');
+
+    let infoHtml = '';
+    if(!isEmpty) {
+      const pd = data.player;
+      const tl = data.time;
+      const monthName = G.MONTHS[tl.month] || 'Apr';
+      infoHtml = `
+        <div class="saveSlotInfo">
+          <div class="saveSlotStat">👤 <span>${pd.name}</span></div>
+          <div class="saveSlotStat">⚔ Lv.<span>${pd.level}</span></div>
+          <div class="saveSlotStat">💰 <span>${pd.gold}</span> G</div>
+          <div class="saveSlotStat">📅 <span>${monthName} ${tl.day}</span></div>
+          <div class="saveSlotStat">HP <span>${pd.hp}/${pd.maxHp}</span></div>
+        </div>`;
+    } else {
+      infoHtml = `<div style="font-size:10px;color:var(--dim);margin-bottom:10px;">— Empty —</div>`;
+    }
+
+    const canLoad   = !isEmpty && _savePanelMode === 'load';
+    const canDelete = !isEmpty;
+
+    div.innerHTML = `
+      <div class="saveSlotHeader">
+        <div class="saveSlotNum">SLOT ${slot}</div>
+        <div class="saveSlotTime">${isEmpty ? 'No data' : formatSaveDate(data.savedAt)}</div>
+      </div>
+      ${infoHtml}
+      <div class="saveSlotBtns">
+        ${_savePanelMode === 'save'
+          ? `<button class="sBtn sBtnSave" onclick="trySaveSlot(${slot})">💾 SAVE HERE</button>`
+          : `<button class="sBtn sBtnLoad ${canLoad?'':'sBtnDisabled'}" onclick="loadSlot(${slot})">▶ LOAD</button>`
+        }
+        <button class="sBtn sBtnDel ${canDelete?'':'sBtnDisabled'}" onclick="deleteSlot(${slot})">🗑 DELETE</button>
+      </div>`;
+    container.appendChild(div);
+  }
+}
+
+// ── SAVE ──
+function trySaveSlot(slot) {
+  const existing = getSaveSlotData(slot);
+  if(existing) {
+    // Ask for confirmation before overwriting
+    _pendingSlot = slot;
+    const pd = existing.player;
+    document.getElementById('saveConfirmText').innerHTML =
+      `Slot ${slot} contains: <span style="color:var(--accent)">${pd.name}</span> Lv.${pd.level}<br>
+       Saved: <span style="color:var(--dim)">${formatSaveDate(existing.savedAt)}</span><br><br>
+       Overwrite this save?`;
+    document.getElementById('saveConfirmYes').onclick = () => executeSave(_pendingSlot);
+    document.getElementById('saveConfirm').style.display = 'block';
+  } else {
+    executeSave(slot);
+  }
+}
+
+function executeSave(slot) {
+  closeSaveConfirm();
+  const data = buildSaveData();
+  if(writeSaveSlot(slot, data)) {
+    renderSaveSlots();
+    notify(`💾 Game saved to Slot ${slot}!`);
+    flashAutoSave('💾 SAVED');
+  }
+}
+
+// ── LOAD ──
+function loadSlot(slot) {
+  const data = getSaveSlotData(slot);
+  if(!data) { notify('❌ No save data in this slot.'); return; }
+  applySaveData(data);
+  closeSavePanel();
+  // Update all HUD immediately
+  document.getElementById('playerName').textContent = (G.player.name||'Protagonist') + ' · ';
+  notify(`✦ Loaded Slot ${slot} — Welcome back, ${G.player.name}!`);
+}
+
+// ── DELETE ──
+function deleteSlot(slot) {
+  if(!getSaveSlotData(slot)) return;
+  if(!confirm(`Delete Slot ${slot}? This cannot be undone.`)) return;
+  localStorage.removeItem(SAVE_KEY_PREFIX + slot);
+  renderSaveSlots();
+  notify(`🗑 Slot ${slot} deleted.`);
+}
+
+// ── AUTO-SAVE ──
+function autoSave() {
+  try {
+    const data = buildSaveData();
+    localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(data));
+    flashAutoSave('✦ AUTO-SAVED');
   } catch(e) {}
 }
 
-function defaultSave(name) {
-  return {
-    playerName: name,
-    completedChapters: [],
-    chapterStars: {},
-    score: 0,
-    flags: {},
-    hints: 5,
-  };
+function flashAutoSave(msg) {
+  const el = document.getElementById('autoSaveIndicator');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(G._autoSaveFlashTimer);
+  G._autoSaveFlashTimer = setTimeout(() => { el.style.opacity = '0'; }, 2200);
 }
 
-let SAVE = loadSave();
+// ── CONFIRM OVERLAY ──
+function closeSaveConfirm() {
+  document.getElementById('saveConfirm').style.display = 'none';
+  _pendingSlot = null;
+}
 
-// ═══════════════════════════════════════════════
-//  GAME STATE
-// ═══════════════════════════════════════════════
+// ── LOAD SCREEN: check for autosave on name entry ──
+function checkAutoSaveOnStart() {
+  const raw = localStorage.getItem(AUTO_SAVE_KEY);
+  if(!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    const pd   = data.player;
+    // Offer to resume
+    const btn  = document.getElementById('nameEntryBtn');
+    const box  = document.getElementById('nameEntryBox');
 
-const G = {
-  currentChapter: null,
-  currentSceneIdx: 0,
-  puzzleSolved: false,
-  mistakes: 0,
-  hintsUsed: 0,
-  // for memory puzzle
-  memFlipped: [],
-  memMatched: [],
-  memLocked: false,
-  // for sequence puzzle
-  seqSelected: [],
-  // for symbol/pattern
-  symSelected: [],
-  symMatched: [],
-  patPath: [],
-  patExpected: [],
+    const resumeDiv = document.createElement('div');
+    resumeDiv.style.cssText = 'margin-top:-8px;width:100%;';
+    resumeDiv.innerHTML = `
+      <div style="border-top:1px solid var(--border);padding-top:14px;text-align:center">
+        <div style="font-size:9px;color:var(--dim);letter-spacing:3px;margin-bottom:8px">── OR CONTINUE ──</div>
+        <div style="font-size:11px;color:var(--text);margin-bottom:10px">
+          Auto-save found: <span style="color:var(--accent)">${pd.name}</span>
+          Lv.<span style="color:var(--gold)">${pd.level}</span> &nbsp;·&nbsp;
+          💰${pd.gold} &nbsp;·&nbsp;
+          📅 ${G.MONTHS[data.time.month]} ${data.time.day}
+        </div>
+        <button onclick="resumeAutoSave()" style="background:rgba(0,229,255,0.12);border:2px solid var(--accent);
+          color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;
+          letter-spacing:3px;padding:10px 36px;border-radius:4px;cursor:pointer;width:100%">
+          ▶ RESUME JOURNEY
+        </button>
+      </div>`;
+    box.appendChild(resumeDiv);
+  } catch(e) {}
+}
+
+function resumeAutoSave() {
+  const raw = localStorage.getItem(AUTO_SAVE_KEY);
+  if(!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    applySaveData(data);
+    G.player.name = data.player.name;
+
+    const screen = document.getElementById('nameEntryScreen');
+    screen.style.transition = 'opacity 0.7s ease';
+    screen.style.opacity = '0';
+    setTimeout(() => {
+      screen.style.display = 'none';
+      document.getElementById('playerName').textContent = G.player.name + ' · ';
+      notify(`✦ Welcome back, ${G.player.name}. Journey resumed.`);
+    }, 700);
+  } catch(e) {
+    notify('❌ Failed to load auto-save.');
+  }
+}
+
+// ── KEYBOARD SHORTCUT: F5 = quick save slot 1, F9 = quick load slot 1 ──
+document.addEventListener('keydown', e => {
+  if(e.key === 'F5') { e.preventDefault(); if(G.state==='world') executeSave(1); }
+  if(e.key === 'F9') { e.preventDefault(); if(G.state==='world') { const d=getSaveSlotData(1); if(d) loadSlot(1); else notify('No quick save found in Slot 1.'); } }
+  if(e.key === 'Escape') {
+    if(G.state==='save_menu') closeSavePanel();
+    if(G.state==='cutscene') skipCutscene();
+  }
+  // ── DEV SHORTCUTS (testing) ──
+  if(e.shiftKey && e.key === 'T') { // Shift+T: skip to midnight
+    G.time.hours = 0; G.time.minutes = 0;
+    notify('🛠 DEV: Time → 00:00 (Dark Hour)');
+  }
+  if(e.shiftKey && e.key === 'D') { // Shift+D: advance 1 day
+    G.time.day++; if(G.time.day>30){G.time.day=1;G.time.month=(G.time.month+1)%12;}
+    notify(`🛠 DEV: Day advanced → Day ${G.time.day}`);
+  }
+  if(e.shiftKey && e.key === 'L') { // Shift+L: gain 200 EXP
+    grantExpWorld(200);
+    notify('🛠 DEV: +200 EXP');
+  }
+  if(e.shiftKey && e.key === 'B') { // Shift+B: deepen bond (test)
+    STORY.bondCount++;
+    notify(`🛠 DEV: Bond count → ${STORY.bondCount}`);
+  }
+});
+
+// ═══════════════════════════════════════════
+//  STORY SYSTEM — CHAPTER I: THE DARK HOUR
+// ═══════════════════════════════════════════
+
+/*
+  STORY OVERVIEW — CHAPTER I: "The Dark Hour"
+  ─────────────────────────────────────────────
+  Arc: A mysterious phenomenon called "The Dark Hour" begins
+       occurring at midnight — a time when normal people freeze
+       and Shadows roam freely. The protagonist discovers they
+       are one of the few who can move during this time.
+
+  TRIGGERS (all must be met to unlock Chapter 1 Finale):
+    1. [CALENDAR]   Day ≥ 7  (one week has passed)
+    2. [LEVEL]      Player level ≥ 3  (gained experience)
+    3. [BOSS]       Nyx Core boss defeated  (flag: boss_nyx_defeated)
+    4. [SOCIAL]     Any Social Link bond deepened 2+ times  (flag: social_bonds ≥ 2)
+
+  SCENES:
+    Scene 0  — Prologue: first midnight (auto-trigger on Day 1, 00:00)
+    Scene 1  — Discovery: Igor summons player to Velvet Room (Day 3+)
+    Scene 2  — The Warning: Ms. Toriumi reveals the truth (Day 5+, Lv2+)
+    Scene 3  — The Dark Hour begins (Day 7, midnight, all above met)
+    Scene 4  — Chapter 1 FINALE: Confront Nyx Core (all 4 triggers met)
+    Scene 5  — Chapter 1 Epilogue: aftermath (after boss defeated)
+*/
+
+const STORY = {
+  // Track which scenes have fired
+  seen: {},
+  bondCount: 0,       // times player deepened any bond
+  bossDefeated: false,
+
+  // ── SCENE DEFINITIONS ──
+  scenes: {
+
+    // ─ SCENE 0: PROLOGUE ─
+    prologue: {
+      title: 'THE DARK HOUR',
+      chapter: '✦ PROLOGUE ✦',
+      bg: 'radial-gradient(ellipse at 50% 50%, #0d0020 0%, #000 70%)',
+      lines: [
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
+          text:'...Can you hear it? The world holds its breath at midnight.' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
+          text:'Every night, for exactly one hour... time stops. People freeze like statues. Shadows feast.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(What... is this? I can move. Everyone around me is completely still...)' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
+          text:'You are special. You are one of the few who awakens during the Dark Hour.' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
+          text:'This power will either save you... or consume you. The choice is yours.' },
+        { speaker:'SYSTEM',       emoji:'⚠',  color:'#ff2d6b',
+          text:'[ THE DARK HOUR — 00:00 to 01:00 every night. During this time, Shadows grow stronger. Survive until dawn. ]' },
+      ]
+    },
+
+    // ─ SCENE 1: VELVET SUMMONS ─
+    velvet_summons: {
+      title: 'BETWEEN MIND AND MATTER',
+      chapter: '✦ CHAPTER I — ACT I ✦',
+      bg: 'radial-gradient(ellipse at 50% 60%, #1a0040 0%, #000010 70%)',
+      trigger: { day: 3, level: 1 },
+      lines: [
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'Welcome... to the Velvet Room. I have been waiting for you.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'This place exists between dream and reality, mind and matter. Only those bound by a special contract may enter.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(A contract? I don\'t remember signing anything... but somehow, this place feels familiar.)' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'The Dark Hour is spreading. What was once a single midnight event now threatens to consume entire days.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'The source is a being called Nyx — an ancient Shadow that feeds on human despair.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'Your Persona... is your only weapon against it. But Personas grow stronger through bonds — through the connections you forge with others.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(So the people I\'ve been spending time with... they\'re part of this too.)' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'Deepen those bonds. Grow stronger. And when the time comes — face Nyx in the Dark Hour.' },
+        { speaker:'SYSTEM',       emoji:'📋', color:'#ffd740',
+          text:'[ OBJECTIVE UPDATED: Deepen Social Links and grow stronger before facing Nyx Core at Dark Summit. ]' },
+      ]
+    },
+
+    // ─ SCENE 2: TEACHER'S WARNING ─
+    teacher_warning: {
+      title: 'WHAT THE TEACHERS KNOW',
+      chapter: '✦ CHAPTER I — ACT II ✦',
+      bg: 'radial-gradient(ellipse at 30% 40%, #001a30 0%, #000 70%)',
+      trigger: { day: 5, level: 2 },
+      lines: [
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
+          text:'I need to speak with you. Not as your teacher — as someone who knows the truth.' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
+          text:'Ten years ago, a group of researchers tried to summon something from beyond. They called it the "Death Arcana experiment."' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
+          text:'They succeeded. And in doing so, they cracked open a door that was never meant to be opened.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(The Dark Hour... it started because of a human mistake?)' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
+          text:'Every night, Nyx\'s influence seeps through that crack. At first it was just shadows. Now...' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
+          text:'People are disappearing. Not dying — disappearing. Their minds devoured from within.' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
+          text:'I don\'t know why you can resist it. But you can. That makes you the only one who can stop this.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(No pressure... right.)' },
+        { speaker:'SYSTEM',       emoji:'⚠',  color:'#ff2d6b',
+          text:'[ WARNING: The Dark Hour intensifies after Day 10. Find and defeat Nyx Core before then. ]' },
+      ]
+    },
+
+    // ─ SCENE 3: DARK HOUR BEGINS ─
+    dark_hour_begins: {
+      title: 'MIDNIGHT FALLS',
+      chapter: '✦ CHAPTER I — ACT III ✦',
+      bg: 'radial-gradient(ellipse at 50% 20%, #1a0000 0%, #000 60%)',
+      trigger: { day: 7, hour: 0, level: 2 },
+      lines: [
+        { speaker:'SYSTEM',       emoji:'🌑', color:'#9c27b0',
+          text:'[ 00:00 — THE DARK HOUR BEGINS ]' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
+          text:'The world goes silent. The sky turns a deep, sickly green. Every clock stops at midnight.' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
+          text:'Coffins rise from the earth where people once stood. The air tastes of iron and grief.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(It\'s happening again. The Dark Hour. But tonight... it feels different. Heavier.)' },
+        { speaker:'???',          emoji:'💀', color:'#ef5350',
+          text:'Ahahaha... you can feel it, can\'t you? I\'m closer than ever.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(That voice — it\'s coming from Dark Summit. From the one they call Nyx.)' },
+        { speaker:'???',          emoji:'💀', color:'#ef5350',
+          text:'Come to me. Come and let me show you the beautiful emptiness at the end of all things.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(Not a chance. I\'ve seen what you do to people. It ends tonight.)' },
+        { speaker:'SYSTEM',       emoji:'📋', color:'#ffd740',
+          text:'[ ALL CONDITIONS MET — Travel to Dark Summit and defeat Nyx Core to complete Chapter I. ]' },
+      ]
+    },
+
+    // ─ SCENE 4: PRE-BOSS ─
+    pre_boss: {
+      title: 'THE FINAL SHADOW',
+      chapter: '✦ CHAPTER I — FINALE ✦',
+      bg: 'radial-gradient(ellipse at 50% 50%, #300000 0%, #000 60%)',
+      trigger: { flag:'all_triggers_met' },
+      lines: [
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
+          text:'Dark Summit. The air is thick with shadow-energy. Every step feels like wading through despair.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
+          text:'You actually came. Interesting. Most humans who enter this place have already given up.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'I\'m not like most humans.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
+          text:'No... you carry something unusual. Bonds. Warmth. How utterly... repulsive.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
+          text:'Do you know what I am? I am the answer to the question humans whisper in their darkest moments — "What if it all just... ended?"' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'You\'re not an answer. You\'re a disease. And I have the cure.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
+          text:'Then come, little Persona-user. Let me show you true darkness.' },
+        { speaker:'SYSTEM',       emoji:'⚔',  color:'#ff2d6b',
+          text:'[ BOSS BATTLE: NYX CORE — She is weak to LIGHT. Use Kouha. This is everything. ]' },
+      ]
+    },
+
+    // ─ SCENE 5: EPILOGUE ─
+    epilogue: {
+      title: 'WHAT REMAINS',
+      chapter: '✦ CHAPTER I — EPILOGUE ✦',
+      bg: 'radial-gradient(ellipse at 50% 80%, #001a10 0%, #000 70%)',
+      trigger: { flag:'boss_nyx_defeated' },
+      lines: [
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
+          text:'The Dark Hour fractures. Not ends — fractures. Like cracked glass holding back a flood.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'Well done. You have severed Nyx\'s anchor to this world. For now.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'For now? It\'s not over?' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'Nyx is not destroyed. She is... retreated. The door the researchers opened cannot be fully closed.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'But you have bought this world time. And you have grown. Your bonds have deepened.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
+          text:'When Nyx returns — and she will — you will be ready. The Wild Card does not sleep.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
+          text:'(Wild Card... so that\'s what I am.)' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
+          text:'Midnight passes. The clocks tick again. The world wakes, unaware of what almost consumed it.' },
+        { speaker:'SYSTEM',       emoji:'✦',  color:'#ffd740',
+          text:'[ CHAPTER I COMPLETE — "The Dark Hour" ✦ Your journey continues... ]' },
+      ]
+    },
+  },
 };
 
-// ═══════════════════════════════════════════════
-//  TITLE SCREEN
-// ═══════════════════════════════════════════════
+// ── QUEST OBJECTIVES (Chapter 1) ──
+const CHAPTER1_QUESTS = [
+  { id:'q_day7',     label:'Survive 7 days',          check: ()=> (G.time.month*30 + G.time.day) >= 7 },
+  { id:'q_lv3',      label:'Reach Level 3',            check: ()=> G.player.level >= 3 },
+  { id:'q_boss',     label:'Defeat Nyx Core',          check: ()=> STORY.bossDefeated },
+  { id:'q_bonds',    label:'Deepen 2 Social Links',    check: ()=> STORY.bondCount >= 2 },
+];
 
-function initTitle() {
-  const canvas = document.getElementById('titleCanvas');
-  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-  const ctx = canvas.getContext('2d');
+// ── CUTSCENE ENGINE ──
+let _csLines = [], _csIdx = 0, _csCallback = null, _csTyping = null;
 
-  const particles = Array.from({length:160}, () => ({
-    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-    r: Math.random()*1.4+0.2,
-    vx:(Math.random()-0.5)*0.25, vy:(Math.random()-0.5)*0.25,
-    a: Math.random(), da:(Math.random()*0.01+0.004)*(Math.random()<0.5?1:-1),
-    c: Math.random()<0.4 ? '#00e5ff' : Math.random()<0.6 ? '#b388ff' : '#ff2d55',
-  }));
+function playCutscene(sceneKey, onComplete) {
+  const scene = STORY.scenes[sceneKey];
+  if(!scene) { if(onComplete) onComplete(); return; }
+  if(STORY.seen[sceneKey]) { if(onComplete) onComplete(); return; }
 
-  (function animTitle() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for(const p of particles) {
-      p.x+=p.vx; p.y+=p.vy; p.a+=p.da;
-      if(p.a>1||p.a<0) p.da*=-1;
-      if(p.x<0)p.x=canvas.width; if(p.x>canvas.width)p.x=0;
-      if(p.y<0)p.y=canvas.height; if(p.y>canvas.height)p.y=0;
-      ctx.globalAlpha=Math.max(0,Math.min(1,p.a));
-      ctx.fillStyle=p.c;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
-    }
-    ctx.globalAlpha=1;
-    requestAnimationFrame(animTitle);
-  })();
+  STORY.seen[sceneKey] = true;
+  _csLines    = scene.lines;
+  _csIdx      = 0;
+  _csCallback = onComplete || null;
 
-  // Show buttons if save exists
-  if(SAVE) {
-    document.getElementById('continueBtn').style.display='block';
-    document.getElementById('chapSelectBtn').style.display='block';
-  }
-}
+  const overlay = document.getElementById('cutsceneOverlay');
+  overlay.style.display = 'flex';
+  G.state = 'cutscene';
 
-// ═══════════════════════════════════════════════
-//  SCREEN NAV
-// ═══════════════════════════════════════════════
+  // Set bg
+  document.getElementById('cutsceneBg').style.background = scene.bg;
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+  // Show chapter/title with fade
+  const chEl = document.getElementById('cutsceneChapter');
+  const tiEl = document.getElementById('cutsceneTitle');
+  chEl.textContent = scene.chapter;
+  tiEl.textContent = scene.title;
+  chEl.style.opacity = '0'; tiEl.style.opacity = '0';
 
-function goToName() {
-  showScreen('nameScreen');
-  const inp = document.getElementById('nameInput');
-  inp.value = '';
-  document.getElementById('nameConfirmBtn').disabled = true;
-  inp.addEventListener('input', () => {
-    document.getElementById('nameConfirmBtn').disabled = inp.value.trim().length===0;
+  // Show chapter title for 2s then start dialog
+  requestAnimationFrame(()=>{
+    chEl.style.opacity = '1'; tiEl.style.opacity = '1';
   });
-  inp.addEventListener('keydown', e => { if(e.key==='Enter'&&inp.value.trim().length>0) confirmName(); });
-  setTimeout(()=>inp.focus(),400);
+
+  setTimeout(()=>{
+    tiEl.style.opacity = '0';
+    chEl.style.opacity = '0';
+    setTimeout(()=>{ showCutsceneLine(_csIdx); }, 600);
+  }, 2200);
+
+  // Click / keypress handler
+  overlay.onclick = advanceCutscene;
 }
 
-function confirmName() {
-  const name = document.getElementById('nameInput').value.trim() || 'Protagonist';
-  SAVE = defaultSave(name);
-  writeSave(SAVE);
-  goToChapters();
+function showCutsceneLine(idx) {
+  if(idx >= _csLines.length) { endCutscene(); return; }
+  const line = _csLines[idx];
+
+  // Speaker
+  const speakerBox = document.getElementById('cutsceneSpeakerBox');
+  const speakerEl  = document.getElementById('cutsceneSpeaker');
+  const portraitEl = document.getElementById('cutscenePortrait');
+  const dialogBox  = document.getElementById('cutsceneDialogBox');
+  const textEl     = document.getElementById('cutsceneText');
+
+  speakerBox.style.borderLeftColor = line.color;
+  speakerBox.style.opacity = '1';
+  speakerEl.textContent  = line.speaker;
+  speakerEl.style.color  = line.color;
+  portraitEl.textContent = line.emoji;
+  portraitEl.style.borderColor = line.color;
+  dialogBox.style.borderLeftColor = line.color;
+  dialogBox.style.opacity = '1';
+  textEl.textContent = '';
+
+  // Typewriter effect
+  clearInterval(_csTyping);
+  let i = 0;
+  _csTyping = setInterval(()=>{
+    textEl.textContent += line.text[i++] || '';
+    if(i >= line.text.length) clearInterval(_csTyping);
+  }, 18);
+
+  document.getElementById('cutsceneContinue').style.display = 'block';
 }
 
-function goToChapters() {
-  if(!SAVE) { goToName(); return; }
-  showScreen('chapterScreen');
-  document.getElementById('chapPlayerName').textContent = SAVE.playerName;
-  renderChapterList();
+function advanceCutscene() {
+  // If still typing, complete it instantly
+  if(_csTyping) {
+    clearInterval(_csTyping);
+    _csTyping = null;
+    const line = _csLines[_csIdx];
+    if(line) document.getElementById('cutsceneText').textContent = line.text;
+    return;
+  }
+  _csIdx++;
+  showCutsceneLine(_csIdx);
 }
 
-function renderChapterList() {
-  const list = document.getElementById('chapterList');
-  list.innerHTML = '';
-  for(const ch of CHAPTERS) {
-    const unlocked  = ch.unlockCondition(SAVE);
-    const completed = SAVE.completedChapters.includes(ch.id);
-    const stars     = SAVE.chapterStars[ch.id] || 0;
+function endCutscene() {
+  clearInterval(_csTyping);
+  const overlay = document.getElementById('cutsceneOverlay');
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.8s ease';
+  setTimeout(()=>{
+    overlay.style.display = 'none';
+    overlay.style.opacity = '1';
+    overlay.style.transition = '';
+    G.state = 'world';
+    if(_csCallback) { _csCallback(); _csCallback = null; }
+  }, 800);
+}
 
-    const div = document.createElement('div');
-    div.className = 'chapterCard' + (completed?' completed':unlocked?' unlocked':' locked');
+function skipCutscene() {
+  clearInterval(_csTyping);
+  endCutscene();
+}
 
-    let badge = '';
-    if(completed)  badge = `<span class="chapterBadge badge-completed">✓ COMPLETE</span>`;
-    else if(unlocked) badge = `<span class="chapterBadge badge-unlocked">▶ PLAY</span>`;
-    else badge = `<span class="chapterBadge badge-locked">🔒 LOCKED</span>`;
+// ── CHAPTER BANNER ──
+function showChapterBanner(chapter, title, sub, duration) {
+  const banner = document.getElementById('storyBanner');
+  document.getElementById('storyBannerChapter').textContent = chapter;
+  document.getElementById('storyBannerTitle').textContent   = title;
+  document.getElementById('storyBannerSub').textContent     = sub;
+  banner.style.display = 'flex';
+  banner.style.opacity = '1';
+  setTimeout(()=>{
+    banner.style.transition = 'opacity 1s ease';
+    banner.style.opacity = '0';
+    setTimeout(()=>{ banner.style.display='none'; banner.style.transition=''; }, 1000);
+  }, duration || 3500);
+}
 
-    let starStr = completed ? (Array.from({length:3},(_,i)=>i<stars?'★':'☆').join('')) : '';
-    let lockReason = !unlocked ? `<div class="chapterLockReason">🔒 Requires: ${ch.unlockText}</div>` : '';
+// ── QUEST TRACKER ──
+function updateQuestTracker() {
+  const allDone = CHAPTER1_QUESTS.every(q => q.check());
+  const tracker = document.getElementById('questTracker');
 
-    div.innerHTML = `
-      <div class="chapterNum">${ch.subtitle}</div>
-      <div class="chapterInfo">
-        <div class="chapterTitle">${ch.icon} &nbsp; ${ch.title}</div>
-        <div class="chapterDesc">${ch.desc}</div>
-        <div class="chapterMeta">${completed?starStr+' &nbsp;':''} ${ch.scenes.length} scenes · ${ch.scenes.length} puzzles${lockReason}</div>
-      </div>
-      ${badge}`;
+  // Only show tracker after prologue seen
+  if(!STORY.seen['prologue']) { tracker.style.display='none'; return; }
+  if(allDone && STORY.seen['epilogue']) { tracker.style.display='none'; return; }
 
-    if(unlocked) div.onclick = () => startChapter(ch.id);
-    list.appendChild(div);
+  tracker.style.display = 'block';
+  const itemsEl = document.getElementById('questTrackerItems');
+  itemsEl.innerHTML = '';
+  for(const q of CHAPTER1_QUESTS) {
+    const done = q.check();
+    itemsEl.innerHTML += `
+      <div class="questItem">
+        <div class="questDot ${done?'done':'pending'}"></div>
+        <div class="questText ${done?'done':'pending'}">${q.label}</div>
+      </div>`;
   }
 }
 
-// ═══════════════════════════════════════════════
-//  CHAPTER / SCENE ENGINE
-// ═══════════════════════════════════════════════
+// ── TRIGGER CHECKER (called every ~60 frames) ──
+function checkStoryTriggers() {
+  if(G.state === 'cutscene') return;
 
-function startChapter(chId) {
-  G.currentChapter = CHAPTERS.find(c=>c.id===chId);
-  G.currentSceneIdx = 0;
-  G.puzzleSolved = false;
-  G.mistakes = 0;
-  G.hintsUsed = 0;
+  const p    = G.player;
+  const day  = G.time.month * 30 + G.time.day;
+  const hour = G.time.hours;
 
-  showScreen('gameScreen');
-  loadScene(0);
-}
-
-function loadScene(idx) {
-  const ch = G.currentChapter;
-  const scene = ch.scenes[idx];
-  G.currentSceneIdx = idx;
-  G.puzzleSolved = false;
-  G.mistakes = 0;
-
-  // HUD
-  document.getElementById('hudChapter').textContent = `CHAPTER ${ch.subtitle} — ${ch.title.toUpperCase()}`;
-  document.getElementById('hudScene').textContent   = scene.title;
-  document.getElementById('hudHints').textContent   = `💡 HINTS (${SAVE.hints})`;
-
-  // Stars
-  const starsEl = document.getElementById('hudStars');
-  starsEl.innerHTML = '★★★'.split('').map((_,i)=>`<span class="hudStar" style="color:var(--gold)">★</span>`).join('');
-
-  // Progress dots
-  const prog = document.getElementById('progressBar');
-  prog.innerHTML = ch.scenes.map((_,i) =>
-    `<div class="progDot ${i<idx?'done':i===idx?'current':''}" id="dot_${i}"></div>`
-  ).join('');
-
-  // Narrative
-  const scroll = document.getElementById('narrativeScroll');
-  scroll.innerHTML = '';
-  showNarrativeLines(scene.narrative, () => {
-    // After narrative, show choices or puzzle start
-    renderChoicePanel([
-      { text: '▶  Proceed to Puzzle', action: () => startPuzzle(scene) }
-    ]);
-  });
-}
-
-function showNarrativeLines(lines, callback, idx=0) {
-  if(idx >= lines.length) { if(callback) callback(); return; }
-  const line = lines[idx];
-  addNarrLine(line.speaker, line.text, line.color, line.speaker==='NARRATOR');
-  setTimeout(() => showNarrativeLines(lines, callback, idx+1), 280);
-}
-
-function addNarrLine(speaker, text, color='#dde0ff', isNarrator=false) {
-  const scroll = document.getElementById('narrativeScroll');
-  if(speaker && !isNarrator) {
-    const sp = document.createElement('div');
-    sp.className = 'narrSpeaker new';
-    sp.style.color = color || 'var(--accent)';
-    sp.textContent = speaker;
-    scroll.appendChild(sp);
-  }
-  const div = document.createElement('div');
-  div.className = 'narrLine new' + (isNarrator?' narrator':'');
-  div.style.borderLeftColor = isNarrator ? 'var(--dim)' : (color||'var(--accent)');
-  div.innerHTML = text;
-  scroll.appendChild(div);
-  scroll.scrollTop = scroll.scrollHeight;
-}
-
-function renderChoicePanel(choices) {
-  const panel = document.getElementById('choicePanel');
-  panel.innerHTML = '';
-  for(const c of choices) {
-    const btn = document.createElement('button');
-    btn.className = 'choiceBtn';
-    btn.textContent = c.text;
-    btn.onclick = () => { panel.innerHTML=''; if(c.action) c.action(); };
-    panel.appendChild(btn);
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE ROUTER
-// ═══════════════════════════════════════════════
-
-function startPuzzle(scene) {
-  const p = scene.puzzle;
-  const area = document.getElementById('puzzleArea');
-  area.innerHTML = `<div id="puzzleTitle">${p.title}</div>`;
-  G.puzzleSolved = false;
-
-  addNarrLine('SYSTEM', `[ PUZZLE ACTIVE: ${p.title} ]`, '#ffc947', false);
-
-  if(p.type === 'memory')      buildMemoryPuzzle(p.config, area);
-  else if(p.type === 'cipher') buildCipherPuzzle(p.config, area);
-  else if(p.type === 'sequence') buildSequencePuzzle(p.config, area);
-  else if(p.type === 'observation') buildObsPuzzle(p.config, area);
-  else if(p.type === 'symbol')  buildSymbolPuzzle(p.config, area);
-  else if(p.type === 'decode')  buildDecodePuzzle(p.config, area);
-  else if(p.type === 'pattern') buildPatternPuzzle(p.config, area);
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: MEMORY
-// ═══════════════════════════════════════════════
-
-function buildMemoryPuzzle(cfg, area) {
-  const pairs = [...cfg.pairs, ...cfg.pairs];
-  // Shuffle
-  for(let i=pairs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pairs[i],pairs[j]]=[pairs[j],pairs[i]]; }
-
-  G.memFlipped = [];
-  G.memMatched = [];
-  G.memLocked  = false;
-
-  const grid = document.createElement('div');
-  grid.className = 'memGrid';
-  grid.style.gridTemplateColumns = `repeat(${cfg.gridCols}, 70px)`;
-
-  pairs.forEach((sym, i) => {
-    const cell = document.createElement('div');
-    cell.className = 'memCell';
-    cell.dataset.val = sym;
-    cell.dataset.idx = i;
-    cell.innerHTML = `<span class="cellBack" style="opacity:0">${sym}</span>`;
-    cell.onclick = () => memFlip(cell, sym, i);
-    grid.appendChild(cell);
-  });
-  area.appendChild(grid);
-
-  // Preview mode (show all briefly)
-  if(cfg.previewTime) {
-    G.memLocked = true;
-    const cells = grid.querySelectorAll('.memCell');
-    cells.forEach(c=>{ c.querySelector('.cellBack').style.opacity='1'; c.classList.add('face-up'); });
-    const countEl = document.createElement('div');
-    countEl.style.cssText='font-size:12px;color:var(--gold);margin-top:10px;letter-spacing:2px;';
-    countEl.textContent = `MEMORIZE — ${cfg.previewTime} seconds`;
-    area.appendChild(countEl);
-    let t=cfg.previewTime;
-    const interval=setInterval(()=>{
-      t--;
-      countEl.textContent=`MEMORIZE — ${t} seconds`;
-      if(t<=0){
-        clearInterval(interval);
-        cells.forEach(c=>{ c.querySelector('.cellBack').style.opacity='0'; c.classList.remove('face-up'); });
-        countEl.textContent='GO!';
-        setTimeout(()=>countEl.remove(),600);
-        G.memLocked=false;
-      }
-    },1000);
-  }
-}
-
-function memFlip(cell, val, idx) {
-  if(G.memLocked || G.memMatched.includes(idx) || G.memFlipped.length===2) return;
-  if(G.memFlipped.includes(idx)) return;
-
-  cell.querySelector('.cellBack').style.opacity='1';
-  cell.classList.add('face-up');
-  G.memFlipped.push(idx);
-
-  if(G.memFlipped.length===2) {
-    G.memLocked=true;
-    const [i1,i2]=G.memFlipped;
-    const cells=document.querySelectorAll('.memCell');
-    const c1=cells[i1], c2=cells[i2];
-
-    if(c1.dataset.val===c2.dataset.val) {
-      setTimeout(()=>{
-        c1.classList.add('matched'); c2.classList.add('matched');
-        G.memMatched.push(i1,i2);
-        G.memFlipped=[];
-        G.memLocked=false;
-        showFeedback('✓ Match found!', true);
-        // Check win
-        const totalPairs = document.querySelectorAll('.memCell').length/2;
-        if(G.memMatched.length===totalPairs*2) puzzleSuccess();
-      },400);
-    } else {
-      G.mistakes++;
-      c1.classList.add('wrong-flash'); c2.classList.add('wrong-flash');
-      setTimeout(()=>{
-        c1.classList.remove('wrong-flash','face-up'); c2.classList.remove('wrong-flash','face-up');
-        c1.querySelector('.cellBack').style.opacity='0';
-        c2.querySelector('.cellBack').style.opacity='0';
-        G.memFlipped=[];
-        G.memLocked=false;
-      },800);
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: CIPHER
-// ═══════════════════════════════════════════════
-
-function buildCipherPuzzle(cfg, area) {
-  const wrap = document.createElement('div');
-  wrap.className = 'cipherPuzzle';
-  wrap.innerHTML = `
-    <div class="cipherDisplay">${cfg.displayEncoded}</div>
-    <div class="cipherHint">Decode the cipher to reveal the hidden word</div>
-    <input class="cipherInput" id="cipherAnswer" type="text" maxlength="${cfg.answer.length+2}"
-           placeholder="TYPE ANSWER" autocomplete="off" spellcheck="false">
-    <button class="cipherSubmit" onclick="checkCipher('${cfg.answer}')">▶ SUBMIT</button>
-    <button class="puzzleResetBtn" style="margin-top:6px;width:100%" onclick="document.getElementById('cipherAnswer').value=''">✕ CLEAR</button>`;
-  area.appendChild(wrap);
-
-  const inp = document.getElementById('cipherAnswer');
-  inp.addEventListener('keydown', e => { if(e.key==='Enter') checkCipher(cfg.answer); });
-  inp.addEventListener('input', () => { inp.value=inp.value.toUpperCase(); });
-  setTimeout(()=>inp.focus(),200);
-}
-
-function checkCipher(answer) {
-  const val = (document.getElementById('cipherAnswer')?.value||'').toUpperCase().trim();
-  if(val===answer.toUpperCase()) {
-    puzzleSuccess();
-  } else {
-    G.mistakes++;
-    showFeedback(`✗ "${val}" is not correct. Try again.`, false);
-    const inp=document.getElementById('cipherAnswer');
-    if(inp){ inp.style.borderColor='var(--red)'; setTimeout(()=>inp.style.borderColor='var(--accent)',800); }
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: SEQUENCE
-// ═══════════════════════════════════════════════
-
-function buildSequencePuzzle(cfg, area) {
-  G.seqSelected = [];
-  const shuffled=[...cfg.items]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
-
-  const wrap = document.createElement('div');
-  wrap.className = 'seqPuzzle';
-  wrap.innerHTML = `<div class="cipherHint" style="margin-bottom:14px">${cfg.prompt}</div>
-    <div class="seqDisplay" id="seqSlots">${cfg.items.map((_,i)=>`<div class="seqSlot" id="seq_slot_${i}"></div>`).join('')}</div>
-    <div class="cipherHint" style="margin:0 0 8px">Choose in order:</div>
-    <div class="seqOptions" id="seqOptions">
-      ${shuffled.map(it=>`<div class="seqOption" onclick="seqPick(this,'${it.replace(/'/g,"\\'")}','${cfg.answer.indexOf(it)}')" data-item="${it}">${it}</div>`).join('')}
-    </div>
-    <button class="puzzleResetBtn" onclick="resetSequence()">↩ RESET</button>`;
-  area.appendChild(wrap);
-}
-
-function seqPick(el, item, correctPos) {
-  if(el.classList.contains('used')||G.puzzleSolved) return;
-  const scene=G.currentChapter.scenes[G.currentSceneIdx];
-  const answer=scene.puzzle.config.answer;
-  const slotIdx=G.seqSelected.length;
-  if(slotIdx>=answer.length) return;
-
-  const slot=document.getElementById(`seq_slot_${slotIdx}`);
-  slot.textContent=item; slot.classList.add('filled');
-  el.classList.add('used');
-  G.seqSelected.push(item);
-
-  if(item===answer[slotIdx]) {
-    slot.classList.add('correct-slot');
-    showFeedback('✓ Correct position!',true);
-  } else {
-    G.mistakes++;
-    slot.style.borderColor='var(--red)';
-    showFeedback('✗ Wrong position. Resetting...',false);
-    setTimeout(resetSequence, 900);
+  // SCENE 0: Prologue — first midnight ever
+  if(!STORY.seen['prologue'] && hour === 0 && G.time.minutes < 2) {
+    playCutscene('prologue', ()=>{
+      showChapterBanner('CHAPTER I', 'THE DARK HOUR', 'A new threat awakens at midnight...');
+    });
     return;
   }
 
-  if(G.seqSelected.length===answer.length) {
-    // Check full sequence
-    const correct=answer.every((a,i)=>G.seqSelected[i]===a);
-    if(correct) puzzleSuccess();
+  // SCENE 1: Velvet Room summons — Day 3+, Lv1+
+  if(!STORY.seen['velvet_summons'] && STORY.seen['prologue'] && day >= 3 && p.level >= 1) {
+    playCutscene('velvet_summons');
+    return;
+  }
+
+  // SCENE 2: Teacher warning — Day 5+, Lv2+
+  if(!STORY.seen['teacher_warning'] && STORY.seen['velvet_summons'] && day >= 5 && p.level >= 2) {
+    playCutscene('teacher_warning');
+    return;
+  }
+
+  // SCENE 3: Dark Hour begins — Day 7, midnight, Lv2+
+  if(!STORY.seen['dark_hour_begins'] && STORY.seen['teacher_warning'] && day >= 7 && hour === 0 && p.level >= 2) {
+    playCutscene('dark_hour_begins');
+    return;
+  }
+
+  // SCENE 4: Pre-boss — 3 non-boss triggers met, boss NOT yet defeated
+  //   Conditions: Day 7+, Level 3+, 2 bonds deepened — this is the "go fight now" scene
+  if(!STORY.seen['pre_boss'] && STORY.seen['dark_hour_begins'] &&
+     p.level >= 3 && day >= 7 && STORY.bondCount >= 2 && !STORY.bossDefeated) {
+    playCutscene('pre_boss', ()=>{
+      notify('⚔ Head to Dark Summit — defeat Nyx Core to complete Chapter I!');
+    });
+    return;
+  }
+
+  // SCENE 5: Epilogue — boss defeated
+  if(!STORY.seen['epilogue'] && STORY.bossDefeated) {
+    playCutscene('epilogue', ()=>{
+      notify('✦ Chapter I Complete! New abilities unlocked.');
+      // Reward: unlock Agidyne early if not already
+      if(!G.player.skills.find(s=>s.name==='Agidyne')) {
+        G.player.skills.push(SKILLS.find(s=>s.name==='Agidyne'));
+      }
+      G.player.maxSp += 20;
+      G.player.sp = G.player.maxSp;
+      showChapterBanner('CHAPTER I COMPLETE', 'WHAT REMAINS', 'The Dark Hour fades... for now.', 4500);
+    });
+    return;
+  }
+
+  updateQuestTracker();
+}
+
+// ── DARK HOUR ATMOSPHERE (visual effect at midnight) ──
+function getDarkHourTint() {
+  const h = G.time.hours;
+  if(h === 0 && STORY.seen['prologue']) return 'rgba(30,0,50,0.35)'; // purple tint
+  return null;
+}
+
+// ── HOOK INTO EXISTING SYSTEMS ──
+
+// Patch deepenBond to count bonds for story trigger
+const _origDeepenBond = deepenBond;
+function deepenBond(npcId) {
+  STORY.bondCount++;
+  _origDeepenBond(npcId);
+  // Announce progress
+  if(STORY.bondCount === 2) notify('✦ Story trigger met: 2 Social Links deepened!');
+}
+
+// Patch endBattle to detect Nyx Core kill
+const _origEndBattle = endBattle;
+function endBattle(won) {
+  _origEndBattle(won);
+  if(won && G.battle.enemy && G.battle.enemy.name === 'BOSS: Nyx Core') {
+    STORY.bossDefeated = true;
+    notify('💀 Nyx Core defeated! Story trigger met!');
+    // Trigger epilogue check on next tick
+    setTimeout(checkStoryTriggers, 1500);
   }
 }
 
-function resetSequence() {
-  G.seqSelected=[];
-  const scene=G.currentChapter.scenes[G.currentSceneIdx];
-  const n=scene.puzzle.config.answer.length;
-  for(let i=0;i<n;i++){
-    const sl=document.getElementById(`seq_slot_${i}`);
-    if(sl){sl.textContent='';sl.className='seqSlot';}
-  }
-  document.querySelectorAll('.seqOption').forEach(o=>o.classList.remove('used'));
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: OBSERVATION
-// ═══════════════════════════════════════════════
-
-function buildObsPuzzle(cfg, area) {
-  const wrap=document.createElement('div');
-  wrap.className='obsPuzzle';
-
-  const correctCount=cfg.choices.filter(c=>c.correct).length;
-
-  wrap.innerHTML=`
-    <div class="obsScene" id="obsSceneText">${cfg.scene}</div>
-    <div class="obsQuestion">${cfg.question}${cfg.multiCorrect?'<br><small style="color:var(--dim)">(Multiple correct answers possible — select all that apply)</small>':''}</div>
-    <div class="obsChoices">
-      ${cfg.choices.map((c,i)=>`<div class="obsChoice" onclick="obsChoose(this,${i})">${c.text}</div>`).join('')}
-    </div>`;
-  area.appendChild(wrap);
-  G._obsCorrectChosen=0;
-  G._obsTotal=cfg.choices.filter(c=>c.correct).length;
-}
-
-function obsChoose(el, idx) {
-  if(el.classList.contains('correct')||el.classList.contains('wrong')) return;
-  const scene=G.currentChapter.scenes[G.currentSceneIdx];
-  const ch=scene.puzzle.config.choices[idx];
-  if(ch.correct){
-    el.classList.add('correct');
-    el.textContent+=' ✓';
-    addNarrLine('OBSERVATION',ch.feedback,'#00e676');
-    G._obsCorrectChosen=(G._obsCorrectChosen||0)+1;
-    if(G._obsCorrectChosen>=G._obsTotal) puzzleSuccess();
-    else showFeedback('✓ Good observation! Find the rest.',true);
-  } else {
-    el.classList.add('wrong');
-    G.mistakes++;
-    addNarrLine('OBSERVATION',ch.feedback,'#ff2d55');
-    showFeedback('✗ Not quite — keep looking.',false);
-  }
-}
-
-function clueClick(id) {
-  showFeedback(`🔍 Clue: "${id}" — examine this detail carefully.`, true);
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: SYMBOL (pairing)
-// ═══════════════════════════════════════════════
-
-function buildSymbolPuzzle(cfg, area) {
-  G.symSelected=[];
-  G.symMatched=[];
-
-  // Flatten pairs into single pool and shuffle
-  const allCards=[];
-  cfg.pairs.forEach((pair,pi)=>{
-    pair.forEach((sym,si)=>allCards.push({sym,pairId:pi,cardId:`${pi}_${si}`}));
-  });
-  for(let i=allCards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[allCards[i],allCards[j]]=[allCards[j],allCards[i]];}
-
-  const wrap=document.createElement('div');
-  wrap.className='symbolPuzzle';
-  const grid=document.createElement('div');
-  grid.className='symbolGrid';
-
-  allCards.forEach(card=>{
-    const div=document.createElement('div');
-    div.className='symbolCard';
-    div.textContent=card.sym;
-    div.dataset.pairId=card.pairId;
-    div.dataset.cardId=card.cardId;
-    div.onclick=()=>symSelect(div,card);
-    grid.appendChild(div);
-  });
-
-  wrap.appendChild(grid);
-  wrap.innerHTML+=`<div class="symbolPair">Select two cards that belong together</div>`;
-  area.appendChild(wrap);
-}
-
-function symSelect(el, card) {
-  if(G.symMatched.includes(card.pairId)||G.symSelected.find(c=>c.cardId===card.cardId)) return;
-  if(G.symSelected.length===2) return;
-
-  el.classList.add('selected');
-  G.symSelected.push(card);
-
-  if(G.symSelected.length===2){
-    const [a,b]=G.symSelected;
-    const allCards=document.querySelectorAll('.symbolCard');
-
-    if(a.pairId===b.pairId){
-      setTimeout(()=>{
-        allCards.forEach(c=>{
-          if(c.dataset.pairId==a.pairId){ c.classList.remove('selected'); c.classList.add('matched'); }
-        });
-        G.symMatched.push(a.pairId);
-        G.symSelected=[];
-        showFeedback('✓ Pair matched!',true);
-        const scene=G.currentChapter.scenes[G.currentSceneIdx];
-        if(G.symMatched.length===scene.puzzle.config.pairs.length) puzzleSuccess();
-      },300);
-    } else {
-      G.mistakes++;
-      allCards.forEach(c=>c.classList.add('error'));
-      setTimeout(()=>{
-        allCards.forEach(c=>c.classList.remove('error','selected'));
-        G.symSelected=[];
-        showFeedback('✗ Not a pair. Try again.',false);
-      },700);
-    }
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: DECODE
-// ═══════════════════════════════════════════════
-
-function buildDecodePuzzle(cfg, area) {
-  const keyItems=Object.entries(cfg.keyMap).map(([sym,ltr])=>
-    `<div class="decodeKeyItem"><span class="sym">${sym}</span><span class="ltr">${ltr}</span></div>`
-  ).join('');
-
-  const encoded=cfg.encoded.join(' ');
-
-  const wrap=document.createElement('div');
-  wrap.className='decodePuzzle';
-  wrap.innerHTML=`
-    <div class="cipherHint" style="margin-bottom:8px">SYMBOL KEY:</div>
-    <div class="decodeKey">${keyItems}</div>
-    <div class="decodeTarget">${cfg.encoded.join('  ')}</div>
-    ${cfg.note?`<div class="cipherHint">${cfg.note}</div>`:''}
-    <input class="decodeInput" id="decodeAns" type="text" maxlength="${cfg.answer.length+2}" placeholder="DECODED WORD" autocomplete="off" spellcheck="false">
-    <button class="decodeSubmit" onclick="checkDecode('${cfg.answer}')">▶ SUBMIT</button>`;
-  area.appendChild(wrap);
-
-  const inp=document.getElementById('decodeAns');
-  inp.addEventListener('input',()=>inp.value=inp.value.toUpperCase());
-  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') checkDecode(cfg.answer); });
-  setTimeout(()=>inp.focus(),200);
-}
-
-function checkDecode(answer) {
-  const val=(document.getElementById('decodeAns')?.value||'').toUpperCase().trim();
-  if(val===answer.toUpperCase()) puzzleSuccess();
-  else {
-    G.mistakes++;
-    showFeedback(`✗ "${val}" is incorrect. Re-check the symbol key.`,false);
-    const inp=document.getElementById('decodeAns');
-    if(inp){inp.style.borderColor='var(--red)';setTimeout(()=>inp.style.borderColor='var(--accent)',900);}
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE: PATTERN
-// ═══════════════════════════════════════════════
-
-function buildPatternPuzzle(cfg, area) {
-  G.patPath=[];
-  G.patExpected=cfg.solution;
-
-  const wrap=document.createElement('div');
-  wrap.className='patternPuzzle';
-  wrap.innerHTML=`<div class="patternInstructions">${cfg.instructionText}</div>`;
-
-  const grid=document.createElement('div');
-  grid.className='patternGrid';
-
-  cfg.grid.forEach((row,ri)=>row.forEach((sym,ci)=>{
-    const cell=document.createElement('div');
-    cell.className='patternCell';
-    cell.textContent=sym;
-    cell.dataset.r=ri; cell.dataset.c=ci;
-    cell.onclick=()=>patTap(cell,ri,ci);
-    grid.appendChild(cell);
-  }));
-
-  wrap.appendChild(grid);
-  wrap.innerHTML+=`<div id="patProgress" style="margin-top:10px;font-size:10px;color:var(--dim);letter-spacing:1px">Tap: 0 / ${cfg.solution.length}</div>`;
-  wrap.innerHTML+=`<button class="puzzleResetBtn" style="margin-top:8px" onclick="resetPattern()">↩ RESET</button>`;
-  area.appendChild(wrap);
-}
-
-function patTap(cell,r,c){
-  if(G.puzzleSolved) return;
-  const step=G.patPath.length;
-  const expected=G.patExpected[step];
-  if(!expected) return;
-
-  if(expected[0]===r&&expected[1]===c){
-    cell.classList.add('path');
-    G.patPath.push([r,c]);
-    document.getElementById('patProgress').textContent=`Tap: ${G.patPath.length} / ${G.patExpected.length}`;
-    if(G.patPath.length===G.patExpected.length){
-      document.querySelectorAll('.patternCell').forEach(c=>c.classList.add('correct-path'));
-      puzzleSuccess();
-    }
-  } else {
-    G.mistakes++;
-    showFeedback('✗ Wrong node. Resetting...',false);
-    setTimeout(resetPattern,700);
-  }
-}
-
-function resetPattern(){
-  G.patPath=[];
-  document.querySelectorAll('.patternCell').forEach(c=>c.classList.remove('path','correct-path','active'));
-  const pr=document.getElementById('patProgress');
-  if(pr){
-    const scene=G.currentChapter.scenes[G.currentSceneIdx];
-    pr.textContent=`Tap: 0 / ${scene.puzzle.config.solution.length}`;
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  PUZZLE SUCCESS / NEXT SCENE
-// ═══════════════════════════════════════════════
-
-function puzzleSuccess() {
-  if(G.puzzleSolved) return;
-  G.puzzleSolved=true;
-
-  const stars = G.mistakes===0 ? 3 : G.mistakes<=2 ? 2 : 1;
-
-  showFeedback('✦ PUZZLE SOLVED ✦',true);
-  addNarrLine('SYSTEM',`✦ Puzzle solved! Performance: ${'★'.repeat(stars)}${'☆'.repeat(3-stars)}`, '#ffc947');
-
-  // Update star tracking
-  const best=Math.max(SAVE.chapterStars[G.currentChapter.id]||0, stars);
-  SAVE.chapterStars[G.currentChapter.id]=best;
-  SAVE.score=(SAVE.score||0)+(stars*10);
-
-  // Show continue button
-  setTimeout(()=>{
-    const area=document.getElementById('puzzleArea');
-    const btn=document.createElement('button');
-    btn.className='puzzleNextBtn';
-    const isLast=G.currentSceneIdx===G.currentChapter.scenes.length-1;
-    btn.textContent=isLast?'✦ COMPLETE CHAPTER':'▶ NEXT SCENE';
-    btn.onclick=()=>{ isLast?completeChapter():nextScene(); };
-    area.appendChild(btn);
-  },800);
-}
-
-function nextScene() {
-  loadScene(G.currentSceneIdx+1);
-  document.getElementById('puzzleArea').innerHTML='<div id="puzzleTitle"></div>';
-}
-
-function completeChapter() {
-  const ch=G.currentChapter;
-  if(!SAVE.completedChapters.includes(ch.id)){
-    SAVE.completedChapters.push(ch.id);
-    if(ch.completionReward?.flag) SAVE.flags[ch.completionReward.flag]=true;
-  }
-  const stars=SAVE.chapterStars[ch.id]||1;
-  writeSave(SAVE);
-
-  // Show complete screen
-  showScreen('completeScreen');
-  document.getElementById('completeChapterName').textContent=`${ch.icon}  ${ch.title}`;
-
-  // Animate stars
-  const starsEl=document.getElementById('completeStars');
-  starsEl.innerHTML=Array.from({length:3},(_,i)=>
-    `<span class="completeStar${i<stars?' earned':''}" style="color:${i<stars?'var(--gold)':'var(--dim)'};;animation-delay:${0.2+i*0.15}s">${i<stars?'★':'☆'}</span>`
-  ).join('');
-
-  document.getElementById('completeUnlockText').textContent=ch.completionReward?.text||'';
-
-  document.getElementById('replayChapterBtn_hidden')?.remove();
-}
-
-function replayChapter() { startChapter(G.currentChapter.id); }
-
-// ═══════════════════════════════════════════════
-//  HINT SYSTEM
-// ═══════════════════════════════════════════════
-
-function showHint() {
-  if(!SAVE || SAVE.hints<=0){ notify('No hints remaining!'); return; }
-  const scene=G.currentChapter?.scenes[G.currentSceneIdx];
-  if(!scene) return;
-  SAVE.hints=Math.max(0,SAVE.hints-1);
-  writeSave(SAVE);
-  document.getElementById('hudHints').textContent=`💡 HINTS (${SAVE.hints})`;
-  document.getElementById('hintText').textContent=scene.puzzle.hint;
-  document.getElementById('hintModal').classList.add('open');
-  G.hintsUsed++;
-}
-
-function closeHint() { document.getElementById('hintModal').classList.remove('open'); }
-
-// ═══════════════════════════════════════════════
-//  FEEDBACK / NOTIFY / MISC
-// ═══════════════════════════════════════════════
-
-let _fbTimer=null;
-function showFeedback(msg, success) {
-  const fb=document.getElementById('puzzleFeedback');
-  fb.textContent=msg;
-  fb.className='show '+(success?'success':'fail');
-  clearTimeout(_fbTimer);
-  _fbTimer=setTimeout(()=>fb.classList.remove('show'),2200);
-}
-
-let _notifTimer=null;
-function notify(msg) {
-  const n=document.getElementById('notification');
-  n.textContent=msg; n.classList.add('show');
-  clearTimeout(_notifTimer);
-  _notifTimer=setTimeout(()=>n.classList.remove('show'),2800);
-}
-
-function showSaveBadge() {
-  const b=document.getElementById('saveBadge');
-  b.style.opacity='1';
-  setTimeout(()=>b.style.opacity='0',2000);
-}
-
-function confirmBack() {
-  if(confirm('Return to Chapter Select? Current progress in this puzzle will be lost.')) {
-    writeSave(SAVE);
-    goToChapters();
-  }
-}
-
-// ═══════════════════════════════════════════════
-//  BOOT
-// ═══════════════════════════════════════════════
-
-window.addEventListener('load', () => {
-  initTitle();
-  SAVE=loadSave();
-  if(SAVE){
-    document.getElementById('continueBtn').style.display='block';
-    document.getElementById('chapSelectBtn').style.display='block';
+// ── ALSO HANDLE CUTSCENE KEY INPUT ──
+const _origKeydownStory = document.onkeydown;
+document.addEventListener('keydown', e => {
+  if(G.state === 'cutscene' && (e.key === 'e' || e.key === 'E' || e.key === 'Enter')) {
+    advanceCutscene();
   }
 });
+
+// ═══════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════
+init();
+initNameEntry();
+checkAutoSaveOnStart();
 </script>
 </body>
 </html>
