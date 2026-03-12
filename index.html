@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PERSONA: WORLD OF SHADOWS</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -429,7 +429,6 @@
     background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.85) 100%);
     pointer-events:none;
   }
-  /* Scanlines */
   #cutsceneOverlay::after {
     content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
     background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px);
@@ -522,6 +521,23 @@
   .questText { font-size:9px; }
   .questText.done { color:var(--dim); text-decoration:line-through; }
   .questText.pending { color:var(--text); }
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .barOuter { width: 100px; }
+    #minimap { width: 90px; height: 90px; top: 8px; right: 8px; }
+    #minimapCanvas { width: 90px; height: 90px; }
+    #topBar { padding: 0 8px; gap: 8px; height: 48px; }
+    #clockTime { font-size: 16px; }
+    #clockWidget { padding: 2px 8px; }
+    #locationTag { font-size: 9px; padding: 3px 7px; }
+    #nameEntryBox { min-width: 90vw; padding: 24px 20px; }
+    #nameEntryLogo { font-size: 36px; letter-spacing: 6px; }
+    #inventoryPanel { width: 95vw; }
+    #shopPanel { width: 95vw; }
+    #savePanel { width: 95vw; }
+    #dialogBox { bottom: 190px; }
+  }
 </style>
 </head>
 <body>
@@ -729,25 +745,20 @@ const CITIES = [
 ];
 
 const BUILDINGS = [
-  // Iwatodai
   { x:720,  y:640,  w:60, h:50,  label:'🏫 School',    city:'iwatodai', type:'npc',  npcId:'teacher' },
   { x:820,  y:640,  w:50, h:50,  label:'🏠 Dorm',      city:'iwatodai', type:'rest',  npcId:null },
   { x:720,  y:740,  w:55, h:45,  label:'⚔ Weapon',     city:'iwatodai', type:'shop', shopId:'weapon' },
   { x:800,  y:740,  w:55, h:45,  label:'🧪 Items',      city:'iwatodai', type:'shop', shopId:'items' },
   { x:880,  y:740,  w:55, h:45,  label:'💬 Bar',        city:'iwatodai', type:'npc',  npcId:'barkeep' },
-  // Port Island
   { x:1520, y:450,  w:65, h:55,  label:'🏭 Factory',   city:'gekkoukan', type:'npc',  npcId:'engineer' },
   { x:1600, y:450,  w:55, h:45,  label:'⚓ Harbor',    city:'gekkoukan', type:'npc',  npcId:'sailor' },
   { x:1680, y:450,  w:55, h:55,  label:'🧪 Lab',       city:'gekkoukan', type:'shop', shopId:'rare' },
   { x:1560, y:530,  w:65, h:45,  label:'🏰 Ruins',     city:'gekkoukan', type:'dungeon', dungeonId:'ruins' },
-  // Inaba
   { x:2320, y:850,  w:55, h:45,  label:'🏪 Shop',      city:'inaba',    type:'shop', shopId:'items' },
   { x:2400, y:850,  w:55, h:50,  label:'🗼 TV Tower',  city:'inaba',    type:'dungeon',dungeonId:'tower' },
   { x:2480, y:850,  w:55, h:45,  label:'🌾 Farm',      city:'inaba',    type:'npc',  npcId:'farmer' },
   { x:2360, y:930,  w:60, h:45,  label:'🏯 Shrine',    city:'inaba',    type:'npc',  npcId:'shrine_maiden' },
-  // Velvet
   { x:1560, y:1360, w:70, h:60,  label:'🟣 Velvet Room',city:'velvet',  type:'npc',  npcId:'igor' },
-  // Summit
   { x:380,  y:1760, w:60, h:50,  label:'⛰ Tartarus',   city:'summit',   type:'dungeon',dungeonId:'tartarus' },
   { x:460,  y:1760, w:55, h:50,  label:'🏕 Base Camp',  city:'summit',   type:'rest',  npcId:null },
 ];
@@ -824,11 +835,7 @@ const SKILLS = [
 const G = {
   canvas: null, ctx: null,
   W: window.innerWidth, H: window.innerHeight,
-
-  // Camera
   cam: { x:0, y:0 },
-
-  // Player
   player: {
     x: 800, y: 700,
     vx:0, vy:0, speed:3.2,
@@ -844,27 +851,17 @@ const G = {
     socialLinks: {},
     flags: {},
   },
-
-  // World entities
   shadowEntities: [],
-
-  // Time
   time: { hours:6, minutes:0, day:1, month:0 },
   MONTHS: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
   DAYS:   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-  timeSpeed: 0.3, // minutes per frame tick
-
-  // Input
+  timeSpeed: 0.3,
   keys: {},
-
-  // State
-  state: 'world', // world, dialog, shop, battle, inventory
+  state: 'world',
   dialogQueue: [],
   currentDialog: null,
   currentShop: null,
   currentNpc: null,
-
-  // Battle
   battle: {
     enemy: null,
     selectedSkill: 0,
@@ -873,8 +870,6 @@ const G = {
     guarding: false,
     result: null,
   },
-
-  // Rendering
   frame: 0,
   particles: [],
 };
@@ -887,11 +882,8 @@ function init() {
   G.canvas = document.getElementById('gameCanvas');
   G.ctx = G.canvas.getContext('2d');
   resize();
-
-  // Spawn shadows across the world
   spawnShadows();
 
-  // Input
   document.addEventListener('keydown', e => {
     G.keys[e.key.toLowerCase()] = true;
     if(e.key.toLowerCase()==='e') handleInteract();
@@ -901,7 +893,6 @@ function init() {
   });
   document.addEventListener('keyup',  e => { G.keys[e.key.toLowerCase()] = false; });
 
-  // Start loop
   loop();
 }
 
@@ -915,7 +906,6 @@ window.addEventListener('resize', resize);
 
 function spawnShadows() {
   G.shadowEntities = [];
-  // Scatter shadows across the world, denser near dungeons
   const zones = [
     { x:300,  y:600,  r:200, count:6,  tier:0 },
     { x:700,  y:1200, r:200, count:6,  tier:1 },
@@ -941,7 +931,6 @@ function spawnShadows() {
       });
     }
   }
-  // Boss
   G.shadowEntities.push({ x:400, y:1820, type:7, alive:true, vx:0, vy:0, phase:0, w:28, h:28, isBoss:true });
 }
 
@@ -957,14 +946,12 @@ function loop() {
     updatePlayer();
     updateShadows();
     advanceTime();
-    // Auto-save every ~600 frames (≈ 3 in-game hours)
     if(G.frame % 600 === 0 && G.player.name) autoSave();
-    // Story trigger check every 60 frames
     if(G.frame % 60 === 0) checkStoryTriggers();
   }
 
   drawWorld();
-  drawDarkHourOverlay(); // atmospheric tint during Dark Hour
+  drawDarkHourOverlay();
   drawMinimap();
   updateHUD();
 }
@@ -1031,11 +1018,9 @@ function updatePlayer() {
   const nx = p.x + dx*p.speed;
   const ny = p.y + dy*p.speed;
 
-  // Boundary
   p.x = Math.max(20, Math.min(WORLD_W-20, nx));
   p.y = Math.max(20, Math.min(WORLD_H-20, ny));
 
-  // Smooth camera
   const tx = p.x - G.W/2;
   const ty = p.y - G.H/2;
   G.cam.x += (tx - G.cam.x)*0.08;
@@ -1043,7 +1028,6 @@ function updatePlayer() {
   G.cam.x = Math.max(0, Math.min(WORLD_W-G.W, G.cam.x));
   G.cam.y = Math.max(0, Math.min(WORLD_H-G.H, G.cam.y));
 
-  // Shadow collision (trigger battle)
   if(G.state === 'world') {
     for(const s of G.shadowEntities) {
       if(!s.alive) continue;
@@ -1076,44 +1060,32 @@ function drawWorld() {
   const sky = getSkyColor();
   const cx = G.cam.x, cy = G.cam.y;
 
-  // Sky gradient bg
   const grad = ctx.createLinearGradient(0,0,0,G.H);
   grad.addColorStop(0, sky.sky);
   grad.addColorStop(1, sky.horizon);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, G.W, G.H);
 
-  // Draw terrain tiles (simplified procedural)
   drawTerrain(ctx, cx, cy, sky.ambient);
-
-  // Roads
   drawRoads(ctx, cx, cy, sky.ambient);
 
-  // City zones
   for(const city of CITIES) {
     drawCity(ctx, city, cx, cy, sky.ambient);
   }
 
-  // Buildings
   for(const b of BUILDINGS) {
     drawBuilding(ctx, b, cx, cy, sky.ambient);
   }
 
-  // Shadows
   drawShadowEntities(ctx, cx, cy, sky.ambient);
 
-  // Stars at night
   if(sky.ambient < 0.4) drawStars(ctx, sky.ambient);
 
-  // Player
   drawPlayer(ctx, cx, cy);
-
-  // Particles
   updateParticles(ctx, cx, cy);
 }
 
 function drawTerrain(ctx, cx, cy, amb) {
-  // Grass base tiles
   const tileSize = 80;
   const startX = Math.floor(cx/tileSize)*tileSize;
   const startY = Math.floor(cy/tileSize)*tileSize;
@@ -1121,7 +1093,6 @@ function drawTerrain(ctx, cx, cy, amb) {
   for(let x=startX; x<cx+G.W+tileSize; x+=tileSize) {
     for(let y=startY; y<cy+G.H+tileSize; y+=tileSize) {
       const sx = x-cx, sy = y-cy;
-      // Vary tile color by position
       const v = ((Math.sin(x*0.01+3)*Math.cos(y*0.01+1))+1)*0.5;
       const g = Math.floor(lerp(0x08, 0x12, v));
       ctx.fillStyle = `rgb(${Math.floor(g*0.4)},${g},${Math.floor(g*0.6)})`;
@@ -1129,7 +1100,6 @@ function drawTerrain(ctx, cx, cy, amb) {
     }
   }
 
-  // Water bodies
   const waters = [
     { x:1200, y:200,  w:600, h:300 },
     { x:2000, y:1600, w:400, h:350 },
@@ -1143,7 +1113,6 @@ function drawTerrain(ctx, cx, cy, amb) {
     wGrad.addColorStop(1, `rgba(0,40,100,${0.7*amb+0.1})`);
     ctx.fillStyle = wGrad;
     ctx.fillRect(sx+wave, sy, w.w, w.h);
-    // Wave lines
     ctx.strokeStyle = `rgba(100,200,255,${0.2*amb})`;
     ctx.lineWidth = 1;
     for(let wy=sy+20; wy<sy+w.h; wy+=20) {
@@ -1154,7 +1123,6 @@ function drawTerrain(ctx, cx, cy, amb) {
     }
   }
 
-  // Mountain range
   const mountains = [{x:2600,y:1200,w:600,h:500},{x:0,y:1600,w:500,h:600},{x:2800,y:400,w:400,h:400}];
   for(const m of mountains) {
     const sx=m.x-cx, sy=m.y-cy;
@@ -1176,11 +1144,8 @@ function drawRoads(ctx, cx, cy, amb) {
   ctx.setLineDash([]);
 
   const roads = [
-    // Horizontal
     [100,700, 2600,700], [100,500, 2000,500], [1600,1400, 2600,1400],
-    // Vertical
     [800,100,800,1800], [1600,200,1600,1600], [2400,600,2400,1200],
-    // Diagonals / connectors
     [800,700, 1600,500], [1600,500, 2400,900], [800,700, 400,1800], [1600,1400,400,1800],
   ];
   for(const r of roads) {
@@ -1188,7 +1153,6 @@ function drawRoads(ctx, cx, cy, amb) {
     ctx.moveTo(r[0]-cx, r[1]-cy);
     ctx.lineTo(r[2]-cx, r[3]-cy);
     ctx.stroke();
-    // Dashed center line
     ctx.strokeStyle = `rgba(100,90,50,${0.3*amb})`;
     ctx.lineWidth = 2;
     ctx.setLineDash([20,15]);
@@ -1206,21 +1170,18 @@ function drawCity(ctx, city, cx, cy, amb) {
   const sx = city.x - cx, sy = city.y - cy;
   const r = city.size;
 
-  // Glow
   const grd = ctx.createRadialGradient(sx,sy,r*0.1,sx,sy,r);
   grd.addColorStop(0, city.color+'33');
   grd.addColorStop(1, 'transparent');
   ctx.fillStyle = grd;
   ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.fill();
 
-  // Border ring
   ctx.strokeStyle = city.color+'55';
   ctx.lineWidth = 2;
   ctx.setLineDash([8,6]);
   ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Label
   if(sx > -200 && sx < G.W+200 && sy > -200 && sy < G.H+200) {
     ctx.font = 'bold 13px Rajdhani, monospace';
     ctx.fillStyle = city.color;
@@ -1236,22 +1197,18 @@ function drawBuilding(ctx, b, cx, cy, amb) {
   const sx = b.x-cx, sy = b.y-cy;
   if(sx < -100||sx>G.W+100||sy<-100||sy>G.H+100) return;
 
-  // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.4)';
   ctx.fillRect(sx+4, sy+4, b.w, b.h);
 
-  // Building body
   const bColors = { npc:'#1a2040', shop:'#201a10', rest:'#101a20', dungeon:'#200010' };
   ctx.fillStyle = bColors[b.type] || '#1a1a2a';
   ctx.fillRect(sx, sy, b.w, b.h);
 
-  // Border
   const bBorder = { npc:'#4488ff', shop:'#ffaa00', rest:'#00aa66', dungeon:'#ff2255' };
   ctx.strokeStyle = bBorder[b.type] || '#446';
   ctx.lineWidth = 1.5;
   ctx.strokeRect(sx, sy, b.w, b.h);
 
-  // Window lights at night
   if(amb < 0.7 && b.type !== 'dungeon') {
     const wCount = Math.floor(b.w/14);
     for(let i=0;i<wCount;i++) {
@@ -1263,13 +1220,11 @@ function drawBuilding(ctx, b, cx, cy, amb) {
     }
   }
 
-  // Label
   ctx.font = '8px Share Tech Mono';
   ctx.fillStyle = '#ccd';
   ctx.textAlign = 'center';
   ctx.fillText(b.label, sx+b.w/2, sy-4);
 
-  // Interact hint
   const p = G.player;
   const dist = Math.sqrt((p.x-(b.x+b.w/2))**2+(p.y-(b.y+b.h/2))**2);
   if(dist < 60) {
@@ -1288,11 +1243,9 @@ function drawShadowEntities(ctx, cx, cy, amb) {
     const data = SHADOWS[s.type];
     const pulse = Math.sin(G.frame*0.08+s.phase)*0.3+0.7;
 
-    // Aura
     ctx.fillStyle = data.color+'33';
     ctx.beginPath(); ctx.arc(sx,sy,s.w*1.5*pulse,0,Math.PI*2); ctx.fill();
 
-    // Body
     if(s.isBoss) {
       ctx.fillStyle = data.color;
       const pts = [];
@@ -1314,7 +1267,6 @@ function drawShadowEntities(ctx, cx, cy, amb) {
       ctx.beginPath(); ctx.arc(sx,sy,s.w*0.7,0,Math.PI*2); ctx.stroke();
     }
 
-    // Eyes
     ctx.fillStyle='#fff';
     ctx.beginPath(); ctx.arc(sx-4,sy-2,2,0,Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(sx+4,sy-2,2,0,Math.PI*2); ctx.fill();
@@ -1323,9 +1275,6 @@ function drawShadowEntities(ctx, cx, cy, amb) {
 
 function drawStars(ctx, amb) {
   const density = (1-amb/0.4);
-  if(Math.random()<0.01) {
-    G.particles.push({type:'star',x:Math.random()*G.W,y:Math.random()*G.H*0.4,life:300,maxLife:300});
-  }
   ctx.fillStyle = `rgba(200,200,255,${density*0.6})`;
   for(let i=0;i<80;i++) {
     const px = (Math.sin(i*137.5)*0.5+0.5)*G.W;
@@ -1339,28 +1288,22 @@ function drawPlayer(ctx, cx, cy) {
   const p = G.player;
   const sx = p.x-cx, sy = p.y-cy;
 
-  // Shadow
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.beginPath(); ctx.ellipse(sx,sy+10,10,5,0,0,Math.PI*2); ctx.fill();
 
-  // Body
   const bob = Math.sin(G.frame*0.1)*1.5;
   ctx.fillStyle = '#0a1040';
   ctx.fillRect(sx-7, sy-12+bob, 14, 18);
 
-  // Uniform
   ctx.fillStyle = '#112060';
   ctx.fillRect(sx-6, sy-10+bob, 12, 12);
 
-  // Head
   ctx.fillStyle = '#ffcc99';
   ctx.beginPath(); ctx.arc(sx, sy-16+bob, 7, 0, Math.PI*2); ctx.fill();
 
-  // Hair
   ctx.fillStyle = '#221100';
   ctx.fillRect(sx-7, sy-22+bob, 14, 8);
 
-  // Eyes
   ctx.fillStyle = '#fff';
   ctx.fillRect(sx-5, sy-17+bob, 3, 3);
   ctx.fillRect(sx+2, sy-17+bob, 3, 3);
@@ -1368,7 +1311,6 @@ function drawPlayer(ctx, cx, cy) {
   ctx.fillRect(sx-4, sy-16+bob, 2, 2);
   ctx.fillRect(sx+3, sy-16+bob, 2, 2);
 
-  // Headphones indicator
   ctx.strokeStyle = '#00e5ff';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -1396,10 +1338,6 @@ function updateParticles(ctx, cx, cy) {
 
 function lerp(a,b,t){ return a+(b-a)*t; }
 
-// ═══════════════════════════════════════════
-//  MINIMAP
-// ═══════════════════════════════════════════
-
 // ── DARK HOUR VISUAL OVERLAY ──
 function drawDarkHourOverlay() {
   if(!STORY || !STORY.seen || !STORY.seen['prologue']) return;
@@ -1414,18 +1352,14 @@ function drawDarkHourOverlay() {
   let intensity = 0;
 
   if(isApproaching) {
-    // Fade in: last 10 minutes of day
     intensity = ((m - 50) / 10) * 0.4;
   } else {
-    // Full dark hour
     intensity = 0.4 + Math.sin(G.frame * 0.015) * 0.06;
   }
 
-  // Purple/dark tint
   ctx.fillStyle = `rgba(20,0,40,${intensity})`;
   ctx.fillRect(0, 0, G.W, G.H);
 
-  // Green scanline flicker at full dark hour
   if(isDarkHour) {
     const flicker = Math.sin(G.frame * 0.08) * 0.5 + 0.5;
     ctx.fillStyle = `rgba(0,30,0,${flicker * 0.12})`;
@@ -1433,17 +1367,19 @@ function drawDarkHourOverlay() {
       ctx.fillRect(0, y, G.W, 1);
     }
 
-    // "Dark Hour" text watermark top-center
     ctx.save();
     ctx.globalAlpha = 0.25 + Math.sin(G.frame * 0.05) * 0.1;
     ctx.font = 'bold 11px Share Tech Mono, monospace';
     ctx.fillStyle = '#9c27b0';
     ctx.textAlign = 'center';
-    ctx.letterSpacing = '6px';
     ctx.fillText('— THE DARK HOUR —', G.W / 2, 72);
     ctx.restore();
   }
 }
+
+// ═══════════════════════════════════════════
+//  MINIMAP
+// ═══════════════════════════════════════════
 
 function drawMinimap() {
   const mc = document.getElementById('minimapCanvas');
@@ -1451,14 +1387,9 @@ function drawMinimap() {
   const mW=140, mH=140;
   const scX = mW/WORLD_W, scY = mH/WORLD_H;
 
-  ctx.fillStyle = '#04040e';
-  ctx.fillRect(0,0,mW,mH);
-
-  // Terrain color
   ctx.fillStyle = '#0a120a';
   ctx.fillRect(0,0,mW,mH);
 
-  // Roads (thin)
   ctx.strokeStyle = '#332e15';
   ctx.lineWidth = 1;
   const roads = [[100,700,2600,700],[800,100,800,1800],[1600,200,1600,1600],[2400,600,2400,1200]];
@@ -1466,25 +1397,21 @@ function drawMinimap() {
     ctx.beginPath(); ctx.moveTo(r[0]*scX,r[1]*scY); ctx.lineTo(r[2]*scX,r[3]*scY); ctx.stroke();
   }
 
-  // Cities
   for(const c of CITIES) {
     ctx.fillStyle = c.color+'88';
     ctx.beginPath(); ctx.arc(c.x*scX, c.y*scY, c.size*scX*0.6, 0,Math.PI*2); ctx.fill();
   }
 
-  // Shadows (dots)
   for(const s of G.shadowEntities) {
     if(!s.alive) continue;
     ctx.fillStyle = SHADOWS[s.type].color+'aa';
     ctx.beginPath(); ctx.arc(s.x*scX,s.y*scY,1.5,0,Math.PI*2); ctx.fill();
   }
 
-  // Camera viewport rect
   ctx.strokeStyle = 'rgba(255,255,255,0.3)';
   ctx.lineWidth = 0.5;
   ctx.strokeRect(G.cam.x*scX, G.cam.y*scY, G.W*scX, G.H*scY);
 
-  // Player
   ctx.fillStyle = '#00e5ff';
   ctx.beginPath(); ctx.arc(G.player.x*scX, G.player.y*scY, 2.5, 0,Math.PI*2); ctx.fill();
   ctx.strokeStyle='#fff'; ctx.lineWidth=0.5;
@@ -1498,7 +1425,6 @@ function drawMinimap() {
 function updateHUD() {
   const p = G.player;
 
-  // Stats bars
   document.getElementById('hpBar').style.width  = (p.hp/p.maxHp*100)+'%';
   document.getElementById('spBar').style.width  = (p.sp/p.maxSp*100)+'%';
   document.getElementById('expBar').style.width = (p.exp/p.nextExp*100)+'%';
@@ -1508,7 +1434,6 @@ function updateHUD() {
   document.getElementById('playerLevel').textContent = `Lv.${p.level}`;
   document.getElementById('playerName').textContent = (p.name||'Protagonist') + ' · ';
 
-  // Clock
   const t = G.time;
   const hh = String(t.hours).padStart(2,'0');
   const mm = String(Math.floor(t.minutes)).padStart(2,'0');
@@ -1516,12 +1441,10 @@ function updateHUD() {
   const dow = G.DAYS[(t.day-1)%7];
   document.getElementById('clockDate').textContent = `${G.MONTHS[t.month]} ${String(t.day).padStart(2,'0')} · ${dow}`;
 
-  // Time of day
   const tl = getTimeLabel();
   document.getElementById('timeOfDayLabel').textContent = tl.label;
   document.getElementById('weatherIcon').textContent = tl.icon;
 
-  // Location
   let loc = 'OPEN WORLD';
   for(const c of CITIES) {
     const dx=G.player.x-c.x, dy=G.player.y-c.y;
@@ -1567,8 +1490,7 @@ function openNPC(npcId) {
   if(!npc) return;
   G.state = 'dialog';
   G.currentNpc = npc;
-  const lines = npc.lines;
-  G.dialogQueue = [...lines];
+  G.dialogQueue = [...npc.lines];
 
   showDialog(npc.name, npc.color, G.dialogQueue.shift(), npc.socialLink ? [
     { text:`Spend time with ${npc.name.split(' ')[0]}`, cb: () => deepenBond(npcId) },
@@ -1585,7 +1507,6 @@ function showDialog(speaker, color, text, choices) {
   document.getElementById('dialogSpeaker').style.color = color;
   document.getElementById('dialogText').textContent = '';
 
-  // Typewriter
   let i=0;
   const iv = setInterval(()=>{
     document.getElementById('dialogText').textContent += text[i++]||'';
@@ -1645,9 +1566,7 @@ function doRest() {
 }
 
 function enterDungeon(id) {
-  // Spawn extra shadows and notify
   notify(`🏰 Entering ${id.toUpperCase()} dungeon... Shadows are stronger here!`);
-  // Teleport player near dungeon shadow cluster
   const offsets = { ruins:[1570,530], tower:[2400,900], tartarus:[400,1800] };
   if(offsets[id]) { G.player.x=offsets[id][0]; G.player.y=offsets[id][1]; }
 }
@@ -1690,7 +1609,6 @@ function buyItem(shopId, itemName) {
   G.player.gold -= item.price;
   document.getElementById('shopGoldVal').textContent = G.player.gold;
 
-  // Apply equipment effects immediately or add to inventory
   if(item.effect.atk || item.effect.def) {
     G.player.atk += item.effect.atk||0;
     G.player.def += item.effect.def||0;
@@ -1779,7 +1697,6 @@ function renderBattle() {
   const p = G.player;
   const e = G.battle.enemy;
 
-  // Enemy
   document.getElementById('enemyName').textContent = e.name;
   document.getElementById('enemyName').style.color = e.color;
   document.getElementById('enemyWeak').textContent = `WEAK: ${e.weak.toUpperCase()}`;
@@ -1787,7 +1704,6 @@ function renderBattle() {
   document.getElementById('enemyHpText').textContent = `HP: ${e.hp} / ${e.maxHp}`;
   drawEnemySprite(e);
 
-  // Player
   document.getElementById('battlePlayerName').textContent = `${p.name||'Protagonist'} · Lv.${p.level}`;
   document.getElementById('battlePlayerStats').innerHTML =
     `HP: <span style="color:var(--green)">${p.hp}/${p.maxHp}</span><br>
@@ -1795,7 +1711,6 @@ function renderBattle() {
      ATK: ${p.atk} | DEF: ${p.def}<br>
      ${G.battle.guarding ? '<span style="color:var(--gold)">[ GUARDING ]</span>' : ''}`;
 
-  // Skill list
   const sl = document.getElementById('battleSkillList');
   sl.innerHTML = '';
   p.skills.forEach((sk,i) => {
@@ -1811,7 +1726,6 @@ function renderBattle() {
     sl.appendChild(div);
   });
 
-  // Log
   const log = document.getElementById('battleLog');
   log.innerHTML = G.battle.log.slice(-12).map(l => {
     let color='#dde0ff';
@@ -1823,7 +1737,6 @@ function renderBattle() {
   }).join('');
   log.scrollTop = log.scrollHeight;
 
-  // Show/hide actions
   const acts = document.getElementById('battleActions');
   acts.style.display = (G.battle.result||!G.battle.playerTurn) ? 'none' : 'flex';
 }
@@ -1835,29 +1748,24 @@ function drawEnemySprite(e) {
   const cx=90, cy=90;
   const pulse = Math.sin(G.frame*0.06)*5;
 
-  // Glow
   const grd = ctx.createRadialGradient(cx,cy,10,cx,cy,70+pulse);
   grd.addColorStop(0, e.color+'66'); grd.addColorStop(1,'transparent');
   ctx.fillStyle=grd; ctx.fillRect(0,0,180,180);
 
-  // Body based on type
   ctx.fillStyle = e.color;
   ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2;
 
   if(e.name.includes('Slime')) {
     ctx.beginPath(); ctx.ellipse(cx,cy+pulse,40,30,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    // Bumps
     ctx.beginPath(); ctx.ellipse(cx-20,cy-10+pulse,15,12,0,0,Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx+20,cy-10+pulse,15,12,0,0,Math.PI*2); ctx.fill();
   } else if(e.name.includes('Iron')) {
     ctx.beginPath();
     ctx.moveTo(cx,cy-45+pulse); ctx.lineTo(cx+38,cy+30); ctx.lineTo(cx-38,cy+30);
     ctx.closePath(); ctx.fill(); ctx.stroke();
-    // Visor
     ctx.fillStyle='rgba(0,200,255,0.5)';
     ctx.fillRect(cx-20,cy-10+pulse,40,10);
   } else if(e.name.includes('Flame')||e.name.includes('Spectre')) {
-    // Flame shape
     for(let i=0;i<6;i++) {
       const a=(i/6)*Math.PI*2;
       ctx.fillStyle = i%2===0?e.color:'#ff8800';
@@ -1866,7 +1774,6 @@ function drawEnemySprite(e) {
     }
     ctx.fillStyle=e.color; ctx.beginPath(); ctx.arc(cx,cy+pulse,20,0,Math.PI*2); ctx.fill();
   } else if(e.name.includes('BOSS')) {
-    // Star/pentagram shape
     ctx.fillStyle=e.color;
     const pts=[];
     for(let i=0;i<10;i++){
@@ -1879,14 +1786,11 @@ function drawEnemySprite(e) {
     ctx.fillStyle='#fff'; ctx.font='bold 16px Rajdhani,sans-serif';
     ctx.textAlign='center'; ctx.fillText('NYX',cx,cy+6+pulse);
   } else {
-    // Generic orb
     ctx.beginPath(); ctx.arc(cx,cy+pulse,38,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    // Inner ring
     ctx.strokeStyle=e.color+'aa'; ctx.lineWidth=3;
     ctx.beginPath(); ctx.arc(cx,cy+pulse,25,0,Math.PI*2); ctx.stroke();
   }
 
-  // Eyes (all enemies)
   ctx.fillStyle='#ffffff';
   ctx.beginPath(); ctx.arc(cx-13,cy-5+pulse,5,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(cx+13,cy-5+pulse,5,0,Math.PI*2); ctx.fill();
@@ -1984,7 +1888,6 @@ function endBattle(won) {
     if(G.battle.entity) G.battle.entity.alive=false;
     renderBattle();
 
-    // Add continue button
     const acts=document.getElementById('battleActions');
     acts.style.display='flex';
     acts.innerHTML=`<button class="battleBtn" onclick="closeBattle()" style="border-color:var(--green);color:var(--green)">✔ CONTINUE</button>`;
@@ -2010,13 +1913,11 @@ function grantExp(amount) {
     p.maxHp+=18; p.maxSp+=10; p.atk+=3; p.def+=2;
     p.hp=p.maxHp; p.sp=p.maxSp;
     G.battle.log.push(`★★ LEVEL UP! Now Lv.${p.level} ★★`);
-    // Unlock new skill every few levels
     if(p.level===4 && p.skills.length<8) { p.skills.push(SKILLS[7]); G.battle.log.push('New skill: Agidyne!'); }
     if(p.level===7 && p.skills.length<9) { p.skills.push(SKILLS[8]); G.battle.log.push('New skill: Bufudyne!'); }
   }
 }
 
-// World-state level up (outside battle — used by dev shortcuts & story rewards)
 function grantExpWorld(amount) {
   const p = G.player;
   p.exp += amount;
@@ -2058,7 +1959,6 @@ function initNameEntry() {
   const input  = document.getElementById('nameInput');
   const btn    = document.getElementById('nameEntryBtn');
 
-  // Enable button only when name is non-empty
   input.addEventListener('input', () => {
     const val = input.value.trim();
     btn.disabled = val.length === 0;
@@ -2067,7 +1967,6 @@ function initNameEntry() {
     if(e.key==='Enter' && input.value.trim().length>0) confirmName();
   });
 
-  // Animated particle canvas
   const pc = document.getElementById('nameEntryParticles');
   pc.width  = window.innerWidth;
   pc.height = window.innerHeight;
@@ -2110,7 +2009,6 @@ function confirmName() {
   const name = raw.length > 0 ? raw : 'Protagonist';
   G.player.name = name;
 
-  // Animate out
   const screen = document.getElementById('nameEntryScreen');
   screen.style.transition = 'opacity 0.7s ease';
   screen.style.opacity = '0';
@@ -2130,7 +2028,6 @@ function openRename() {
   const input = document.getElementById('renameInput');
   input.value = G.player.name || '';
   modal.style.display = 'flex';
-  // Place modal inside inventory panel's stacking context
   document.getElementById('inventoryPanel').appendChild(modal);
   input.focus(); input.select();
   input.onkeydown = e => { if(e.key==='Enter') saveRename(); if(e.key==='Escape') closeRename(); };
@@ -2143,7 +2040,6 @@ function saveRename() {
   G.player.name = val;
   closeRename();
   notify(`✦ Name changed: ${old} → ${val}`);
-  // Update HUD name immediately
   document.getElementById('playerName').textContent = val + ' · ';
 }
 
@@ -2158,7 +2054,7 @@ function closeRename() {
 const SAVE_KEY_PREFIX = 'persona_wos_save_';
 const AUTO_SAVE_KEY   = 'persona_wos_autosave';
 const SAVE_SLOTS      = 3;
-let   _savePanelMode  = 'save'; // 'save' or 'load'
+let   _savePanelMode  = 'save';
 let   _pendingSlot    = null;
 
 function buildSaveData() {
@@ -2200,9 +2096,7 @@ function applySaveData(data) {
   p.atk     = pd.atk;  p.def   = pd.def;
   p.level   = pd.level; p.exp  = pd.exp; p.nextExp = pd.nextExp;
   p.gold    = pd.gold;
-  p.skills  = pd.skillIndices
-                .map(i => SKILLS[i])
-                .filter(Boolean);
+  p.skills  = pd.skillIndices.map(i => SKILLS[i]).filter(Boolean);
   if(p.skills.length === 0) p.skills = SKILLS.slice(0,7);
   p.inventory   = pd.inventory  || [];
   p.socialLinks = pd.socialLinks || {};
@@ -2210,14 +2104,12 @@ function applySaveData(data) {
 
   G.time = { ...data.time };
 
-  // Restore shadow alive states
   if(data.dungeon && data.dungeon.shadowsAlive) {
     data.dungeon.shadowsAlive.forEach((alive, i) => {
       if(G.shadowEntities[i]) G.shadowEntities[i].alive = alive;
     });
   }
 
-  // Restore story state
   if(data.story) {
     STORY.seen         = data.story.seen         || {};
     STORY.bondCount    = data.story.bondCount     || 0;
@@ -2251,7 +2143,6 @@ function writeSaveSlot(slot, data) {
   }
 }
 
-// ── OPEN PANEL ──
 function openSavePanel(mode) {
   _savePanelMode = mode || 'save';
   const panel = document.getElementById('savePanel');
@@ -2259,7 +2150,6 @@ function openSavePanel(mode) {
     mode === 'load' ? 'CHOOSE A FILE TO LOAD' : 'CHOOSE A SLOT TO SAVE';
   renderSaveSlots();
   panel.style.display = 'block';
-  // Close inventory if open
   if(G.state === 'inventory') {
     document.getElementById('inventoryPanel').style.display = 'none';
   }
@@ -2272,7 +2162,6 @@ function closeSavePanel() {
   G.state = 'world';
 }
 
-// ── RENDER SLOTS ──
 function renderSaveSlots() {
   const container = document.getElementById('saveSlots');
   container.innerHTML = '';
@@ -2320,11 +2209,9 @@ function renderSaveSlots() {
   }
 }
 
-// ── SAVE ──
 function trySaveSlot(slot) {
   const existing = getSaveSlotData(slot);
   if(existing) {
-    // Ask for confirmation before overwriting
     _pendingSlot = slot;
     const pd = existing.player;
     document.getElementById('saveConfirmText').innerHTML =
@@ -2348,18 +2235,15 @@ function executeSave(slot) {
   }
 }
 
-// ── LOAD ──
 function loadSlot(slot) {
   const data = getSaveSlotData(slot);
   if(!data) { notify('❌ No save data in this slot.'); return; }
   applySaveData(data);
   closeSavePanel();
-  // Update all HUD immediately
   document.getElementById('playerName').textContent = (G.player.name||'Protagonist') + ' · ';
   notify(`✦ Loaded Slot ${slot} — Welcome back, ${G.player.name}!`);
 }
 
-// ── DELETE ──
 function deleteSlot(slot) {
   if(!getSaveSlotData(slot)) return;
   if(!confirm(`Delete Slot ${slot}? This cannot be undone.`)) return;
@@ -2368,7 +2252,6 @@ function deleteSlot(slot) {
   notify(`🗑 Slot ${slot} deleted.`);
 }
 
-// ── AUTO-SAVE ──
 function autoSave() {
   try {
     const data = buildSaveData();
@@ -2386,21 +2269,17 @@ function flashAutoSave(msg) {
   G._autoSaveFlashTimer = setTimeout(() => { el.style.opacity = '0'; }, 2200);
 }
 
-// ── CONFIRM OVERLAY ──
 function closeSaveConfirm() {
   document.getElementById('saveConfirm').style.display = 'none';
   _pendingSlot = null;
 }
 
-// ── LOAD SCREEN: check for autosave on name entry ──
 function checkAutoSaveOnStart() {
   const raw = localStorage.getItem(AUTO_SAVE_KEY);
   if(!raw) return;
   try {
     const data = JSON.parse(raw);
     const pd   = data.player;
-    // Offer to resume
-    const btn  = document.getElementById('nameEntryBtn');
     const box  = document.getElementById('nameEntryBox');
 
     const resumeDiv = document.createElement('div');
@@ -2445,7 +2324,6 @@ function resumeAutoSave() {
   }
 }
 
-// ── KEYBOARD SHORTCUT: F5 = quick save slot 1, F9 = quick load slot 1 ──
 document.addEventListener('keydown', e => {
   if(e.key === 'F5') { e.preventDefault(); if(G.state==='world') executeSave(1); }
   if(e.key === 'F9') { e.preventDefault(); if(G.state==='world') { const d=getSaveSlotData(1); if(d) loadSlot(1); else notify('No quick save found in Slot 1.'); } }
@@ -2453,231 +2331,129 @@ document.addEventListener('keydown', e => {
     if(G.state==='save_menu') closeSavePanel();
     if(G.state==='cutscene') skipCutscene();
   }
-  // ── DEV SHORTCUTS (testing) ──
-  if(e.shiftKey && e.key === 'T') { // Shift+T: skip to midnight
-    G.time.hours = 0; G.time.minutes = 0;
-    notify('🛠 DEV: Time → 00:00 (Dark Hour)');
-  }
-  if(e.shiftKey && e.key === 'D') { // Shift+D: advance 1 day
-    G.time.day++; if(G.time.day>30){G.time.day=1;G.time.month=(G.time.month+1)%12;}
-    notify(`🛠 DEV: Day advanced → Day ${G.time.day}`);
-  }
-  if(e.shiftKey && e.key === 'L') { // Shift+L: gain 200 EXP
-    grantExpWorld(200);
-    notify('🛠 DEV: +200 EXP');
-  }
-  if(e.shiftKey && e.key === 'B') { // Shift+B: deepen bond (test)
-    STORY.bondCount++;
-    notify(`🛠 DEV: Bond count → ${STORY.bondCount}`);
-  }
+  if(e.shiftKey && e.key === 'T') { G.time.hours = 0; G.time.minutes = 0; notify('🛠 DEV: Time → 00:00 (Dark Hour)'); }
+  if(e.shiftKey && e.key === 'D') { G.time.day++; if(G.time.day>30){G.time.day=1;G.time.month=(G.time.month+1)%12;} notify(`🛠 DEV: Day advanced → Day ${G.time.day}`); }
+  if(e.shiftKey && e.key === 'L') { grantExpWorld(200); notify('🛠 DEV: +200 EXP'); }
+  if(e.shiftKey && e.key === 'B') { STORY.bondCount++; notify(`🛠 DEV: Bond count → ${STORY.bondCount}`); }
 });
 
 // ═══════════════════════════════════════════
-//  STORY SYSTEM — CHAPTER I: THE DARK HOUR
+//  STORY SYSTEM
 // ═══════════════════════════════════════════
 
-/*
-  STORY OVERVIEW — CHAPTER I: "The Dark Hour"
-  ─────────────────────────────────────────────
-  Arc: A mysterious phenomenon called "The Dark Hour" begins
-       occurring at midnight — a time when normal people freeze
-       and Shadows roam freely. The protagonist discovers they
-       are one of the few who can move during this time.
-
-  TRIGGERS (all must be met to unlock Chapter 1 Finale):
-    1. [CALENDAR]   Day ≥ 7  (one week has passed)
-    2. [LEVEL]      Player level ≥ 3  (gained experience)
-    3. [BOSS]       Nyx Core boss defeated  (flag: boss_nyx_defeated)
-    4. [SOCIAL]     Any Social Link bond deepened 2+ times  (flag: social_bonds ≥ 2)
-
-  SCENES:
-    Scene 0  — Prologue: first midnight (auto-trigger on Day 1, 00:00)
-    Scene 1  — Discovery: Igor summons player to Velvet Room (Day 3+)
-    Scene 2  — The Warning: Ms. Toriumi reveals the truth (Day 5+, Lv2+)
-    Scene 3  — The Dark Hour begins (Day 7, midnight, all above met)
-    Scene 4  — Chapter 1 FINALE: Confront Nyx Core (all 4 triggers met)
-    Scene 5  — Chapter 1 Epilogue: aftermath (after boss defeated)
-*/
-
 const STORY = {
-  // Track which scenes have fired
   seen: {},
-  bondCount: 0,       // times player deepened any bond
+  bondCount: 0,
   bossDefeated: false,
 
-  // ── SCENE DEFINITIONS ──
   scenes: {
-
-    // ─ SCENE 0: PROLOGUE ─
     prologue: {
       title: 'THE DARK HOUR',
       chapter: '✦ PROLOGUE ✦',
       bg: 'radial-gradient(ellipse at 50% 50%, #0d0020 0%, #000 70%)',
       lines: [
-        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
-          text:'...Can you hear it? The world holds its breath at midnight.' },
-        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
-          text:'Every night, for exactly one hour... time stops. People freeze like statues. Shadows feast.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(What... is this? I can move. Everyone around me is completely still...)' },
-        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
-          text:'You are special. You are one of the few who awakens during the Dark Hour.' },
-        { speaker:'???',          emoji:'🌑', color:'#9c27b0',
-          text:'This power will either save you... or consume you. The choice is yours.' },
-        { speaker:'SYSTEM',       emoji:'⚠',  color:'#ff2d6b',
-          text:'[ THE DARK HOUR — 00:00 to 01:00 every night. During this time, Shadows grow stronger. Survive until dawn. ]' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0', text:'...Can you hear it? The world holds its breath at midnight.' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0', text:'Every night, for exactly one hour... time stops. People freeze like statues. Shadows feast.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(What... is this? I can move. Everyone around me is completely still...)' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0', text:'You are special. You are one of the few who awakens during the Dark Hour.' },
+        { speaker:'???',          emoji:'🌑', color:'#9c27b0', text:'This power will either save you... or consume you. The choice is yours.' },
+        { speaker:'SYSTEM',       emoji:'⚠',  color:'#ff2d6b', text:'[ THE DARK HOUR — 00:00 to 01:00 every night. During this time, Shadows grow stronger. Survive until dawn. ]' },
       ]
     },
-
-    // ─ SCENE 1: VELVET SUMMONS ─
     velvet_summons: {
       title: 'BETWEEN MIND AND MATTER',
       chapter: '✦ CHAPTER I — ACT I ✦',
       bg: 'radial-gradient(ellipse at 50% 60%, #1a0040 0%, #000010 70%)',
       trigger: { day: 3, level: 1 },
       lines: [
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'Welcome... to the Velvet Room. I have been waiting for you.' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'This place exists between dream and reality, mind and matter. Only those bound by a special contract may enter.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(A contract? I don\'t remember signing anything... but somehow, this place feels familiar.)' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'The Dark Hour is spreading. What was once a single midnight event now threatens to consume entire days.' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'The source is a being called Nyx — an ancient Shadow that feeds on human despair.' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'Your Persona... is your only weapon against it. But Personas grow stronger through bonds — through the connections you forge with others.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(So the people I\'ve been spending time with... they\'re part of this too.)' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'Deepen those bonds. Grow stronger. And when the time comes — face Nyx in the Dark Hour.' },
-        { speaker:'SYSTEM',       emoji:'📋', color:'#ffd740',
-          text:'[ OBJECTIVE UPDATED: Deepen Social Links and grow stronger before facing Nyx Core at Dark Summit. ]' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'Welcome... to the Velvet Room. I have been waiting for you.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'This place exists between dream and reality, mind and matter. Only those bound by a special contract may enter.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(A contract? I don\'t remember signing anything... but somehow, this place feels familiar.)' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'The Dark Hour is spreading. What was once a single midnight event now threatens to consume entire days.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'The source is a being called Nyx — an ancient Shadow that feeds on human despair.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'Your Persona... is your only weapon against it. But Personas grow stronger through bonds — through the connections you forge with others.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(So the people I\'ve been spending time with... they\'re part of this too.)' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'Deepen those bonds. Grow stronger. And when the time comes — face Nyx in the Dark Hour.' },
+        { speaker:'SYSTEM',       emoji:'📋', color:'#ffd740', text:'[ OBJECTIVE UPDATED: Deepen Social Links and grow stronger before facing Nyx Core at Dark Summit. ]' },
       ]
     },
-
-    // ─ SCENE 2: TEACHER'S WARNING ─
     teacher_warning: {
       title: 'WHAT THE TEACHERS KNOW',
       chapter: '✦ CHAPTER I — ACT II ✦',
       bg: 'radial-gradient(ellipse at 30% 40%, #001a30 0%, #000 70%)',
       trigger: { day: 5, level: 2 },
       lines: [
-        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
-          text:'I need to speak with you. Not as your teacher — as someone who knows the truth.' },
-        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
-          text:'Ten years ago, a group of researchers tried to summon something from beyond. They called it the "Death Arcana experiment."' },
-        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
-          text:'They succeeded. And in doing so, they cracked open a door that was never meant to be opened.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(The Dark Hour... it started because of a human mistake?)' },
-        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
-          text:'Every night, Nyx\'s influence seeps through that crack. At first it was just shadows. Now...' },
-        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
-          text:'People are disappearing. Not dying — disappearing. Their minds devoured from within.' },
-        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa',
-          text:'I don\'t know why you can resist it. But you can. That makes you the only one who can stop this.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(No pressure... right.)' },
-        { speaker:'SYSTEM',       emoji:'⚠',  color:'#ff2d6b',
-          text:'[ WARNING: The Dark Hour intensifies after Day 10. Find and defeat Nyx Core before then. ]' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa', text:'I need to speak with you. Not as your teacher — as someone who knows the truth.' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa', text:'Ten years ago, a group of researchers tried to summon something from beyond. They called it the "Death Arcana experiment."' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa', text:'They succeeded. And in doing so, they cracked open a door that was never meant to be opened.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(The Dark Hour... it started because of a human mistake?)' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa', text:'Every night, Nyx\'s influence seeps through that crack. At first it was just shadows. Now...' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa', text:'People are disappearing. Not dying — disappearing. Their minds devoured from within.' },
+        { speaker:'Ms. Toriumi',  emoji:'👩‍🏫', color:'#81d4fa', text:'I don\'t know why you can resist it. But you can. That makes you the only one who can stop this.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(No pressure... right.)' },
+        { speaker:'SYSTEM',       emoji:'⚠',  color:'#ff2d6b', text:'[ WARNING: The Dark Hour intensifies after Day 10. Find and defeat Nyx Core before then. ]' },
       ]
     },
-
-    // ─ SCENE 3: DARK HOUR BEGINS ─
     dark_hour_begins: {
       title: 'MIDNIGHT FALLS',
       chapter: '✦ CHAPTER I — ACT III ✦',
       bg: 'radial-gradient(ellipse at 50% 20%, #1a0000 0%, #000 60%)',
       trigger: { day: 7, hour: 0, level: 2 },
       lines: [
-        { speaker:'SYSTEM',       emoji:'🌑', color:'#9c27b0',
-          text:'[ 00:00 — THE DARK HOUR BEGINS ]' },
-        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
-          text:'The world goes silent. The sky turns a deep, sickly green. Every clock stops at midnight.' },
-        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
-          text:'Coffins rise from the earth where people once stood. The air tastes of iron and grief.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(It\'s happening again. The Dark Hour. But tonight... it feels different. Heavier.)' },
-        { speaker:'???',          emoji:'💀', color:'#ef5350',
-          text:'Ahahaha... you can feel it, can\'t you? I\'m closer than ever.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(That voice — it\'s coming from Dark Summit. From the one they call Nyx.)' },
-        { speaker:'???',          emoji:'💀', color:'#ef5350',
-          text:'Come to me. Come and let me show you the beautiful emptiness at the end of all things.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(Not a chance. I\'ve seen what you do to people. It ends tonight.)' },
-        { speaker:'SYSTEM',       emoji:'📋', color:'#ffd740',
-          text:'[ ALL CONDITIONS MET — Travel to Dark Summit and defeat Nyx Core to complete Chapter I. ]' },
+        { speaker:'SYSTEM',       emoji:'🌑', color:'#9c27b0', text:'[ 00:00 — THE DARK HOUR BEGINS ]' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5', text:'The world goes silent. The sky turns a deep, sickly green. Every clock stops at midnight.' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5', text:'Coffins rise from the earth where people once stood. The air tastes of iron and grief.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(It\'s happening again. The Dark Hour. But tonight... it feels different. Heavier.)' },
+        { speaker:'???',          emoji:'💀', color:'#ef5350', text:'Ahahaha... you can feel it, can\'t you? I\'m closer than ever.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(That voice — it\'s coming from Dark Summit. From the one they call Nyx.)' },
+        { speaker:'???',          emoji:'💀', color:'#ef5350', text:'Come to me. Come and let me show you the beautiful emptiness at the end of all things.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(Not a chance. I\'ve seen what you do to people. It ends tonight.)' },
+        { speaker:'SYSTEM',       emoji:'📋', color:'#ffd740', text:'[ ALL CONDITIONS MET — Travel to Dark Summit and defeat Nyx Core to complete Chapter I. ]' },
       ]
     },
-
-    // ─ SCENE 4: PRE-BOSS ─
     pre_boss: {
       title: 'THE FINAL SHADOW',
       chapter: '✦ CHAPTER I — FINALE ✦',
       bg: 'radial-gradient(ellipse at 50% 50%, #300000 0%, #000 60%)',
       trigger: { flag:'all_triggers_met' },
       lines: [
-        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
-          text:'Dark Summit. The air is thick with shadow-energy. Every step feels like wading through despair.' },
-        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
-          text:'You actually came. Interesting. Most humans who enter this place have already given up.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'I\'m not like most humans.' },
-        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
-          text:'No... you carry something unusual. Bonds. Warmth. How utterly... repulsive.' },
-        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
-          text:'Do you know what I am? I am the answer to the question humans whisper in their darkest moments — "What if it all just... ended?"' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'You\'re not an answer. You\'re a disease. And I have the cure.' },
-        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350',
-          text:'Then come, little Persona-user. Let me show you true darkness.' },
-        { speaker:'SYSTEM',       emoji:'⚔',  color:'#ff2d6b',
-          text:'[ BOSS BATTLE: NYX CORE — She is weak to LIGHT. Use Kouha. This is everything. ]' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5', text:'Dark Summit. The air is thick with shadow-energy. Every step feels like wading through despair.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350', text:'You actually came. Interesting. Most humans who enter this place have already given up.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'I\'m not like most humans.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350', text:'No... you carry something unusual. Bonds. Warmth. How utterly... repulsive.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350', text:'Do you know what I am? I am the answer to the question humans whisper in their darkest moments — "What if it all just... ended?"' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'You\'re not an answer. You\'re a disease. And I have the cure.' },
+        { speaker:'Nyx Core',     emoji:'💀', color:'#ef5350', text:'Then come, little Persona-user. Let me show you true darkness.' },
+        { speaker:'SYSTEM',       emoji:'⚔',  color:'#ff2d6b', text:'[ BOSS BATTLE: NYX CORE — She is weak to LIGHT. Use Kouha. This is everything. ]' },
       ]
     },
-
-    // ─ SCENE 5: EPILOGUE ─
     epilogue: {
       title: 'WHAT REMAINS',
       chapter: '✦ CHAPTER I — EPILOGUE ✦',
       bg: 'radial-gradient(ellipse at 50% 80%, #001a10 0%, #000 70%)',
       trigger: { flag:'boss_nyx_defeated' },
       lines: [
-        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
-          text:'The Dark Hour fractures. Not ends — fractures. Like cracked glass holding back a flood.' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'Well done. You have severed Nyx\'s anchor to this world. For now.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'For now? It\'s not over?' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'Nyx is not destroyed. She is... retreated. The door the researchers opened cannot be fully closed.' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'But you have bought this world time. And you have grown. Your bonds have deepened.' },
-        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8',
-          text:'When Nyx returns — and she will — you will be ready. The Wild Card does not sleep.' },
-        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff',
-          text:'(Wild Card... so that\'s what I am.)' },
-        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5',
-          text:'Midnight passes. The clocks tick again. The world wakes, unaware of what almost consumed it.' },
-        { speaker:'SYSTEM',       emoji:'✦',  color:'#ffd740',
-          text:'[ CHAPTER I COMPLETE — "The Dark Hour" ✦ Your journey continues... ]' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5', text:'The Dark Hour fractures. Not ends — fractures. Like cracked glass holding back a flood.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'Well done. You have severed Nyx\'s anchor to this world. For now.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'For now? It\'s not over?' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'Nyx is not destroyed. She is... retreated. The door the researchers opened cannot be fully closed.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'But you have bought this world time. And you have grown. Your bonds have deepened.' },
+        { speaker:'Igor',         emoji:'🟣', color:'#ce93d8', text:'When Nyx returns — and she will — you will be ready. The Wild Card does not sleep.' },
+        { speaker:'Protagonist',  emoji:'😶', color:'#00e5ff', text:'(Wild Card... so that\'s what I am.)' },
+        { speaker:'NARRATOR',     emoji:'📖', color:'#b0bec5', text:'Midnight passes. The clocks tick again. The world wakes, unaware of what almost consumed it.' },
+        { speaker:'SYSTEM',       emoji:'✦',  color:'#ffd740', text:'[ CHAPTER I COMPLETE — "The Dark Hour" ✦ Your journey continues... ]' },
       ]
     },
   },
 };
 
-// ── QUEST OBJECTIVES (Chapter 1) ──
 const CHAPTER1_QUESTS = [
-  { id:'q_day7',     label:'Survive 7 days',          check: ()=> (G.time.month*30 + G.time.day) >= 7 },
-  { id:'q_lv3',      label:'Reach Level 3',            check: ()=> G.player.level >= 3 },
-  { id:'q_boss',     label:'Defeat Nyx Core',          check: ()=> STORY.bossDefeated },
-  { id:'q_bonds',    label:'Deepen 2 Social Links',    check: ()=> STORY.bondCount >= 2 },
+  { id:'q_day7',  label:'Survive 7 days',       check: ()=> (G.time.month*30 + G.time.day) >= 7 },
+  { id:'q_lv3',   label:'Reach Level 3',         check: ()=> G.player.level >= 3 },
+  { id:'q_boss',  label:'Defeat Nyx Core',       check: ()=> STORY.bossDefeated },
+  { id:'q_bonds', label:'Deepen 2 Social Links', check: ()=> STORY.bondCount >= 2 },
 ];
 
-// ── CUTSCENE ENGINE ──
 let _csLines = [], _csIdx = 0, _csCallback = null, _csTyping = null;
 
 function playCutscene(sceneKey, onComplete) {
@@ -2694,28 +2470,21 @@ function playCutscene(sceneKey, onComplete) {
   overlay.style.display = 'flex';
   G.state = 'cutscene';
 
-  // Set bg
   document.getElementById('cutsceneBg').style.background = scene.bg;
 
-  // Show chapter/title with fade
   const chEl = document.getElementById('cutsceneChapter');
   const tiEl = document.getElementById('cutsceneTitle');
   chEl.textContent = scene.chapter;
   tiEl.textContent = scene.title;
   chEl.style.opacity = '0'; tiEl.style.opacity = '0';
 
-  // Show chapter title for 2s then start dialog
-  requestAnimationFrame(()=>{
-    chEl.style.opacity = '1'; tiEl.style.opacity = '1';
-  });
+  requestAnimationFrame(()=>{ chEl.style.opacity = '1'; tiEl.style.opacity = '1'; });
 
   setTimeout(()=>{
-    tiEl.style.opacity = '0';
-    chEl.style.opacity = '0';
+    tiEl.style.opacity = '0'; chEl.style.opacity = '0';
     setTimeout(()=>{ showCutsceneLine(_csIdx); }, 600);
   }, 2200);
 
-  // Click / keypress handler
   overlay.onclick = advanceCutscene;
 }
 
@@ -2723,7 +2492,6 @@ function showCutsceneLine(idx) {
   if(idx >= _csLines.length) { endCutscene(); return; }
   const line = _csLines[idx];
 
-  // Speaker
   const speakerBox = document.getElementById('cutsceneSpeakerBox');
   const speakerEl  = document.getElementById('cutsceneSpeaker');
   const portraitEl = document.getElementById('cutscenePortrait');
@@ -2740,7 +2508,6 @@ function showCutsceneLine(idx) {
   dialogBox.style.opacity = '1';
   textEl.textContent = '';
 
-  // Typewriter effect
   clearInterval(_csTyping);
   let i = 0;
   _csTyping = setInterval(()=>{
@@ -2752,7 +2519,6 @@ function showCutsceneLine(idx) {
 }
 
 function advanceCutscene() {
-  // If still typing, complete it instantly
   if(_csTyping) {
     clearInterval(_csTyping);
     _csTyping = null;
@@ -2783,7 +2549,6 @@ function skipCutscene() {
   endCutscene();
 }
 
-// ── CHAPTER BANNER ──
 function showChapterBanner(chapter, title, sub, duration) {
   const banner = document.getElementById('storyBanner');
   document.getElementById('storyBannerChapter').textContent = chapter;
@@ -2798,12 +2563,10 @@ function showChapterBanner(chapter, title, sub, duration) {
   }, duration || 3500);
 }
 
-// ── QUEST TRACKER ──
 function updateQuestTracker() {
   const allDone = CHAPTER1_QUESTS.every(q => q.check());
   const tracker = document.getElementById('questTracker');
 
-  // Only show tracker after prologue seen
   if(!STORY.seen['prologue']) { tracker.style.display='none'; return; }
   if(allDone && STORY.seen['epilogue']) { tracker.style.display='none'; return; }
 
@@ -2820,7 +2583,6 @@ function updateQuestTracker() {
   }
 }
 
-// ── TRIGGER CHECKER (called every ~60 frames) ──
 function checkStoryTriggers() {
   if(G.state === 'cutscene') return;
 
@@ -2828,52 +2590,29 @@ function checkStoryTriggers() {
   const day  = G.time.month * 30 + G.time.day;
   const hour = G.time.hours;
 
-  // SCENE 0: Prologue — first midnight ever
   if(!STORY.seen['prologue'] && hour === 0 && G.time.minutes < 2) {
-    playCutscene('prologue', ()=>{
-      showChapterBanner('CHAPTER I', 'THE DARK HOUR', 'A new threat awakens at midnight...');
-    });
+    playCutscene('prologue', ()=>{ showChapterBanner('CHAPTER I', 'THE DARK HOUR', 'A new threat awakens at midnight...'); });
     return;
   }
-
-  // SCENE 1: Velvet Room summons — Day 3+, Lv1+
   if(!STORY.seen['velvet_summons'] && STORY.seen['prologue'] && day >= 3 && p.level >= 1) {
-    playCutscene('velvet_summons');
-    return;
+    playCutscene('velvet_summons'); return;
   }
-
-  // SCENE 2: Teacher warning — Day 5+, Lv2+
   if(!STORY.seen['teacher_warning'] && STORY.seen['velvet_summons'] && day >= 5 && p.level >= 2) {
-    playCutscene('teacher_warning');
-    return;
+    playCutscene('teacher_warning'); return;
   }
-
-  // SCENE 3: Dark Hour begins — Day 7, midnight, Lv2+
   if(!STORY.seen['dark_hour_begins'] && STORY.seen['teacher_warning'] && day >= 7 && hour === 0 && p.level >= 2) {
-    playCutscene('dark_hour_begins');
-    return;
+    playCutscene('dark_hour_begins'); return;
   }
-
-  // SCENE 4: Pre-boss — 3 non-boss triggers met, boss NOT yet defeated
-  //   Conditions: Day 7+, Level 3+, 2 bonds deepened — this is the "go fight now" scene
   if(!STORY.seen['pre_boss'] && STORY.seen['dark_hour_begins'] &&
      p.level >= 3 && day >= 7 && STORY.bondCount >= 2 && !STORY.bossDefeated) {
-    playCutscene('pre_boss', ()=>{
-      notify('⚔ Head to Dark Summit — defeat Nyx Core to complete Chapter I!');
-    });
+    playCutscene('pre_boss', ()=>{ notify('⚔ Head to Dark Summit — defeat Nyx Core to complete Chapter I!'); });
     return;
   }
-
-  // SCENE 5: Epilogue — boss defeated
   if(!STORY.seen['epilogue'] && STORY.bossDefeated) {
     playCutscene('epilogue', ()=>{
       notify('✦ Chapter I Complete! New abilities unlocked.');
-      // Reward: unlock Agidyne early if not already
-      if(!G.player.skills.find(s=>s.name==='Agidyne')) {
-        G.player.skills.push(SKILLS.find(s=>s.name==='Agidyne'));
-      }
-      G.player.maxSp += 20;
-      G.player.sp = G.player.maxSp;
+      if(!G.player.skills.find(s=>s.name==='Agidyne')) G.player.skills.push(SKILLS.find(s=>s.name==='Agidyne'));
+      G.player.maxSp += 20; G.player.sp = G.player.maxSp;
       showChapterBanner('CHAPTER I COMPLETE', 'WHAT REMAINS', 'The Dark Hour fades... for now.', 4500);
     });
     return;
@@ -2882,38 +2621,25 @@ function checkStoryTriggers() {
   updateQuestTracker();
 }
 
-// ── DARK HOUR ATMOSPHERE (visual effect at midnight) ──
-function getDarkHourTint() {
-  const h = G.time.hours;
-  if(h === 0 && STORY.seen['prologue']) return 'rgba(30,0,50,0.35)'; // purple tint
-  return null;
-}
-
-// ── HOOK INTO EXISTING SYSTEMS ──
-
-// Patch deepenBond to count bonds for story trigger
+// Patch deepenBond
 const _origDeepenBond = deepenBond;
 function deepenBond(npcId) {
   STORY.bondCount++;
   _origDeepenBond(npcId);
-  // Announce progress
   if(STORY.bondCount === 2) notify('✦ Story trigger met: 2 Social Links deepened!');
 }
 
-// Patch endBattle to detect Nyx Core kill
+// Patch endBattle
 const _origEndBattle = endBattle;
 function endBattle(won) {
   _origEndBattle(won);
   if(won && G.battle.enemy && G.battle.enemy.name === 'BOSS: Nyx Core') {
     STORY.bossDefeated = true;
     notify('💀 Nyx Core defeated! Story trigger met!');
-    // Trigger epilogue check on next tick
     setTimeout(checkStoryTriggers, 1500);
   }
 }
 
-// ── ALSO HANDLE CUTSCENE KEY INPUT ──
-const _origKeydownStory = document.onkeydown;
 document.addEventListener('keydown', e => {
   if(G.state === 'cutscene' && (e.key === 'e' || e.key === 'E' || e.key === 'Enter')) {
     advanceCutscene();
@@ -2921,11 +2647,266 @@ document.addEventListener('keydown', e => {
 });
 
 // ═══════════════════════════════════════════
+//  MOBILE VIRTUAL CONTROLS
+// ═══════════════════════════════════════════
+
+const MOBILE = {
+  joystick: { active:false, touchId:null, dx:0, dy:0, radius:56 },
+  isTouch: false,
+};
+
+function isMobileDevice() {
+  return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+}
+
+function initMobileControls() {
+  if (!isMobileDevice()) return;
+  MOBILE.isTouch = true;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #mobileControls {
+      position:fixed; bottom:0; left:0; right:0; height:180px;
+      pointer-events:none; z-index:50;
+      display:flex; align-items:flex-end; justify-content:space-between;
+      padding:0 24px 20px;
+    }
+    #joystickZone {
+      width:160px; height:160px; position:relative;
+      pointer-events:all; flex-shrink:0;
+    }
+    #joystickBase {
+      position:absolute; width:112px; height:112px; border-radius:50%;
+      background:rgba(0,229,255,0.08); border:2px solid rgba(0,229,255,0.3);
+      top:50%; left:50%; transform:translate(-50%,-50%);
+      box-shadow:0 0 20px rgba(0,229,255,0.15);
+    }
+    #joystickBase::before,#joystickBase::after {
+      content:''; position:absolute; background:rgba(0,229,255,0.2); border-radius:2px;
+    }
+    #joystickBase::before { width:2px; height:60%; top:20%; left:50%; transform:translateX(-50%); }
+    #joystickBase::after  { height:2px; width:60%; left:20%; top:50%; transform:translateY(-50%); }
+    #joystickKnob {
+      position:absolute; width:44px; height:44px; border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, rgba(0,229,255,0.9), rgba(0,150,200,0.7));
+      border:2px solid rgba(0,229,255,0.8);
+      top:50%; left:50%; transform:translate(-50%,-50%);
+      box-shadow:0 0 14px rgba(0,229,255,0.6), inset 0 0 8px rgba(255,255,255,0.2);
+      transition:box-shadow 0.1s;
+    }
+    #joystickKnob.active { box-shadow:0 0 22px rgba(0,229,255,0.9), inset 0 0 8px rgba(255,255,255,0.3); }
+    #actionButtons {
+      display:flex; flex-direction:column; gap:10px;
+      align-items:flex-end; pointer-events:all; flex-shrink:0;
+    }
+    .mobBtnRow { display:flex; gap:10px; align-items:center; }
+    .mobBtn {
+      width:54px; height:54px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-family:'Rajdhani',sans-serif; font-weight:700;
+      cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent;
+      transition:transform 0.08s, box-shadow 0.08s; border:2px solid;
+      text-align:center; line-height:1.2;
+    }
+    .mobBtn:active,.mobBtn.pressed { transform:scale(0.88); }
+    #mobBtnE   { background:rgba(0,229,255,0.15); border-color:rgba(0,229,255,0.7); color:#00e5ff; box-shadow:0 0 14px rgba(0,229,255,0.3); }
+    #mobBtnAtk { background:rgba(255,45,107,0.15); border-color:rgba(255,45,107,0.7); color:#ff2d6b; box-shadow:0 0 14px rgba(255,45,107,0.3); }
+    #mobBtnInv { background:rgba(255,215,64,0.12); border-color:rgba(255,215,64,0.6); color:#ffd740; box-shadow:0 0 12px rgba(255,215,64,0.25); width:46px; height:46px; font-size:10px; }
+    #mobBtnSave{ background:rgba(0,230,118,0.1); border-color:rgba(0,230,118,0.5); color:#00e676; box-shadow:0 0 10px rgba(0,230,118,0.2); width:46px; height:46px; font-size:10px; }
+    #mobileBattleControls {
+      position:fixed; bottom:0; left:0; right:0; height:200px; z-index:55;
+      display:none; align-items:flex-end; justify-content:space-between;
+      padding:0 20px 20px; pointer-events:none;
+    }
+    #battleSkillNav { display:flex; flex-direction:column; gap:8px; pointer-events:all; }
+    .battleNavBtn {
+      width:52px; height:52px; border-radius:12px;
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.2);
+      color:var(--text); font-size:20px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .battleNavBtn:active { background:rgba(255,255,255,0.15); }
+    #battleMobActions { display:flex; flex-direction:column; gap:10px; pointer-events:all; }
+    .battleMobRow { display:flex; gap:8px; }
+    .battleMobBtn {
+      padding:12px 18px; border-radius:8px;
+      font-family:'Share Tech Mono',monospace; font-size:12px;
+      cursor:pointer; -webkit-tap-highlight-color:transparent;
+      border:1px solid; transition:transform 0.08s;
+    }
+    .battleMobBtn:active { transform:scale(0.93); }
+    #mobBtnSkill { background:rgba(0,229,255,0.15); border-color:rgba(0,229,255,0.6); color:#00e5ff; }
+    #mobBtnGuard { background:rgba(255,215,64,0.12); border-color:rgba(255,215,64,0.5); color:#ffd740; }
+    #mobBtnFlee  { background:rgba(255,45,107,0.1); border-color:rgba(255,45,107,0.5); color:#ff2d6b; }
+    @media (pointer:coarse) { #bottomHud { display:none !important; } }
+    #dialogBox { pointer-events:all; }
+  `;
+  document.head.appendChild(style);
+
+  // World controls
+  const controls = document.createElement('div');
+  controls.id = 'mobileControls';
+  controls.innerHTML = `
+    <div id="joystickZone">
+      <div id="joystickBase"></div>
+      <div id="joystickKnob"></div>
+    </div>
+    <div id="actionButtons">
+      <div class="mobBtnRow">
+        <div class="mobBtn" id="mobBtnInv"  ontouchstart="mobPress('i')"    ontouchend="mobRelease('i')">INV</div>
+        <div class="mobBtn" id="mobBtnSave" ontouchstart="mobPress('save')" ontouchend="mobRelease('save')">SAVE</div>
+      </div>
+      <div class="mobBtnRow">
+        <div class="mobBtn" id="mobBtnE"   ontouchstart="mobPress('e')"   ontouchend="mobRelease('e')">ACT<br>E</div>
+        <div class="mobBtn" id="mobBtnAtk" ontouchstart="mobPress('atk')" ontouchend="mobRelease('atk')">ATK<br>⚔</div>
+      </div>
+    </div>`;
+  document.body.appendChild(controls);
+
+  // Battle controls
+  const bc = document.createElement('div');
+  bc.id = 'mobileBattleControls';
+  bc.innerHTML = `
+    <div id="battleSkillNav">
+      <div class="battleNavBtn" ontouchstart="mobBattleNav(-1)">▲</div>
+      <div class="battleNavBtn" ontouchstart="mobBattleNav(1)">▼</div>
+    </div>
+    <div id="battleMobActions">
+      <div class="battleMobRow">
+        <div class="battleMobBtn" id="mobBtnSkill" ontouchstart="battleUseSkill()">⚡ USE SKILL</div>
+      </div>
+      <div class="battleMobRow">
+        <div class="battleMobBtn" id="mobBtnGuard" ontouchstart="battleGuard()">🛡 GUARD</div>
+        <div class="battleMobBtn" id="mobBtnFlee"  ontouchstart="battleFlee()">🏃 FLEE</div>
+      </div>
+    </div>`;
+  document.body.appendChild(bc);
+
+  setupJoystick();
+
+  // Dialog/cutscene tap
+  document.getElementById('dialogBox').addEventListener('touchstart', e => {
+    if(G.state==='dialog') { e.preventDefault(); advanceDialog(); }
+  }, { passive:false });
+  document.getElementById('cutsceneOverlay').addEventListener('touchstart', e => {
+    if(G.state==='cutscene') { e.preventDefault(); advanceCutscene(); }
+  }, { passive:false });
+}
+
+function setupJoystick() {
+  const zone = document.getElementById('joystickZone');
+  const base = document.getElementById('joystickBase');
+  const knob = document.getElementById('joystickKnob');
+  const j    = MOBILE.joystick;
+
+  function updateKnob(touchX, touchY) {
+    const rect = zone.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top  + rect.height / 2;
+    let dx = touchX - centerX;
+    let dy = touchY - centerY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist > j.radius) { dx = dx/dist*j.radius; dy = dy/dist*j.radius; }
+    j.dx = dx / j.radius;
+    j.dy = dy / j.radius;
+
+    const br = base.getBoundingClientRect();
+    const zr = zone.getBoundingClientRect();
+    knob.style.left      = (br.left - zr.left + br.width/2 + dx) + 'px';
+    knob.style.top       = (br.top  - zr.top  + br.height/2 + dy) + 'px';
+    knob.style.transform = 'translate(-50%,-50%)';
+  }
+
+  function resetKnob() {
+    j.dx=0; j.dy=0; j.active=false; j.touchId=null;
+    knob.classList.remove('active');
+    knob.style.left='50%'; knob.style.top='50%';
+    knob.style.transform='translate(-50%,-50%)';
+    G.keys['w']=false; G.keys['s']=false;
+    G.keys['a']=false; G.keys['d']=false;
+  }
+
+  zone.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if(j.active) return;
+    const t = e.changedTouches[0];
+    j.active=true; j.touchId=t.identifier;
+    knob.classList.add('active');
+    updateKnob(t.clientX, t.clientY);
+  }, { passive:false });
+
+  document.addEventListener('touchmove', e => {
+    if(!j.active) return;
+    for(const t of e.changedTouches) {
+      if(t.identifier === j.touchId) {
+        e.preventDefault();
+        updateKnob(t.clientX, t.clientY);
+        const th = 0.25;
+        G.keys['w'] = j.dy < -th;
+        G.keys['s'] = j.dy >  th;
+        G.keys['a'] = j.dx < -th;
+        G.keys['d'] = j.dx >  th;
+        break;
+      }
+    }
+  }, { passive:false });
+
+  document.addEventListener('touchend', e => {
+    for(const t of e.changedTouches) {
+      if(t.identifier===j.touchId) { resetKnob(); break; }
+    }
+  });
+}
+
+function mobPress(action) {
+  if(action==='e')    handleInteract();
+  if(action==='atk')  tryAttack();
+  if(action==='i')    toggleInventory();
+  if(action==='save' && G.state==='world') executeSave(1);
+  const map = { e:'mobBtnE', atk:'mobBtnAtk', i:'mobBtnInv', save:'mobBtnSave' };
+  const el = document.getElementById(map[action]);
+  if(el) el.classList.add('pressed');
+}
+
+function mobRelease(action) {
+  const map = { e:'mobBtnE', atk:'mobBtnAtk', i:'mobBtnInv', save:'mobBtnSave' };
+  const el = document.getElementById(map[action]);
+  if(el) el.classList.remove('pressed');
+}
+
+function mobBattleNav(dir) {
+  G.battle.selectedSkill = (G.battle.selectedSkill + dir + G.player.skills.length) % G.player.skills.length;
+  renderBattle();
+}
+
+// Patch startBattle/closeBattle for mobile UI
+const _mobOrigStartBattle = startBattle;
+const _mobOrigCloseBattle = closeBattle;
+
+window.startBattle = function(se) {
+  _mobOrigStartBattle(se);
+  const mc = document.getElementById('mobileBattleControls');
+  const wc = document.getElementById('mobileControls');
+  if(mc) mc.style.display = 'flex';
+  if(wc) wc.style.display = 'none';
+};
+
+window.closeBattle = function() {
+  _mobOrigCloseBattle();
+  const mc = document.getElementById('mobileBattleControls');
+  const wc = document.getElementById('mobileControls');
+  if(mc) mc.style.display = 'none';
+  if(wc) wc.style.display = 'flex';
+};
+
+// ═══════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════
 init();
 initNameEntry();
 checkAutoSaveOnStart();
+initMobileControls();
 </script>
 </body>
 </html>
