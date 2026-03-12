@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PERSONA: WORLD OF SHADOWS</title>
+<title>1 / 2</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -552,11 +552,11 @@
   <canvas id="nameEntryParticles"></canvas>
   <div id="nameEntryBg"></div>
   <div id="nameEntryContent">
-    <div id="nameEntryLogo">PERSONA</div>
-    <div id="nameEntrySubtitle">W O R L D   O F   S H A D O W S</div>
+    <div id="nameEntryLogo">1 / 2</div>
+    <div id="nameEntrySubtitle">WHO IS REAL?</div>
     <div id="nameEntryBox">
       <div id="nameEntryLabel">✦ New Journey ✦</div>
-      <div id="nameEntryPrompt">What is your name,<br>young Persona-user?</div>
+      <div id="nameEntryPrompt">What's your name,<br>young man?</div>
       <input id="nameInput" type="text" maxlength="16" placeholder="Enter name..." autocomplete="off" spellcheck="false">
       <div id="nameEntryHint">Up to 16 characters · Press ENTER to confirm</div>
       <button id="nameEntryBtn" onclick="confirmName()" disabled>▶ BEGIN JOURNEY</button>
@@ -584,12 +584,12 @@
     <div id="weatherIcon">☀️</div>
     <div id="timeOfDayLabel">MORNING</div>
     <div id="playerBars">
-      <div id="playerName">PROTAGONIST · <span id="playerLevel">Lv.1</span></div>
+      <div id="playerName">PLAYER · <span id="playerLevel">Lv.1</span></div>
       <div class="statRow"><span class="statLabel">HP</span><div class="barOuter"><div class="barInner barHp" id="hpBar" style="width:100%"></div></div><span id="hpText" style="font-size:9px;color:var(--dim);margin-left:4px">100/100</span></div>
       <div class="statRow"><span class="statLabel">SP</span><div class="barOuter"><div class="barInner barSp" id="spBar" style="width:100%"></div></div><span id="spText" style="font-size:9px;color:var(--dim);margin-left:4px">60/60</span></div>
       <div class="statRow"><span class="statLabel">EX</span><div class="barOuter"><div class="barInner barExp" id="expBar" style="width:0%"></div></div><span id="expText" style="font-size:9px;color:var(--dim);margin-left:4px">0/100</span></div>
     </div>
-    <div id="locationTag">📍 IWATODAI CITY</div>
+    <div id="locationTag">📍 CIREVILLE CITY</div>
   </div>
 
   <div id="minimap">
@@ -719,7 +719,7 @@
         <div id="battleActions">
           <button class="battleBtn" onclick="battleUseSkill()">⚡ USE SKILL</button>
           <button class="battleBtn" onclick="battleGuard()">🛡 GUARD</button>
-          <button class="battleBtn danger" onclick="battleFlee()">🏃 FLEE</button>
+          <button class="battleBtn danger" onclick="battleFlee()">🏃 ESCAPE</button>
         </div>
       </div>
 
@@ -781,7 +781,7 @@ const SHOPS = {
   weapon: {
     name:'⚔ ARMORY',
     items:[
-      { name:'Iron Sword',    desc:'ATK +5',  price:200, effect:{ atk:5 } },
+      { name:'Iron Sword',    desc:'ATK +5',  price:200, effect:{ atk:5 } ,require:'tutorialclear'},
       { name:'Silver Blade',  desc:'ATK +12', price:500, effect:{ atk:12 } },
       { name:'Void Katana',   desc:'ATK +22', price:1200,effect:{ atk:22 } },
       { name:'Light Shield',  desc:'DEF +4',  price:180, effect:{ def:4 } },
