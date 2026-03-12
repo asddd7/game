@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PERSONA: WORLD OF SHADOWS</title>
+<title>1 / 2</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -552,25 +552,25 @@
   <canvas id="nameEntryParticles"></canvas>
   <div id="nameEntryBg"></div>
   <div id="nameEntryContent">
-    <div id="nameEntryLogo">PERSONA</div>
-    <div id="nameEntrySubtitle">W O R L D   O F   S H A D O W S</div>
+    <div id="nameEntryLogo">DEUS EX PHONE</div>
+    <div id="nameEntrySubtitle">HANDPHONE YANG NGABULIN KEINGINAN</div>
     <div id="nameEntryBox">
-      <div id="nameEntryLabel">✦ New Journey ✦</div>
-      <div id="nameEntryPrompt">What is your name,<br>young Persona-user?</div>
+      <div id="nameEntryLabel">✦✦✦✦✦</div>
+      <div id="nameEntryPrompt">Siapa namamu,<br>wahai pemuda?</div>
       <input id="nameInput" type="text" maxlength="16" placeholder="Enter name..." autocomplete="off" spellcheck="false">
-      <div id="nameEntryHint">Up to 16 characters · Press ENTER to confirm</div>
-      <button id="nameEntryBtn" onclick="confirmName()" disabled>▶ BEGIN JOURNEY</button>
+      <div id="nameEntryHint">Maksimal 16 karakter · Tekan ENTER untuk konfirmasi</div>
+      <button id="nameEntryBtn" onclick="confirmName()" disabled>▶ MULAI</button>
     </div>
   </div>
 </div>
 
 <!-- Rename Modal (inside inventory) -->
 <div id="renameModal">
-  <h3>✎ RENAME</h3>
+  <h3>✎ UBAH NAMA</h3>
   <input id="renameInput" type="text" maxlength="16" placeholder="New name..." autocomplete="off" spellcheck="false">
   <div style="display:flex;gap:10px;margin-top:4px">
-    <button class="renameBtn" id="renameSave" onclick="saveRename()">✔ SAVE</button>
-    <button class="renameBtn" id="renameCancel" onclick="closeRename()">✕ CANCEL</button>
+    <button class="renameBtn" id="renameSave" onclick="saveRename()">✔ SIMPAN</button>
+    <button class="renameBtn" id="renameCancel" onclick="closeRename()">✕ BATAL</button>
   </div>
 </div>
 
@@ -579,12 +579,12 @@
   <div id="topBar">
     <div id="clockWidget">
       <div id="clockTime">06:00</div>
-      <div id="clockDate">Apr 01 · Mon</div>
+      <div id="clockDate">Apr 01 · Sen</div>
     </div>
     <div id="weatherIcon">☀️</div>
-    <div id="timeOfDayLabel">MORNING</div>
+    <div id="timeOfDayLabel">PAGI</div>
     <div id="playerBars">
-      <div id="playerName">PROTAGONIST · <span id="playerLevel">Lv.1</span></div>
+      <div id="playerName">PLAYER · <span id="playerLevel">Lv.1</span></div>
       <div class="statRow"><span class="statLabel">HP</span><div class="barOuter"><div class="barInner barHp" id="hpBar" style="width:100%"></div></div><span id="hpText" style="font-size:9px;color:var(--dim);margin-left:4px">100/100</span></div>
       <div class="statRow"><span class="statLabel">SP</span><div class="barOuter"><div class="barInner barSp" id="spBar" style="width:100%"></div></div><span id="spText" style="font-size:9px;color:var(--dim);margin-left:4px">60/60</span></div>
       <div class="statRow"><span class="statLabel">EX</span><div class="barOuter"><div class="barInner barExp" id="expBar" style="width:0%"></div></div><span id="expText" style="font-size:9px;color:var(--dim);margin-left:4px">0/100</span></div>
@@ -594,7 +594,7 @@
 
   <div id="minimap">
     <canvas id="minimapCanvas" width="140" height="140"></canvas>
-    <div id="minimapLabel">WORLD MAP</div>
+    <div id="minimapLabel">PETA</div>
   </div>
 
   <div id="notification"></div>
@@ -608,13 +608,13 @@
     <div id="dialogSpeaker">???</div>
     <div id="dialogText"></div>
     <div id="dialogChoices"></div>
-    <div id="dialogContinue">▼ Press E or click to continue</div>
+    <div id="dialogContinue">▼ Tekan E atau klik untuk melanjutkan</div>
   </div>
 
   <div id="bottomHud">
-    <span class="key">WASD</span> Move &nbsp;
-    <span class="key">E</span> Interact &nbsp;
-    <span class="key">I</span> Inventory &nbsp;
+    <span class="key">WASD</span> Gerak &nbsp;
+    <span class="key">E</span> Interaksi &nbsp;
+    <span class="key">I</span> Tas &nbsp;
     <span class="key">F5</span> Quick Save &nbsp;
     <span class="key">F9</span> Quick Load &nbsp;
     <span class="key">SPACE</span> Attack nearby shadow
@@ -623,16 +623,16 @@
 
 <!-- Shop Panel -->
 <div id="shopPanel">
-  <h2 id="shopTitle">⚔ ITEM SHOP</h2>
-  <div id="shopGold">💰 Gold: <span id="shopGoldVal">500</span></div>
+  <h2 id="shopTitle">⚔ TOKO</h2>
+  <div id="shopGold">💰 Uang: <span id="shopGoldVal">500</span></div>
   <div id="shopItems"></div>
-  <div class="shopClose" onclick="closeShop()">✕ LEAVE SHOP</div>
+  <div class="shopClose" onclick="closeShop()">✕ KELUAR</div>
 </div>
 
 <!-- Inventory -->
 <div id="inventoryPanel">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <h2 style="margin:0">🎒 INVENTORY</h2>
+    <h2 style="margin:0">🎒 TAS</h2>
     <div style="display:flex;gap:8px">
       <button onclick="openSavePanel('save')" style="background:rgba(255,215,64,0.12);border:1px solid var(--gold);color:var(--gold);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">💾 SAVE</button>
       <button onclick="openRename()" style="background:rgba(255,45,107,0.12);border:1px solid var(--accent2);color:var(--accent2);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">✎ RENAME</button>
@@ -857,8 +857,8 @@ const G = {
   },
   shadowEntities: [],
   time: { hours:6, minutes:0, day:1, month:0 },
-  MONTHS: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
-  DAYS:   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+  MONTHS: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'],
+  DAYS:   ['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
   timeSpeed: 0.3,
   keys: {},
   state: 'world',
