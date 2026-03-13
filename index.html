@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>1 / 2</title>
+<title>DEUS EX-PHONE</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -552,14 +552,14 @@
   <canvas id="nameEntryParticles"></canvas>
   <div id="nameEntryBg"></div>
   <div id="nameEntryContent">
-    <div id="nameEntryLogo">DEUS EX PHONE</div>
-    <div id="nameEntrySubtitle">HANDPHONE YANG NGABULIN KEINGINAN</div>
+    <div id="nameEntryLogo">DEUS EX-PHONE</div>
+    <div id="nameEntrySubtitle">HANDPHONE YANG MENGABULKAN</div>
     <div id="nameEntryBox">
-      <div id="nameEntryLabel">✦✦✦✦✦</div>
-      <div id="nameEntryPrompt">Siapa namamu,<br>wahai pemuda?</div>
+      <div id="nameEntryLabel">✦ Kisah Baru ✦</div>
+      <div id="nameEntryPrompt">Siapa namamu,<br>anak muda?</div>
       <input id="nameInput" type="text" maxlength="16" placeholder="Enter name..." autocomplete="off" spellcheck="false">
-      <div id="nameEntryHint">Maksimal 16 karakter · Tekan ENTER untuk konfirmasi</div>
-      <button id="nameEntryBtn" onclick="confirmName()" disabled>▶ MULAI</button>
+      <div id="nameEntryHint">Maksimal 16 karakter · Tekan ENTER untuk mengonfirmasi</div>
+      <button id="nameEntryBtn" onclick="confirmName()" disabled>▶ MULAI KISAH</button>
     </div>
   </div>
 </div>
@@ -589,7 +589,7 @@
       <div class="statRow"><span class="statLabel">SP</span><div class="barOuter"><div class="barInner barSp" id="spBar" style="width:100%"></div></div><span id="spText" style="font-size:9px;color:var(--dim);margin-left:4px">60/60</span></div>
       <div class="statRow"><span class="statLabel">EX</span><div class="barOuter"><div class="barInner barExp" id="expBar" style="width:0%"></div></div><span id="expText" style="font-size:9px;color:var(--dim);margin-left:4px">0/100</span></div>
     </div>
-    <div id="locationTag">📍 IWATODAI CITY</div>
+    <div id="locationTag">📍 KAMAR</div>
   </div>
 
   <div id="minimap">
@@ -612,12 +612,11 @@
   </div>
 
   <div id="bottomHud">
-    <span class="key">WASD</span> Gerak &nbsp;
+    <span class="key">WASD</span> Bergerak &nbsp;
     <span class="key">E</span> Interaksi &nbsp;
-    <span class="key">I</span> Tas &nbsp;
+    <span class="key">I</span> Penyimpanan &nbsp;
     <span class="key">F5</span> Quick Save &nbsp;
     <span class="key">F9</span> Quick Load &nbsp;
-    <span class="key">SPACE</span> Attack nearby shadow
   </div>
 </div>
 
@@ -626,38 +625,38 @@
   <h2 id="shopTitle">⚔ TOKO</h2>
   <div id="shopGold">💰 Uang: <span id="shopGoldVal">500</span></div>
   <div id="shopItems"></div>
-  <div class="shopClose" onclick="closeShop()">✕ KELUAR</div>
+  <div class="shopClose" onclick="closeShop()">✕ Keluar</div>
 </div>
 
 <!-- Inventory -->
 <div id="inventoryPanel">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <h2 style="margin:0">🎒 TAS</h2>
+    <h2 style="margin:0">🎒 Penyimpanan</h2>
     <div style="display:flex;gap:8px">
       <button onclick="openSavePanel('save')" style="background:rgba(255,215,64,0.12);border:1px solid var(--gold);color:var(--gold);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">💾 SAVE</button>
-      <button onclick="openRename()" style="background:rgba(255,45,107,0.12);border:1px solid var(--accent2);color:var(--accent2);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">✎ RENAME</button>
+      <button onclick="openRename()" style="background:rgba(255,45,107,0.12);border:1px solid var(--accent2);color:var(--accent2);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px">✎ UBAH NAMA</button>
     </div>
   </div>
-  <div id="invGold" style="font-size:11px;color:var(--gold);margin-bottom:12px;">💰 Gold: 500</div>
+  <div id="invGold" style="font-size:11px;color:var(--gold);margin-bottom:12px;">💰 Uang: 500</div>
   <div id="invItems"></div>
-  <div class="invClose" onclick="closeInventory()">✕ CLOSE</div>
+  <div class="invClose" onclick="closeInventory()">✕ TUTUP</div>
 </div>
 
 <!-- Save/Load Panel -->
 <div id="savePanel">
   <h2>💾 SAVE  /  LOAD</h2>
-  <div id="savePanelSub">SELECT A SAVE SLOT</div>
+  <div id="savePanelSub">PILIH SLOT SAVE</div>
   <div id="saveSlots"></div>
-  <div class="saveClose" onclick="closeSavePanel()">✕ CLOSE</div>
+  <div class="saveClose" onclick="closeSavePanel()">✕ TUTUP</div>
 </div>
 
 <!-- Save Overwrite Confirm -->
 <div id="saveConfirm">
-  <h4>⚠ OVERWRITE SAVE?</h4>
-  <p id="saveConfirmText">This slot already has data.<br>Overwrite it?</p>
+  <h4>⚠ TIMPA SAVE?</h4>
+  <p id="saveConfirmText">Slot ini sudah ada data.<br>Mau timpa?</p>
   <div class="confirmBtns">
-    <button class="sBtn sBtnSave" id="saveConfirmYes">✔ OVERWRITE</button>
-    <button class="sBtn sBtnDel" onclick="closeSaveConfirm()">✕ CANCEL</button>
+    <button class="sBtn sBtnSave" id="saveConfirmYes">✔ TIMPA</button>
+    <button class="sBtn sBtnDel" onclick="closeSaveConfirm()">✕ BATAL</button>
   </div>
 </div>
 
@@ -666,15 +665,15 @@
   <div id="cutsceneBg"></div>
   <div id="cutsceneVignette"></div>
   <div id="cutsceneContent">
-    <div id="cutsceneChapter">✦ CHAPTER I ✦</div>
-    <div id="cutsceneTitle">THE DARK HOUR</div>
+    <div id="cutsceneChapter">✦ PROLOG ✦</div>
+    <div id="cutsceneTitle">HP AJAIB</div>
     <div style="display:flex;gap:20px;align-items:flex-start;width:100%;margin-top:12px">
       <div id="cutscenePortrait">👤</div>
       <div style="flex:1;display:flex;flex-direction:column;gap:8px">
         <div id="cutsceneSpeakerBox"><div id="cutsceneSpeaker" style="color:var(--accent2)">???</div></div>
         <div id="cutsceneDialogBox">
           <div id="cutsceneText"></div>
-          <div id="cutsceneContinue">▼ PRESS E / CLICK TO CONTINUE</div>
+          <div id="cutsceneContinue">▼ TEKAN E / KLIK UNTUK MELANJUTKAN</div>
         </div>
       </div>
     </div>
@@ -684,14 +683,14 @@
 
 <!-- Story chapter banner -->
 <div id="storyBanner">
-  <div id="storyBannerChapter">CHAPTER I</div>
-  <div id="storyBannerTitle">THE DARK HOUR</div>
-  <div id="storyBannerSub">A new threat stirs in the shadows...</div>
+  <div id="storyBannerChapter">PROLOG</div>
+  <div id="storyBannerTitle">HP AJAIB</div>
+  <div id="storyBannerSub">Dimana ini semua dimulai...</div>
 </div>
 
 <!-- Quest tracker -->
 <div id="questTracker">
-  <div id="questTrackerTitle">◆ CHAPTER I</div>
+  <div id="questTrackerTitle">◆ PROLOG</div>
   <div id="questTrackerItems"></div>
 </div>
 
@@ -700,13 +699,13 @@
   <div id="battleBg"></div>
   <div id="battleContent">
     <div id="battleHeader">
-      <div id="battleTitle">⚔ SHADOW ENCOUNTER</div>
+      <div id="battleTitle">⚔ MUSUH TERDETEKSI</div>
     </div>
     <div id="battleArena">
       <div id="enemySection">
         <canvas id="enemySprite" width="180" height="180"></canvas>
         <div id="enemyInfo">
-          <div id="enemyName">Shadow</div>
+          <div id="enemyName">Monster</div>
           <div id="enemyWeak">WEAK: —</div>
           <div class="battleBar"><div class="battleBarFill" id="enemyHpFill" style="width:100%;background:linear-gradient(90deg,#b71c1c,#ef5350)"></div></div>
           <div id="enemyHpText" style="font-size:10px;color:var(--dim)">HP: 100/100</div>
@@ -717,16 +716,16 @@
         <div id="battleLog"></div>
         <div id="skillList"></div>
         <div id="battleActions">
-          <button class="battleBtn" onclick="battleUseSkill()">⚡ USE SKILL</button>
-          <button class="battleBtn" onclick="battleGuard()">🛡 GUARD</button>
-          <button class="battleBtn danger" onclick="battleFlee()">🏃 FLEE</button>
+          <button class="battleBtn" onclick="battleUseSkill()">⚡ PAKAI SKILL</button>
+          <button class="battleBtn" onclick="battleGuard()">🛡 BERTAHAN</button>
+          <button class="battleBtn danger" onclick="battleFlee()">🏃 KABUR</button>
         </div>
       </div>
 
       <div id="playerSection">
-        <div id="battlePlayerName">PROTAGONIST</div>
+        <div id="battlePlayerName">PLAYER</div>
         <div id="battlePlayerStats"></div>
-        <div style="font-size:10px;color:var(--dim);margin-bottom:6px;">SELECT SKILL:</div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:6px;">PILIH SKILL:</div>
         <div id="battleSkillList"></div>
       </div>
     </div>
@@ -734,6 +733,8 @@
 </div>
 
 <script>
+const GAME_VERSION = "beta";
+const MAX_CHAPTER = 1;
 // ═══════════════════════════════════════════
 //  WORLD DATA
 // ═══════════════════════════════════════════
@@ -857,8 +858,8 @@ const G = {
   },
   shadowEntities: [],
   time: { hours:6, minutes:0, day:1, month:0 },
-  MONTHS: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'],
-  DAYS:   ['Sen','Sel','Rab','Kam','Jum','Sab','Min'],
+  MONTHS: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+  DAYS:   ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
   timeSpeed: 0.3,
   keys: {},
   state: 'world',
@@ -876,6 +877,12 @@ const G = {
   },
   frame: 0,
   particles: [],
+
+  phonestart: {
+  active: false,
+  startHour: 20,
+  endHour: 23
+},
 };
 
 // ═══════════════════════════════════════════
@@ -938,6 +945,7 @@ function spawnShadows() {
   G.shadowEntities.push({ x:400, y:1820, type:7, alive:true, vx:0, vy:0, phase:0, w:28, h:28, isBoss:true });
 }
 
+
 // ═══════════════════════════════════════════
 //  MAIN LOOP
 // ═══════════════════════════════════════════
@@ -946,20 +954,51 @@ function loop() {
   requestAnimationFrame(loop);
   G.frame++;
 
+  if (GAME_VERSION === "beta" && STORY.bossDefeated && !STORY.betaFinished) {
+    STORY.betaFinished = true;
+    showBetaEnd();
+    return;
+  }
+
   if(G.state === 'world' || G.state === 'dialog' || G.state === 'cutscene') {
     updatePlayer();
     updateShadows();
     advanceTime();
+    updatePhoneStart();
+
     if(G.frame % 600 === 0 && G.player.name) autoSave();
     if(G.frame % 60 === 0) checkStoryTriggers();
   }
 
   drawWorld();
-  drawDarkHourOverlay();
   drawMinimap();
   updateHUD();
 }
 
+function updatePhoneStart() {
+
+  const h = G.time.hours;
+
+  if (h >= G.phonestart.startHour && h < G.phonestart.endHour) {
+    G.phonestart.active = true;
+  } else {
+    G.phonestart.active = false;
+  }
+
+}
+
+function showBetaEnd(){
+
+  G.state = "cutscene";
+
+  playCutsceneLines([
+    {speaker:"SYSTEM", text:"Thank you for playing the Beta version."},
+    {speaker:"SYSTEM", text:"You have completed Chapter I."},
+    {speaker:"SYSTEM", text:"The full game will continue in Chapter II."},
+    {speaker:"SYSTEM", text:"Stay tuned for updates."}
+  ]);
+
+}
 // ═══════════════════════════════════════════
 //  TIME SYSTEM
 // ═══════════════════════════════════════════
@@ -1050,6 +1089,7 @@ function updatePlayer() {
 }
 
 function updateShadows() {
+  if (!G.phonestart.active) return;
   for(const s of G.shadowEntities) {
     if(!s.alive) continue;
     s.phase += 0.02;
@@ -1591,6 +1631,7 @@ function drawBuilding(ctx, b, cx, cy, amb) {
 }
 
 function drawShadowEntities(ctx, cx, cy, amb) {
+  if (!G.phonestart.active) return;
   for(const s of G.shadowEntities) {
     if(!s.alive) continue;
     const sx = s.x-cx, sy = s.y-cy;
@@ -1938,7 +1979,9 @@ function drawMinimap() {
 
 function updateHUD() {
   const p = G.player;
-
+  if(G.phonestart.active){
+  document.getElementById("timeOfDayLabel").textContent = "PHONESTART";
+}
   document.getElementById('hpBar').style.width  = (p.hp/p.maxHp*100)+'%';
   document.getElementById('spBar').style.width  = (p.sp/p.maxSp*100)+'%';
   document.getElementById('expBar').style.width = (p.exp/p.nextExp*100)+'%';
@@ -1965,6 +2008,7 @@ function updateHUD() {
     if(Math.sqrt(dx*dx+dy*dy)<c.size+40){ loc=c.name; break; }
   }
   document.getElementById('locationTag').textContent = '📍 '+loc;
+  document.getElementById("version").textContent = "BETA v0.1";
 }
 
 // ═══════════════════════════════════════════
@@ -2858,7 +2902,8 @@ document.addEventListener('keydown', e => {
 const STORY = {
   seen: {},
   bondCount: 0,
-  bossDefeated: false,
+  bossDefeated:false,
+  betaFinished:false,
 
   scenes: {
     prologue: {
@@ -3170,11 +3215,27 @@ const MOBILE = {
 };
 
 function isMobileDevice() {
-  return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  // User-agent detection
+  if (/android|iphone|ipad|ipod|mobile|tablet/i.test(ua)) {
+    return true;
+  }
+  // Touch support
+  if (navigator.maxTouchPoints > 1) {
+    return true;
+  }
+  // Screen size heuristic
+  if (Math.min(window.innerWidth, window.innerHeight) <= 768) {
+    return true;
+  }
+  return false;
 }
 
 function initMobileControls() {
   if (!isMobileDevice()) return;
+  if (document.getElementById('mobileControls')) return; // already initialized
   MOBILE.isTouch = true;
 
   const style = document.createElement('style');
@@ -3421,6 +3482,15 @@ init();
 initNameEntry();
 checkAutoSaveOnStart();
 initMobileControls();
+
+// Fallback: if itch.io iframe delays touch detection, show on first touch
+window.addEventListener('touchstart', function _fallbackMobile() {
+  if (!MOBILE.isTouch) {
+    MOBILE.isTouch = true;
+    initMobileControls();
+  }
+  window.removeEventListener('touchstart', _fallbackMobile);
+}, { once: true, passive: true });
 </script>
 </body>
 </html>
