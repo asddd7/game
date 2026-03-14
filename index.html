@@ -27,6 +27,20 @@ canvas{display:block;}
 @keyframes pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
 @keyframes sanityFlicker{0%,100%{opacity:1}50%{opacity:.7}80%{opacity:.9}}
 @keyframes nightGlow{0%,100%{box-shadow:0 0 15px rgba(100,60,200,.3)}50%{box-shadow:0 0 30px rgba(120,70,220,.6)}}
+@keyframes secretFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* SECRET ENDING */
+#secretEndScreen{position:fixed;inset:0;z-index:9998;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;}
+#secretEndInner{max-width:540px;padding:48px;text-align:center;animation:secretFadeIn 2.5s ease forwards;}
+#secretEndTitle{font-family:'Noto Serif JP',serif;font-size:24px;color:#2a1e10;letter-spacing:5px;margin-bottom:24px;}
+#secretEndText{font-family:'Noto Serif JP',serif;font-size:14px;color:#1e1608;line-height:2.2;font-style:italic;}
+#secretEndEpilogue{font-size:9px;color:#141008;margin-top:22px;letter-spacing:2px;line-height:1.9;}
+#secretEndBtn{margin-top:36px;background:transparent;border:1px solid rgba(80,60,30,.4);color:rgba(80,60,30,.7);padding:10px 32px;border-radius:3px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;transition:all .2s;}
+#secretEndBtn:hover{background:rgba(80,60,30,.12);}
+
+/* CH1 WAIT BANNER */
+#ch1WaitBanner{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:rgba(10,7,2,.95);border:1px solid rgba(140,100,38,.5);border-radius:4px;padding:8px 24px;font-size:10px;color:var(--dim);pointer-events:none;display:none;letter-spacing:1px;text-align:center;}
+#ch1WaitBanner span{color:var(--accent);}
 
 /* ══════════ NAME ENTRY ══════════ */
 #nameEntry{position:fixed;inset:0;z-index:200;background:#0a0806;display:flex;align-items:center;justify-content:center;flex-direction:column;}
@@ -227,7 +241,7 @@ canvas{display:block;}
 #exUltiBtn:hover{background:rgba(100,30,160,.35);}
 
 /* CUTSCENE */
-#cutscene{position:fixed;inset:0;z-index:100;background:#040201;display:none;flex-direction:column;align-items:center;justify-content:center;}
+#cutscene{position:fixed;inset:0;z-index:9999;background:#040201;display:none;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease;will-change:opacity;backface-visibility:hidden;}
 #csBg{position:absolute;inset:0;transition:background 1.5s ease;}
 #csVig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(0,0,0,.92) 100%);pointer-events:none;}
 #cutscene::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);}
@@ -243,7 +257,7 @@ canvas{display:block;}
 .csChoice:hover{background:rgba(160,110,40,.24);}
 .csChoiceRed{border-color:rgba(150,40,25,.5);color:var(--accent2);background:rgba(150,40,25,.07);}
 .csChoiceRed:hover{background:rgba(150,40,25,.2);}
-#csCont{font-size:8px;color:var(--dim);margin-top:8px;animation:blink 1.1s infinite;letter-spacing:3px;}
+#csContinueHint{font-size:8px;color:var(--dim);margin-top:8px;animation:blink 1.1s infinite;letter-spacing:3px;}
 #csPortrait{width:70px;height:70px;border-radius:50%;border:1px solid rgba(160,110,40,.45);display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(6,4,1,.9);flex-shrink:0;}
 #csSkip{position:absolute;bottom:20px;right:28px;z-index:3;font-size:8px;color:var(--dim);cursor:pointer;letter-spacing:2px;border:1px solid var(--border);padding:4px 10px;border-radius:2px;background:rgba(0,0,0,.55);transition:color .2s;}
 #csSkip:hover{color:var(--text);}
@@ -277,6 +291,30 @@ canvas{display:block;}
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
+
+<!-- SECRET ENDING SCREEN -->
+<div id="secretEndScreen">
+  <div id="secretEndInner">
+    <div id="secretEndTitle">✦ AKHIR RAHASIA ✦</div>
+    <div id="secretEndText">
+      Kamu memilih untuk tidak membukanya.<br><br>
+      Malam itu berlalu begitu saja.<br>
+      Dingin. Sunyi. Seperti malam-malam lainnya.
+    </div>
+    <div id="secretEndEpilogue">
+      Keesokan harinya, kamu mencari pekerjaan baru.<br>
+      Minggu depan, kamu diterima di kantor lain.<br>
+      Hidupmu kembali normal — membosankan, tapi aman.<br><br>
+      Entah kenapa, setiap malam hujan...<br>
+      kamu selalu teringat satu notifikasi<br>
+      yang tidak pernah kamu buka.
+    </div>
+    <button id="secretEndBtn" onclick="location.reload()">↩ MAIN LAGI</button>
+  </div>
+</div>
+
+<!-- CH1 WAIT BANNER -->
+<div id="ch1WaitBanner">⏳ Tunggu malam hari — <span id="ch1WaitTime">21:00</span> untuk PhoneStart aktif</div>
 
 <!-- ══════════ NAME ENTRY ══════════ -->
 <div id="nameEntry">
@@ -448,7 +486,7 @@ canvas{display:block;}
         <div id="csDialogBox">
           <div id="csText"></div>
           <div id="csChoices"></div>
-          <div id="csCont">▼ KLIK / TEKAN E UNTUK LANJUT</div>
+          <div id="csContinueHint">▼ KLIK / TEKAN E UNTUK LANJUT</div>
         </div>
       </div>
     </div>
@@ -641,6 +679,7 @@ const G = {
 // Story state
 const STORY = {
   seen:{}, bondCount:0, bossDefeated:false, betaFinished:false,
+  ch1Active:false,
 };
 
 const QUESTS = [
@@ -724,13 +763,21 @@ function spawnPhonestartShadows(){
 function loop(){
   requestAnimationFrame(loop);
   G.frame++;
-  if(['world','dialog','cutscene','phonestart'].includes(G.state)){
+
+  if(G.state === 'cutscene'){
+    drawWorld();
+    drawMinimap();
+    return;
+  }
+
+  if(['world','dialog','night_menu','phonestart','shop','inventory','stat','save_menu'].includes(G.state)){
     updatePlayer();
     if(G.phonestart.active) updateShadows();
     advanceTime();
-    if(G.frame%600===0 && G.player.name) autoSave();
-    if(G.frame%60===0) checkStoryTriggers();
+    if(G.frame % 600 === 0 && G.player.name) autoSave();
+    if(G.frame % 60 === 0) checkStoryTriggers();
   }
+
   drawWorld();
   drawMinimap();
   updateHUD();
@@ -751,8 +798,26 @@ function advanceTime(){
       if(G.time.day>30){G.time.day=1;G.time.month=(G.time.month+1)%12;}
     }
   }
+  // Update Chapter 1 wait banner
+  if(STORY.ch1Active && !STORY.seen['chapter1_night'] && G.state === 'world'){
+    const wb = document.getElementById('ch1WaitBanner');
+    if(wb){
+      if(G.time.hours < 21){
+        wb.style.display = 'block';
+        const h = String(G.time.hours).padStart(2,'0');
+        const m = String(Math.floor(G.time.minutes)).padStart(2,'0');
+        document.getElementById('ch1WaitTime').textContent = `${h}:${m} / 21:00`;
+      } else {
+        wb.style.display = 'none';
+      }
+    }
+  }
   // Trigger night menu at 21:00
   if(G.time.hours===21 && Math.floor(G.time.minutes)===0 && G.state==='world' && !G.phonestart.active){
+    if(STORY.ch1Active && !STORY.seen['chapter1_night']){
+      STORY.seen['chapter1_night'] = true;
+      notify('🌙 Malam tiba! Pilih tindakanmu malam ini.');
+    }
     openNightMenu();
   }
 }
@@ -922,13 +987,29 @@ function updatePlayer(){
   if(G.keys['a']||G.keys['arrowleft'])  dx=-1;
   if(G.keys['d']||G.keys['arrowright']) dx=1;
   if(dx&&dy){dx*=0.707;dy*=0.707;}
-  p.x=Math.max(20,Math.min(WORLD_W-20,p.x+dx*p.speed));
-  p.y=Math.max(20,Math.min(WORLD_H-20,p.y+dy*p.speed));
+  // Beta: lock movement outside first 2 areas
+  const BETA_AREAS = ['iwatodai','portis'];
+  const betaLockedKota = KOTA.filter(k => !BETA_AREAS.includes(k.id));
+  let nx = p.x + dx*p.speed;
+  let ny = p.y + dy*p.speed;
+  for(const k of betaLockedKota){
+    const ex = nx - k.x, ey = ny - k.y;
+    if(Math.sqrt(ex*ex + ey*ey) < k.size + 60){
+      notify('🔒 Area ini terkunci di versi Beta.');
+      nx = p.x; ny = p.y; break;
+    }
+  }
+  p.x = Math.max(20, Math.min(WORLD_W-20, nx));
+  p.y = Math.max(20, Math.min(WORLD_H-20, ny));
   const tx=p.x-G.W/2,ty=p.y-G.H/2;
   G.cam.x+=(tx-G.cam.x)*0.08;
   G.cam.y+=(ty-G.cam.y)*0.08;
   G.cam.x=Math.max(0,Math.min(WORLD_W-G.W,G.cam.x));
   G.cam.y=Math.max(0,Math.min(WORLD_H-G.H,G.cam.y));
+  if(G.player.x > 1200){
+  G.player.x = 1200;
+  notify("Area ini belum tersedia di Beta.");
+  }
   // Collision with shadows (phonestart only)
   if(G.state==='phonestart'){
     for(const s of G.shadowEntities){
@@ -1106,6 +1187,9 @@ function drawRoads(ctx,cx,cy,amb){
 function drawKota(ctx,k,cx,cy,amb){
   const sx=k.x-cx,sy=k.y-cy,r=k.size;
   if(sx<-r-50||sx>G.W+r+50||sy<-r-50||sy>G.H+r+50) return;
+  const isBetaLocked = !['iwatodai','portis'].includes(k.id);
+  const dimFactor = isBetaLocked ? 0.35 : 1;
+  ctx.globalAlpha = dimFactor;
   const pGrd=ctx.createRadialGradient(sx,sy,r*0.05,sx,sy,r*1.1);
   pGrd.addColorStop(0,`rgba(110,105,95,${0.55*amb+0.08})`);
   pGrd.addColorStop(0.65,`rgba(90,85,80,${0.25*amb+0.04})`);
@@ -1113,16 +1197,18 @@ function drawKota(ctx,k,cx,cy,amb){
   ctx.fillStyle=pGrd; ctx.beginPath(); ctx.arc(sx,sy,r*1.1,0,Math.PI*2); ctx.fill();
   ctx.strokeStyle=`rgba(160,145,110,${0.25*amb+0.08})`; ctx.lineWidth=1.5; ctx.setLineDash([10,8]);
   ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
   if(sx>-200&&sx<G.W+200&&sy>-200&&sy<G.H+200){
     ctx.font='bold 13px Georgia,serif'; ctx.textAlign='center';
     if(amb>0.5){
-      ctx.fillStyle=`rgba(255,245,220,0.7)`; ctx.fillText(k.name,sx+1,sy-r-7);
-      ctx.fillStyle=`rgba(40,32,18,0.92)`; ctx.fillText(k.name,sx,sy-r-8);
+      ctx.fillStyle=`rgba(255,245,220,${0.7*dimFactor})`; ctx.fillText(k.name,sx+1,sy-r-7);
+      ctx.fillStyle=`rgba(40,32,18,${0.92*dimFactor})`; ctx.fillText(k.name,sx,sy-r-8);
     } else {
-      ctx.fillStyle=`rgba(210,190,140,0.85)`; ctx.fillText(k.name,sx,sy-r-8);
+      ctx.fillStyle=`rgba(210,190,140,${0.85*dimFactor})`; ctx.fillText(k.name,sx,sy-r-8);
     }
-    ctx.font='9px Georgia,serif'; ctx.fillStyle=`rgba(${amb>0.5?'60,50,30':'180,165,130'},${0.6*amb+0.2})`;
-    ctx.fillText(k.desc,sx,sy-r+5);
+    ctx.font='9px Georgia,serif';
+    ctx.fillStyle=`rgba(${amb>0.5?'60,50,30':'180,165,130'},${0.6*amb*dimFactor+0.2})`;
+    ctx.fillText(isBetaLocked ? '🔒 Terkunci (Beta)' : k.desc, sx, sy-r+5);
   }
 }
 
@@ -1320,6 +1406,7 @@ function el(id){
 }
 
 function updateHUD(){
+  if(G.state === "cutscene") return; // ⬅ STOP saat cutscene
   const p = G.player;
 
   if(el('hpBar')) el('hpBar').style.width = (p.hp/p.maxHp*100)+'%';
@@ -1768,11 +1855,17 @@ function initNameEntry(){
 }
 
 function confirmName(){
-  const name=document.getElementById('nameInput').value.trim()||'Protagonis';
-  G.player.name=name;
-  const screen=document.getElementById('nameEntry');
-  screen.style.transition='opacity 0.7s ease'; screen.style.opacity='0';
-  setTimeout(()=>{screen.style.display='none';refreshMiniStats();notify(`✦ Selamat datang, ${name}. Petualanganmu dimulai.`);},700);
+  const name = document.getElementById('nameInput').value.trim() || 'Protagonis';
+  G.player.name = name;
+  const screen = document.getElementById('nameEntry');
+  screen.style.transition = 'opacity .7s ease';
+  screen.style.opacity = '0';
+  setTimeout(() => {
+    screen.style.display = 'none';
+    refreshMiniStats();
+    // Delay slightly so canvas renders one clean frame first
+    setTimeout(() => playCutscene('prolog'), 300);
+  }, 700);
 }
 
 // ══════════════════════════════════════════
@@ -1862,63 +1955,151 @@ function resumeAutoSave(){
 let _csLines=[], _csIdx=0, _csCallback=null, _csTyper=null, _csWaitChoice=false;
 
 function playCutscene(key, onComplete){
-  const scene=SCENES[key]; if(!scene){if(onComplete)onComplete();return;}
-  if(STORY.seen[key]){if(onComplete)onComplete();return;}
-  STORY.seen[key]=true;
-  _csLines=scene.lines; _csIdx=0; _csCallback=onComplete||null; _csWaitChoice=false;
-  const ov=document.getElementById('cutscene'); ov.style.display='flex';
-  G.state='cutscene';
-  document.getElementById('csBg').style.background=scene.bg||'radial-gradient(ellipse at 50% 50%,#0d0a06 0%,#020100 70%)';
-  const ch=document.getElementById('csChapter'),ti=document.getElementById('csTitle');
-  ch.textContent=scene.chapter||''; ti.textContent=scene.title||'';
-  ch.style.opacity='0'; ti.style.opacity='0';
-  requestAnimationFrame(()=>{ch.style.opacity='1';ti.style.opacity='1';});
-  setTimeout(()=>{ti.style.opacity='0';ch.style.opacity='0';setTimeout(()=>showCutsceneLine(0),600);},2200);
-  ov.onclick=()=>{if(!_csWaitChoice)advanceCutscene();};
+  const scene = SCENES[key];
+  if(!scene){ if(onComplete) onComplete(); return; }
+  if(STORY.seen[key]){ if(onComplete) onComplete(); return; }
+  STORY.seen[key] = true;
+
+  _csLines = scene.lines; _csIdx = 0;
+  _csCallback = onComplete || null; _csWaitChoice = false;
+  clearTimeout(_csTyper); _csTyper = null;
+
+  const ov = document.getElementById('cutscene');
+  ov.style.transition = 'none';
+  ov.style.opacity = '1';
+  ov.style.display = 'flex';
+  G.state = 'cutscene';
+
+  document.getElementById('csBg').style.background = scene.bg || 'radial-gradient(ellipse at 50% 50%,#0d0a06 0%,#020100 70%)';
+
+  // Reset dialog opacity so it can fade in
+  document.getElementById('csSpeakerBox').style.opacity = '0';
+  document.getElementById('csDialogBox').style.opacity = '0';
+  document.getElementById('csContinueHint').style.display = 'none';
+  document.getElementById('csChoices').innerHTML = '';
+  document.getElementById('csText').textContent = '';
+
+  const ch = document.getElementById('csChapter');
+  const ti = document.getElementById('csTitle');
+  ch.textContent = scene.chapter || '';
+  ti.textContent = scene.title || '';
+  ch.style.opacity = '0'; ti.style.opacity = '0';
+
+  // Fade in chapter/title, then start lines
+  requestAnimationFrame(() => {
+    ch.style.transition = 'opacity .8s ease';
+    ti.style.transition = 'opacity .8s ease .3s';
+    ch.style.opacity = '1'; ti.style.opacity = '1';
+  });
+  setTimeout(() => {
+    ch.style.opacity = '0'; ti.style.opacity = '0';
+    setTimeout(() => showCutsceneLine(0), 600);
+  }, 2400);
+
+  ov.onclick = () => { if(!_csWaitChoice) advanceCutscene(); };
 }
 
 function showCutsceneLine(idx){
-  if(idx>=_csLines.length){endCutscene();return;}
-  const line=_csLines[idx];
-  _csWaitChoice=!!line.choices;
-  document.getElementById('csSpeakerBox').style.borderLeftColor=line.color||'rgba(160,110,40,.6)';
-  document.getElementById('csSpeakerBox').style.opacity='1';
-  document.getElementById('csSpeaker').textContent=line.speaker;
-  document.getElementById('csSpeaker').style.color=line.color||'var(--accent)';
-  document.getElementById('csPortrait').textContent=line.emoji||'👤';
-  document.getElementById('csPortrait').style.borderColor=line.color||'rgba(160,110,40,.45)';
-  document.getElementById('csDialogBox').style.borderLeftColor=line.color||'rgba(160,110,40,.6)';
-  document.getElementById('csDialogBox').style.opacity='1';
-  document.getElementById('csText').textContent='';
-  clearInterval(_csTyper);
-  let i=0; _csTyper=setInterval(()=>{document.getElementById('csText').textContent+=line.text[i++]||'';if(i>=line.text.length){clearInterval(_csTyper);if(line.choices)showCutsceneChoices(line.choices);}},18);
-  const cc=document.getElementById('csChoices'); cc.innerHTML='';
-  document.getElementById('csCont').style.display=line.choices?'none':'block';
+  if(idx >= _csLines.length){ endCutscene(); return; }
+  const line = _csLines[idx];
+  _csWaitChoice = !!line.choices;
+
+  // Speaker info
+  const sbx = document.getElementById('csSpeakerBox');
+  sbx.style.borderLeftColor = line.color || 'rgba(160,110,40,.6)';
+  sbx.style.transition = 'opacity .2s ease';
+  sbx.style.opacity = '1';
+
+  document.getElementById('csSpeaker').textContent = line.speaker || '';
+  document.getElementById('csSpeaker').style.color = line.color || 'var(--accent)';
+  document.getElementById('csPortrait').textContent = line.emoji || '👤';
+  document.getElementById('csPortrait').style.borderColor = line.color || 'rgba(160,110,40,.45)';
+
+  const dbx = document.getElementById('csDialogBox');
+  dbx.style.borderLeftColor = line.color || 'rgba(160,110,40,.6)';
+  dbx.style.transition = 'opacity .2s ease';
+  dbx.style.opacity = '1';
+
+  // Clear old content
+  document.getElementById('csText').textContent = '';
+  document.getElementById('csChoices').innerHTML = '';
+  document.getElementById('csContinueHint').style.display = 'block';
+
+  // Stop any running typewriter
+  clearTimeout(_csTyper); _csTyper = null;
+
+  // Start typewriter
+  let i = 0;
+  function type(){
+    if(i < line.text.length){
+      document.getElementById('csText').textContent += line.text[i++];
+      _csTyper = setTimeout(type, 20);
+    } else {
+      _csTyper = null;
+      if(line.choices){
+        _csWaitChoice = true;
+        showCutsceneChoices(line.choices);
+        document.getElementById('csContinueHint').style.display = 'none';
+      }
+    }
+  }
+  type();
 }
 
 function showCutsceneChoices(choices){
-  const cc=document.getElementById('csChoices'); cc.innerHTML='';
-  choices.forEach(c=>{
-    const btn=document.createElement('div');
-    btn.className='csChoice'+(c.red?' csChoiceRed':'');
-    btn.textContent=c.text;
-    btn.onclick=()=>{cc.innerHTML='';_csWaitChoice=false;if(c.cb)c.cb();else advanceCutscene();};
+  const cc = document.getElementById('csChoices');
+  cc.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('div');
+    btn.className = 'csChoice' + (c.red ? ' csChoiceRed' : '');
+    btn.textContent = c.text;
+    btn.onclick = () => {
+      cc.innerHTML = '';
+      _csWaitChoice = false;
+      const fn = c.cb || c.action;
+      if(fn) fn();
+      else advanceCutscene();
+    };
     cc.appendChild(btn);
   });
 }
 
 function advanceCutscene(){
-  if(_csTyper){clearInterval(_csTyper);_csTyper=null;const line=_csLines[_csIdx];if(line)document.getElementById('csText').textContent=line.text;if(_csLines[_csIdx]&&_csLines[_csIdx].choices){showCutsceneChoices(_csLines[_csIdx].choices);}return;}
-  _csIdx++; showCutsceneLine(_csIdx);
+  if(_csWaitChoice) return;
+
+  if(_csTyper){
+    clearTimeout(_csTyper); _csTyper = null;
+    const line = _csLines[_csIdx];
+    if(line){
+      document.getElementById('csText').textContent = line.text;
+      if(line.choices){
+        _csWaitChoice = true;
+        showCutsceneChoices(line.choices);
+        document.getElementById('csContinueHint').style.display = 'none';
+      }
+    }
+    return;
+  }
+
+  _csIdx++;
+  showCutsceneLine(_csIdx);
 }
 
 function endCutscene(){
-  clearInterval(_csTyper);
-  const ov=document.getElementById('cutscene'); ov.style.opacity='0'; ov.style.transition='opacity .8s ease';
-  setTimeout(()=>{ov.style.display='none';ov.style.opacity='1';ov.style.transition='';G.state='world';if(_csCallback){_csCallback();_csCallback=null;}},800);
+  clearTimeout(_csTyper); _csTyper = null;
+  _csWaitChoice = false;
+  const ov = document.getElementById('cutscene');
+  ov.style.transition = 'opacity .8s ease';
+  ov.style.opacity = '0';
+  setTimeout(() => {
+    ov.style.display = 'none';
+    ov.style.opacity = '1';
+    G.state = 'world';
+    if(_csCallback){ _csCallback(); _csCallback = null; }
+  }, 800);
 }
 
-function skipCutscene(){clearInterval(_csTyper);endCutscene();}
+function skipCutscene(){ clearTimeout(_csTyper); _csTyper = null; _csWaitChoice = false; endCutscene(); }
 
 function showBanner(chapter,title,sub,dur){
   const b=document.getElementById('storyBanner');
@@ -1930,65 +2111,170 @@ function showBanner(chapter,title,sub,dur){
 }
 
 // ══════════════════════════════════════════
-//  STORY SCENES
+// STORY SCENES
 // ══════════════════════════════════════════
 const SCENES = {
-  prolog:{
-    title:'JAM MATI',chapter:'✦ PROLOG ✦',
-    bg:'radial-gradient(ellipse at 50% 50%,#0d0020 0%,#000 70%)',
-    lines:[
-      {speaker:'???',emoji:'🌑',color:'#9040c0',text:'...Apakah kamu bisa mendengarnya? Dunia menahan napasnya di tengah malam.'},
-      {speaker:'???',emoji:'🌑',color:'#9040c0',text:'Setiap malam, selama tepat satu jam... waktu berhenti. Manusia membeku bak patung. Bayangan berpesta.'},
-      {speaker:'Protagonis',emoji:'😶',color:'#4090e0',text:'(Apa ini...? Aku bisa bergerak. Semua orang di sekitarku berdiri diam seperti boneka...)'},
-      {speaker:'???',emoji:'🌑',color:'#9040c0',text:'Kamu spesial. Kamu adalah salah satu dari sedikit yang terbangun di Jam Mati.'},
-      {speaker:'???',emoji:'🌑',color:'#9040c0',text:'Kekuatan ini akan menyelamatkanmu... atau menghancurkanmu. Pilihannya ada di tanganmu.'},
-      {speaker:'SISTEM',emoji:'⚠',color:'#e02050',text:'[ JAM MATI — 21:00 hingga 23:00 setiap malam. Pada waktu ini, Bayangan bermunculan. Bertahanlah hingga fajar. ]'},
+
+  // ─── PROLOG ───
+  prolog: {
+    chapter: "✦ PROLOG ✦",
+    title: "Hari Terakhir",
+    bg: "linear-gradient(180deg, #0d0d14 0%, #060608 100%)",
+    lines: [
+      { speaker:"Atasan",        emoji:"👔", color:"#e06050",
+        text:"Maaf... perusahaan harus melakukan pengurangan karyawan. Hari ini adalah hari terakhirmu." },
+      { speaker:"Kamu",          emoji:"😶", color:"#7090d0",
+        text:"...Begitu ya." },
+      { speaker:"Narator",       emoji:"📖", color:"#9090a8",
+        text:"Hujan turun deras ketika kamu meninggalkan gedung kantor." },
+      { speaker:"Narator",       emoji:"📖", color:"#9090a8",
+        text:"Langkahmu berat menyusuri jalan pulang. Tidak ada payung. Tidak ada tujuan." },
+      { speaker:"Narator",       emoji:"📖", color:"#9090a8",
+        text:"Hanya suara hujan dan lampu kota yang redup." },
+      { speaker:"Narator",       emoji:"📖", color:"#9090a8",
+        text:"Akhirnya kamu sampai di rumah kecilmu. Tubuhmu jatuh ke kasur tanpa tenaga." },
+      { speaker:"Narator",       emoji:"📖", color:"#9090a8",
+        text:"Beberapa menit kemudian..." },
+      { speaker:"HP",            emoji:"📱", color:"#60c8f0",
+        text:"*TING!* — Notifikasi email baru." },
+      { speaker:"Kamu",          emoji:"😶", color:"#7090d0",
+        text:"Email? Dari siapa...?" },
+      { speaker:"Email Misterius", emoji:"✉️", color:"#d4a040",
+        text:"Undangan aplikasi eksperimental: PHONESTART. Aplikasi ini dapat mengabulkan keinginanmu" },
+      { speaker:"Email Misterius", emoji:"✉️", color:"#d4a040",
+        text:"Apakah kamu ingin menginstalnya?" },
+      { speaker:"Sistem",        emoji:"⚙️", color:"#c8922a",
+        text:"Pilihanmu akan menentukan jalan hidupmu.",
+        choices: [
+          { text:"✕  Tolak undangan", red: true,
+            cb: () => {
+              STORY.seen['prolog'] = true;
+              endCutscene();
+              setTimeout(showSecretEnding, 900);
+            }
+          },
+          { text:"✔  Terima undangan",
+            cb: () => {
+              STORY.seen['prolog'] = true;
+              endCutscene();
+              setTimeout(() => playCutscene('chapter1'), 400);
+            }
+          }
+        ]
+      },
     ]
   },
-  bab1_awal:{
-    title:'AWAL YANG BARU',chapter:'✦ BAB I ✦',
-    bg:'radial-gradient(ellipse at 50% 60%,#1a0040 0%,#000010 70%)',
-    lines:[
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Selamat datang... di Bilik Velvet. Aku sudah menunggumu.'},
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Tempat ini ada di antara mimpi dan kenyataan, pikiran dan materi. Hanya mereka yang terikat kontrak khusus yang bisa masuk.'},
-      {speaker:'Protagonis',emoji:'😶',color:'#4090e0',text:'(Kontrak? Aku tidak ingat menandatangani apa pun... tapi entah kenapa tempat ini terasa familiar.)'},
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Bayangan semakin kuat. Sumbernya adalah makhluk bernama Nyx — Bayangan kuno yang memakan keputusasaan manusia.'},
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Persona-mu... adalah satu-satunya senjatamu. Tapi Persona tumbuh kuat melalui ikatan — hubungan yang kamu jalin dengan orang lain.'},
-      {speaker:'SISTEM',emoji:'📋',color:'#d4a830',text:'[ TUJUAN DIPERBARUI: Perdalam Ikatan Sosial dan jadilah lebih kuat sebelum menghadapi Boss: Inti Nyx di Puncak Kelam. ]'},
+
+  // ─── CHAPTER 1 ───
+  chapter1: {
+    chapter: "✦ BAB 1 ✦",
+    title: "PhoneStart",
+    bg: "radial-gradient(ellipse at 50% 40%, #140e05 0%, #000 70%)",
+    lines: [
+      { speaker:"Sistem",   emoji:"📱", color:"#60c0f0",
+        text:"Registrasi berhasil." },
+      { speaker:"Sistem",   emoji:"📱", color:"#60c0f0",
+        text:"Silahkan tunggu selama 1 hari. PhoneStart akan aktif malam ini." },
+      { speaker:"Kamu",     emoji:"😶", color:"#7090d0",
+        text:"Hah? Tunggu sehari?" },
+      { speaker:"Narator",  emoji:"📖", color:"#9090a8",
+        text:"Kamu terlalu lelah untuk memikirkannya. Malam itu kamu langsung tertidur." },
+      { speaker:"Narator",  emoji:"📖", color:"#9090a8",
+        text:"Keesokan harinya..." },
+      { speaker:"Kamu",     emoji:"😶", color:"#7090d0",
+        text:"Aplikasi itu masih belum aktif. Katanya tunggu malam hari." },
+      { speaker:"Narator",  emoji:"📖", color:"#9090a8",
+        text:"Kamu memutuskan untuk keluar rumah dan menjelajah kota sambil menunggu." },
+      { speaker:"SISTEM",   emoji:"✦",  color:"#d4a830",
+        text:"[ Beta: Hanya 2 area map tersedia. Jelajahi Kota Iwatodai & Pulau Port. Tunggu pukul 21:00. ]",
+        cb: () => {
+          G.state = 'world';
+          G.player.x = 800; G.player.y = 700;
+          G.time.hours = 7; G.time.minutes = 0;
+          G.time.day = 2;
+          G.player.hp = G.player.maxHp;
+          G.player.sp = G.player.maxSp;
+          STORY.ch1Active = true;
+          showBanner('BAB 1','HARI BARU','Jelajahi kota — PhoneStart aktif malam ini pukul 21:00', 4500);
+          notify('✦ Bebas eksplorasi. Tunggu malam pukul 21:00 untuk PhoneStart!');
+        }
+      },
     ]
   },
-  boss_menang:{
-    title:'APA YANG TERSISA',chapter:'✦ BAB I — EPILOG ✦',
-    bg:'radial-gradient(ellipse at 50% 80%,#001a10 0%,#000 70%)',
-    lines:[
-      {speaker:'NARATOR',emoji:'📖',color:'#a0a0b0',text:'Jam Mati retak. Bukan berakhir — retak. Seperti kaca pecah yang menahan banjir.'},
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Bagus. Kamu telah memutus jangkar Nyx ke dunia ini. Untuk saat ini.'},
-      {speaker:'Protagonis',emoji:'😶',color:'#4090e0',text:'Untuk saat ini? Ini belum berakhir?'},
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Nyx tidak hancur. Ia... mundur. Pintu yang para peneliti buka tidak bisa ditutup sepenuhnya.'},
-      {speaker:'Igor',emoji:'🟣',color:'#c080e0',text:'Tapi kamu telah memberi dunia ini waktu. Dan kamu telah tumbuh. Ikatan-ikatanmu semakin dalam.'},
-      {speaker:'SISTEM',emoji:'✦',color:'#d4a830',text:'[ BAB I SELESAI — "Jam Mati" ✦ Petualanganmu berlanjut... ]'},
+
+  // ─── BAB 1 LANJUTAN (igor) ───
+  bab1_awal: {
+    chapter: "✦ BAB I ✦",
+    title: "Bilik Velvet",
+    bg: "radial-gradient(ellipse at 50% 60%, #1a0040 0%, #000010 70%)",
+    lines: [
+      { speaker:"Igor",      emoji:"🟣", color:"#c080e0",
+        text:"Selamat datang... di Bilik Velvet. Aku sudah menunggumu." },
+      { speaker:"Igor",      emoji:"🟣", color:"#c080e0",
+        text:"Tempat ini ada di antara mimpi dan kenyataan. Hanya mereka yang terikat kontrak yang bisa masuk." },
+      { speaker:"Kamu",      emoji:"😶", color:"#7090d0",
+        text:"(Kontrak? Aku tidak ingat menandatangani apa pun... tapi tempat ini terasa familiar.)" },
+      { speaker:"Igor",      emoji:"🟣", color:"#c080e0",
+        text:"Bayangan semakin kuat. Sumbernya adalah makhluk bernama Nyx — Bayangan kuno yang memakan keputusasaan." },
+      { speaker:"Igor",      emoji:"🟣", color:"#c080e0",
+        text:"Persona-mu adalah satu-satunya senjatamu. Tapi Persona tumbuh kuat melalui ikatan dengan orang lain." },
+      { speaker:"SISTEM",    emoji:"📋", color:"#d4a830",
+        text:"[ TUJUAN: Perdalam Ikatan Sosial & hadapi Boss: Inti Nyx di Puncak Kelam. ]" },
     ]
   },
+
+  // ─── BOSS MENANG ───
+  boss_menang: {
+    chapter: "✦ BAB I — EPILOG ✦",
+    title: "Apa Yang Tersisa",
+    bg: "radial-gradient(ellipse at 50% 80%, #001a10 0%, #000 70%)",
+    lines: [
+      { speaker:"Narator",  emoji:"📖", color:"#9090a8",
+        text:"Jam Mati retak. Bukan berakhir — retak. Seperti kaca pecah yang menahan banjir." },
+      { speaker:"Igor",     emoji:"🟣", color:"#c080e0",
+        text:"Bagus. Kamu telah memutus jangkar Nyx ke dunia ini. Untuk saat ini." },
+      { speaker:"Kamu",     emoji:"😶", color:"#7090d0",
+        text:"Untuk saat ini? Ini belum berakhir?" },
+      { speaker:"Igor",     emoji:"🟣", color:"#c080e0",
+        text:"Nyx tidak hancur. Ia mundur. Pintu yang dibuka para peneliti tidak bisa ditutup sepenuhnya." },
+      { speaker:"Igor",     emoji:"🟣", color:"#c080e0",
+        text:"Tapi kamu telah memberi dunia ini waktu. Dan kamu telah tumbuh. Ikatan-ikatanmu semakin dalam." },
+      { speaker:"SISTEM",   emoji:"✦",  color:"#d4a830",
+        text:"[ BAB I SELESAI — Petualanganmu berlanjut... ]" },
+    ]
+  },
+
 };
+
+function showSecretEnding(){
+  const se = document.getElementById('secretEndScreen');
+  se.style.display = 'flex';
+}
 
 // ══════════════════════════════════════════
 //  STORY TRIGGERS & QUEST TRACKER
 // ══════════════════════════════════════════
 function checkStoryTriggers(){
-  if(G.state==='cutscene') return;
-  const p=G.player, day=G.time.day, hour=G.time.hours;
-  if(!STORY.seen['prolog']&&hour===21&&G.time.minutes<2){
-    playCutscene('prolog',()=>showBanner('BAB I','JAM MATI','Ancaman baru muncul...'));return;
+  if(G.state === 'cutscene' || G.state === 'night_menu') return;
+  const p = G.player, day = G.time.day, hour = G.time.hours;
+
+  // Prolog fires at hour 21 on day 1 (but confirmName also triggers it directly)
+  if(!STORY.seen['prolog'] && hour >= 21 && day === 1){
+    playCutscene('prolog'); return;
   }
-  if(!STORY.seen['bab1_awal']&&STORY.seen['prolog']&&day>=3&&p.level>=1){
-    playCutscene('bab1_awal');return;
+  // Chapter1 extra arc cutscene — after prolog accepted, day 3+
+  if(!STORY.seen['bab1_awal'] && STORY.seen['chapter1'] && day >= 3 && p.level >= 1){
+    playCutscene('bab1_awal'); return;
   }
-  if(!STORY.seen['boss_menang']&&STORY.bossDefeated){
-    playCutscene('boss_menang',()=>{notify('✦ Bab I Selesai! Kemampuan baru terbuka.');if(!p.skills.find(s=>s.id===10))p.skills.push(SKILL_DB[10]);p.maxSp+=20;p.sp=p.maxSp;showBanner('BAB I SELESAI','APA YANG TERSISA','Jam Mati memudar... untuk sementara.',4500);});return;
-  }
-  if(GAME_VER==='beta'&&STORY.bossDefeated&&!STORY.betaFinished){
-    STORY.betaFinished=true;
-    setTimeout(()=>playCutscene('boss_menang'),1000);return;
+  // Boss win
+  if(!STORY.seen['boss_menang'] && STORY.bossDefeated){
+    playCutscene('boss_menang', () => {
+      notify('✦ Bab I Selesai! Kemampuan baru terbuka.');
+      if(!p.skills.find(s => s.id === 10)) p.skills.push(SKILL_DB[10]);
+      p.maxSp += 20; p.sp = p.maxSp;
+      showBanner('BAB I SELESAI','APA YANG TERSISA','Jam Mati memudar... untuk sementara.', 4500);
+    });
+    return;
   }
   updateQuestTracker();
 }
